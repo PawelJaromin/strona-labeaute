@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La Beauté: propozycje kolorystyki, typografii i układu strony</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&family=Marcellus&family=Nunito+Sans:wght@400;600&family=Bodoni+Moda:opsz,wght@6..96,400;6..96,600&family=Montserrat:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#111;--muted:#5f5f5f;--line:#d9d9d9;--bg:#f4f4f2;--paper:#fff}
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;font-family:'IBM Plex Sans',system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;font-size:15px}
+  img{max-width:100%;display:block}
+  .wrap{max-width:1240px;margin:0 auto;padding:32px 20px 96px}
+  h1{font-weight:700;font-size:clamp(26px,4vw,40px);letter-spacing:-.02em;margin:0 0 8px;line-height:1.15}
+  h2{font-weight:700;font-size:clamp(22px,3vw,28px);letter-spacing:-.01em;margin:72px 0 10px;padding-top:22px;border-top:3px solid #111}
+  p.intro{max-width:72ch;color:#333;margin:0 0 18px}
+  .tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:12px;background:#111;color:#fff;padding:3px 8px;margin-right:8px;vertical-align:middle}
+  .tag.rec{background:#8a6a2a}
+  .note{font-size:13px;color:#555;margin:0 0 14px}
+  .small{font-size:13px;color:#555}
+  .box{background:var(--paper);border:1px solid var(--line);padding:18px}
+  .grid{display:grid;gap:24px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,500px),1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))}
+  ul.pm{margin:10px 0 0;padding-left:18px;font-size:13.5px}
+  ul.pm li{margin:2px 0}
+  ul.pm li.plus::marker{content:"+ ";color:#2e7d32}
+  ul.pm li.minus::marker{content:"– ";color:#b23a2a}
+  dl.facts{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:0;font-size:14px}
+  dl.facts dt{color:#666}
+  dl.facts dd{margin:0}
+  table{border-collapse:collapse;width:100%;font-size:14px;background:#fff}
+  th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+  th{background:#ececea;font-weight:600}
+  .scroll{overflow-x:auto}
+  .scroll table{min-width:720px}
+  pre{background:#1b1b1b;color:#eee;padding:14px;font-size:12.5px;overflow:auto;font-family:'IBM Plex Mono',monospace;line-height:1.5;margin:10px 0}
+  code{font-family:'IBM Plex Mono',monospace;font-size:.92em;background:#ececea;padding:1px 5px}
+  pre code{background:none;padding:0}
+  a{color:#111}
+  .toc{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:14px;margin:18px 0 0;padding:0;list-style:none}
+  .toc a{text-decoration:none;border-bottom:1px solid #999}
+
+  /* ---------- Punkt wyjścia ---------- */
+  .start{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
+  .photo-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .photo-strip img{aspect-ratio:3/4;object-fit:cover;width:100%}
+  .logo-on-white{background:#fff;border:1px solid var(--line);padding:18px;display:flex;align-items:center;justify-content:center}
+  .logo-on-white img{width:min(100%,360px)}
+
+  /* ---------- Palety ---------- */
+  .pal{display:flex;flex-direction:column;gap:14px}
+  .sw-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+  .sw{height:64px;border:1px solid rgba(0,0,0,.08);position:relative}
+  .sw small{position:absolute;left:5px;right:4px;bottom:4px;font-family:'IBM Plex Mono',monospace;font-size:10px;line-height:1.2;color:#fff;text-shadow:0 0 3px rgba(0,0,0,.8);overflow-wrap:anywhere}
+  @media (max-width:560px){.sw-row{grid-template-columns:repeat(3,1fr)}.sw{height:70px}}
+  .sw.light small{color:#222;text-shadow:none}
+  .contrast{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#444;display:grid;grid-template-columns:1fr auto;gap:2px 12px;margin:0}
+  .contrast dd{margin:0;text-align:right}
+  .contrast .ok{color:#2e7d32}
+  .contrast .warn{color:#8a5a00}
+  .contrast .bad{color:#b23a2a}
+
+  /* mini strona w palecie */
+  .mini{background:var(--p-bg);color:var(--p-ink);border:1px solid var(--p-line);font-family:'Jost',sans-serif;overflow:hidden}
+  .mini-nav{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--p-line);gap:10px}
+  .mini-nav img{height:22px;width:auto}
+  .mini-nav .links{display:flex;gap:12px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--p-muted)}
+  .mini-cta{font-size:11px;letter-spacing:.08em;text-transform:uppercase;background:var(--p-cta-bg);color:var(--p-cta-ink);padding:7px 11px;white-space:nowrap}
+  .mini-body{display:grid;grid-template-columns:1.05fr .95fr;min-height:200px}
+  .mini-text{padding:22px 18px 18px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+  .mini-text .eyebrow{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--p-accent-ink);margin:0}
+  .mini-text .hd{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(24px,2.6vw,32px);line-height:1.08;margin:0;letter-spacing:-.01em}
+  .mini-text p{margin:0;font-size:13px;font-weight:300;color:var(--p-muted);max-width:34ch}
+  .mini-btn{align-self:flex-start;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--p-accent);color:var(--p-accent-ink);padding:7px 12px;margin-top:4px}
+  .mini-img{background-size:cover;background-position:center;min-height:160px}
+  .mini-row{display:grid;grid-template-columns:1fr auto auto auto;gap:14px;align-items:center;padding:12px 14px;border-top:1px solid var(--p-line);background:var(--p-bg2);font-size:13px}
+  .mini-row .dur{color:var(--p-muted);font-size:12px}
+  .mini-row .mprice{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:17px}
+  .mini-row .book{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;background:var(--p-cta-bg);color:var(--p-cta-ink);padding:6px 10px}
+  @media (max-width:560px){.mini-body{grid-template-columns:1fr}.mini-img{order:-1;min-height:140px}.mini-nav .links{display:none}.mini-row{grid-template-columns:1fr auto;row-gap:4px}.mini-row .name{grid-column:1;grid-row:1}.mini-row .dur{grid-column:1;grid-row:2}.mini-row .mprice{grid-column:2;grid-row:1;justify-self:end}.mini-row .book{grid-column:2;grid-row:2;justify-self:end}}
+
+  .pal-k1{--p-bg:#ffffff;--p-bg2:#f6f2ea;--p-ink:#161616;--p-muted:#6b655c;--p-accent:#b8923f;--p-accent-ink:#8a6a2a;--p-line:#e6dfd2;--p-cta-bg:#141414;--p-cta-ink:#f6f2ea}
+  .pal-k2{--p-bg:#141311;--p-bg2:#1e1c19;--p-ink:#f3ede2;--p-muted:#a6a096;--p-accent:#d9bf86;--p-accent-ink:#d9bf86;--p-line:#2e2b26;--p-cta-bg:#d9bf86;--p-cta-ink:#141311}
+  .pal-k3{--p-bg:#fbf6f3;--p-bg2:#f1e2da;--p-ink:#4a3328;--p-muted:#7a6a62;--p-accent:#c08c6c;--p-accent-ink:#8a5a3f;--p-line:#e8d8cf;--p-cta-bg:#4a3328;--p-cta-ink:#fbf6f3}
+  .pal-k4{--p-bg:#f7f6f1;--p-bg2:#e9ebe2;--p-ink:#1c2420;--p-muted:#5f665f;--p-accent:#b59352;--p-accent-ink:#2f3b33;--p-line:#d9dcd2;--p-cta-bg:#2f3b33;--p-cta-ink:#f7f6f1}
+
+  /* ---------- Typografia ---------- */
+  .type{background:#fff;border:1px solid var(--line);padding:22px 20px}
+  .type .h{margin:0 0 6px;line-height:1.05;letter-spacing:-.01em}
+  .type .sub{margin:0 0 14px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8a6a2a}
+  .type .body{margin:0 0 14px;font-size:15px;color:#333;max-width:52ch}
+  .type .row{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #e6dfd2;padding-top:10px;font-size:14px}
+  .type .row b{font-weight:600}
+  .t1 .h{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(34px,4.5vw,46px)}
+  .t1 .body,.t1 .row{font-family:'Jost',sans-serif;font-weight:300}
+  .t1 .row b{font-weight:500}
+  .t2 .h{font-family:'Marcellus',serif;font-weight:400;font-size:clamp(30px,4vw,40px)}
+  .t2 .body,.t2 .row{font-family:'Nunito Sans',sans-serif}
+  .t3 .h{font-family:'Bodoni Moda',serif;font-weight:400;font-size:clamp(34px,4.5vw,46px)}
+  .t3 .body,.t3 .row{font-family:'Montserrat',sans-serif}
+  .fontmeta{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#555;margin:0 0 12px}
+
+  /* ---------- Układ (wireframe) ---------- */
+  .wire{background:#fff;border:1px solid #bbb;padding:8px;display:flex;flex-direction:column;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#333}
+  .wire .b{border:1px dashed #999;padding:8px;background:#fafafa;text-align:center}
+  .wire .b.herob{padding:22px 8px;background:#efe9dd}
+  .wire .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .wire .cols .b{padding:12px 4px}
+  .wire .nav{display:flex;justify-content:space-between;padding:6px 8px;border:1px solid #999;background:#f2f2f2}
+  .sitemap{font-family:'IBM Plex Mono',monospace;font-size:11.5px;list-style:none;margin:10px 0 0;padding:0}
+  .sitemap li{border:1px solid #bbb;background:#fff;padding:6px 8px;margin:4px 0}
+  .sitemap ul{list-style:none;margin:6px 0 0 12px;padding:0 0 0 10px;border-left:2px solid #d4c7a8}
+  .sitemap ul li{background:#fafafa}
+
+  /* ---------- Hero makiety (K1 + T1) ---------- */
+  .hero{position:relative;background:#fff;border:1px solid var(--line);overflow:hidden;color:#161616;font-family:'Jost',sans-serif}
+  .hero .hnav{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid #e6dfd2;gap:12px}
+  .hero .hnav img{height:26px;width:auto}
+  .hero .hnav .links{display:flex;gap:18px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#6b655c}
+  .hero .cta{font-size:12px;letter-spacing:.1em;text-transform:uppercase;background:#141414;color:#f6f2ea;padding:10px 16px;white-space:nowrap}
+  .hero .cta.ghost{background:transparent;color:#8a6a2a;border:1px solid #b8923f}
+  .hero .hd{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(30px,4.2vw,54px);line-height:1.04;margin:0;letter-spacing:-.01em}
+  .hero .eyebrow{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:#8a6a2a;margin:0 0 10px}
+  .hero p.lead{font-weight:300;font-size:clamp(14px,1.3vw,17px);color:#4d4841;max-width:44ch;margin:12px 0 18px}
+  .hero .btns{display:flex;gap:10px;flex-wrap:wrap}
+  .hero .meta{display:flex;gap:22px;flex-wrap:wrap;font-size:12px;color:#6b655c;margin-top:22px;padding-top:14px;border-top:1px solid #e6dfd2}
+  .hero .meta b{color:#161616;font-weight:500}
+  /* H1 */
+  .h1 .stage{position:relative;min-height:440px;background:url('../dane/zdjecia/web/cover-aldona.jpg') center 30%/cover no-repeat}
+  .h1 .stage::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.96) 0,rgba(255,255,255,.88) 38%,rgba(255,255,255,.1) 70%,rgba(255,255,255,0) 100%)}
+  .h1 .copy{position:relative;z-index:1;padding:56px 40px;max-width:560px}
+  /* H2 */
+  .h2 .stage{display:grid;grid-template-columns:1.05fr .95fr;min-height:440px}
+  .h2 .copy{padding:52px 40px;display:flex;flex-direction:column;justify-content:center}
+  .h2 .pic{background:url('../dane/zdjecia/web/salon-1.jpg') center/cover no-repeat;border-left:1px solid #e6dfd2}
+  /* H3 */
+  .h3 .stage{padding:48px 40px 36px}
+  .h3 .hd{font-size:clamp(34px,5.4vw,72px);max-width:16ch}
+  .h3 .strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:30px}
+  .h3 .strip div{aspect-ratio:1/1;background-size:cover;background-position:center}
+  .h3 .strip figcaption{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6b655c;margin-top:6px}
+  .h3 .top{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end}
+  @media (max-width:760px){
+    .h1 .stage{min-height:0;background-position:center 20%;background-size:cover}
+    .h1 .stage::after{background:linear-gradient(180deg,rgba(255,255,255,.2) 0,rgba(255,255,255,.95) 45%,#fff 100%)}
+    .h1 .copy{padding:200px 20px 28px;max-width:none}
+    .h2 .stage{grid-template-columns:1fr}
+    .h2 .pic{min-height:230px;order:-1;border-left:0;border-bottom:1px solid #e6dfd2}
+    .h2 .copy{padding:26px 20px}
+    .h3 .stage{padding:26px 20px}
+    .h3 .top{grid-template-columns:1fr}
+    .h3 .strip{grid-template-columns:repeat(2,1fr)}
+    .hero .hnav .links{display:none}
+  }
+
+  /* ---------- Cennik makieta ---------- */
+  .cennik{background:#fff;border:1px solid #e6dfd2;font-family:'Jost',sans-serif;color:#161616}
+  .cennik header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:16px 18px 10px;border-bottom:1px solid #e6dfd2}
+  .cennik header .hd{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:26px;margin:0}
+  .cennik header span{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6b655c}
+  .cennik .r{display:grid;grid-template-columns:1fr auto auto auto;gap:16px;align-items:center;padding:12px 18px;border-bottom:1px solid #efe9dd;font-size:14.5px}
+  .cennik .r:last-of-type{border-bottom:0}
+  .cennik .r .d{display:block;font-size:12.5px;font-weight:300;color:#6b655c;max-width:60ch}
+  .cennik .r .dur{font-size:12.5px;color:#6b655c}
+  .cennik .r .p{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:19px;white-space:nowrap}
+  .cennik .r .bk{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;background:#141414;color:#f6f2ea;padding:7px 11px;text-decoration:none}
+  .cennik footer{padding:10px 18px;font-size:12px;color:#6b655c;background:#f6f2ea}
+  @media (max-width:560px){.cennik .r{grid-template-columns:1fr auto;row-gap:6px}.cennik .r>span:first-child{grid-column:1;grid-row:1}.cennik .r .dur{grid-column:1;grid-row:2}.cennik .r .p{grid-column:2;grid-row:1;justify-self:end}.cennik .r .bk{grid-column:2;grid-row:2;justify-self:end}}
+
+  /* ---------- Logo ---------- */
+  .logo-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}
+  .lt{border:1px solid var(--line);padding:26px;display:flex;align-items:center;justify-content:center;min-height:180px}
+  .lt img{width:min(100%,300px)}
+  .favs{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
+  .favs figure{margin:0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#555}
+  .favs img{margin:0 auto 6px;background:#fff;border:1px solid #ddd}
+
+  .box.rec{border-left:4px solid #8a6a2a}
+  .answer{background:#111;color:#fff;padding:18px 20px;font-size:15px}
+  .answer code{background:#333;color:#fff}
+  @media (max-width:560px){dl.facts{grid-template-columns:1fr}dl.facts dt{margin-top:6px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>La Beauté Aldona Targiel: propozycje przed budową strony</h1>
+<p class="intro">Wszystko poniżej opiera się na tym, co salon już ma: złote logo z lotosem, białe wnętrze ze sztukaterią, czarne fotele na złotych nogach, marmur. Strona nie powinna tego zmieniać, tylko przenieść do internetu. Dlatego paleta K1 i zestaw krojów T1 są „bezpieczne”, a pozostałe pokazują, jak daleko można odejść. Każda opcja ma kod, żeby łatwo było odpowiedzieć, np. <code>K1, T1, U3, H2, C1</code>.</p>
+<ul class="toc">
+  <li><a href="#start">0. Punkt wyjścia</a></li>
+  <li><a href="#k">K. Kolorystyka</a></li>
+  <li><a href="#t">T. Typografia</a></li>
+  <li><a href="#u">U. Układ strony</a></li>
+  <li><a href="#h">H. Sekcja otwierająca</a></li>
+  <li><a href="#c">C. Cennik i Booksy</a></li>
+  <li><a href="#l">L. Logo</a></li>
+  <li><a href="#rek">Rekomendacja</a></li>
+</ul>
+
+<!-- ===================================================== 0 -->
+<h2 id="start">0. Punkt wyjścia: co salon już ma</h2>
+<div class="start">
+  <div class="logo-on-white"><img src="../dane/zdjecia/logo-przezroczyste.png" alt="Logo La Beauté Aldona Targiel"></div>
+  <div class="photo-strip">
+    <img src="../dane/zdjecia/web/salon-1.jpg" alt="Poczekalnia salonu: białe ściany, złote logo, czarne fotele">
+    <img src="../dane/zdjecia/web/salon-4.jpg" alt="Gabinet: biała zabudowa, marmurowy blat, złote uchwyty">
+    <img src="../dane/zdjecia/web/inspiracja-3.jpg" alt="Efekt stylizacji rzęs">
+  </div>
+  <div class="box">
+    <dl class="facts">
+      <dt>Adres</dt><dd>Jagodowa 24, 43-180 Orzesze (Zawada)</dd>
+      <dt>Kontakt</dt><dd>784 736 463 · labeaute.at@gmail.com</dd>
+      <dt>Booksy</dt><dd>118 usług w 12 kategoriach, 20–3240 zł, ocena 5,0 ze 180 opinii</dd>
+      <dt>Google</dt><dd>4,7 z 29 opinii; w wizytówce brak godzin i własnej strony www (jest tylko link do Facebooka)</dd>
+      <dt>Zespół</dt><dd>Aldona (makijaż permanentny, laser, brwi), Żaneta i Wiktoria (paznokcie, pedicure)</dd>
+      <dt>Godziny</dt><dd>pn 7–18, wt i czw 8:30–20, śr 9–17, pt 7–15, sob–nd zamknięte</dd>
+      <dt>Logo</dt><dd>tylko JPEG z Booksy; potrzebny plik wektorowy</dd>
+    </dl>
+  </div>
+</div>
+<p class="note">Pełne dane, cennik w JSON i zdjęcia leżą w <code>labeaute\dane</code> (opis w <code>research.md</code>).</p>
+
+<!-- ===================================================== K -->
+<h2 id="k">K. Kolorystyka</h2>
+<p class="intro">Złoto jest akcentem, nie tłem: jasne złoto na bieli jest nieczytelne jako tekst (nawet duży), więc do napisów używam ciemniejszego „starego złota”, a jasne złoto zostaje dla linii, ramek i logo. Pod każdą paletą miniatura strony (ten sam układ i treść, zmienia się tylko kolor) oraz kontrast tekstu liczony automatycznie (AA = czytelne wg normy WCAG).</p>
+
+<div class="grid g2">
+
+  <div class="box pal rec">
+    <div><span class="tag">K1</span><span class="tag rec">rekomendacja</span><b>Marmur i złoto</b> <span class="small">· dokładnie to, co jest w salonie</span></div>
+    <div class="sw-row">
+      <div class="sw light" style="background:#ffffff"><small>#FFFFFF<br>tło</small></div>
+      <div class="sw light" style="background:#f6f2ea"><small>#F6F2EA<br>kość słoniowa</small></div>
+      <div class="sw light" style="background:#b8923f"><small>#B8923F<br>złoto (linie, logo)</small></div>
+      <div class="sw" style="background:#8a6a2a"><small>#8A6A2A<br>złoto do tekstu</small></div>
+      <div class="sw" style="background:#141414"><small>#141414<br>czerń (tekst, przyciski)</small></div>
+    </div>
+    <div class="mini pal-k1">
+      <div class="mini-nav"><img src="../dane/zdjecia/logo-napis.png" alt=""><div class="links"><span>Zabiegi</span><span>Cennik</span><span>Kontakt</span></div><span class="mini-cta">Umów wizytę</span></div>
+      <div class="mini-body">
+        <div class="mini-text"><p class="eyebrow">Orzesze · makijaż permanentny · laser · paznokcie</p><p class="hd">Piękno w każdym detalu</p><p>Makijaż permanentny, depilacja laserowa, stylizacja paznokci, brwi i rzęs.</p><span class="mini-btn">Zobacz zabiegi</span></div>
+        <div class="mini-img" style="background-image:url('../dane/zdjecia/web/salon-1.jpg')"></div>
+      </div>
+      <div class="mini-row"><span class="name">Makijaż permanentny brwi</span><span class="dur">3 h</span><span class="mprice">900 zł</span><span class="book">Umów</span></div>
+    </div>
+    <dl class="contrast" data-pairs="#161616|#ffffff|tekst na bieli;#6b655c|#ffffff|tekst drugorzędny;#8a6a2a|#ffffff|złoto do tekstu;#b8923f|#ffffff|jasne złoto (linie, nie tekst);#f6f2ea|#141414|przycisk"></dl>
+    <ul class="pm">
+      <li class="plus">zgodne z wnętrzem i logo, strona wygląda jak salon</li>
+      <li class="plus">zdjęcia zabiegów i wnętrza „grają” na bieli</li>
+      <li class="minus">najczęstszy wybór w branży; wyróżnikiem muszą być zdjęcia i typografia, nie kolor</li>
+    </ul>
+  </div>
+
+  <div class="box pal">
+    <div><span class="tag">K2</span><b>Nocna czerń i szampan</b> <span class="small">· odwrócenie K1</span></div>
+    <div class="sw-row">
+      <div class="sw" style="background:#141311"><small>#141311<br>tło</small></div>
+      <div class="sw" style="background:#1e1c19"><small>#1E1C19<br>sekcje</small></div>
+      <div class="sw light" style="background:#d9bf86"><small>#D9BF86<br>szampańskie złoto</small></div>
+      <div class="sw light" style="background:#f3ede2"><small>#F3EDE2<br>tekst</small></div>
+      <div class="sw light" style="background:#a6a096"><small>#A6A096<br>tekst drugorzędny</small></div>
+    </div>
+    <div class="mini pal-k2">
+      <div class="mini-nav"><img src="../dane/zdjecia/logo-napis.png" alt=""><div class="links"><span>Zabiegi</span><span>Cennik</span><span>Kontakt</span></div><span class="mini-cta">Umów wizytę</span></div>
+      <div class="mini-body">
+        <div class="mini-text"><p class="eyebrow">Orzesze · makijaż permanentny · laser · paznokcie</p><p class="hd">Piękno w każdym detalu</p><p>Makijaż permanentny, depilacja laserowa, stylizacja paznokci, brwi i rzęs.</p><span class="mini-btn">Zobacz zabiegi</span></div>
+        <div class="mini-img" style="background-image:url('../dane/zdjecia/web/inspiracja-3.jpg')"></div>
+      </div>
+      <div class="mini-row"><span class="name">Makijaż permanentny brwi</span><span class="dur">3 h</span><span class="mprice">900 zł</span><span class="book">Umów</span></div>
+    </div>
+    <dl class="contrast" data-pairs="#f3ede2|#141311|tekst;#a6a096|#141311|tekst drugorzędny;#d9bf86|#141311|złoto;#141311|#d9bf86|przycisk"></dl>
+    <ul class="pm">
+      <li class="plus">najbardziej „premium”, logo w złocie wygląda na czerni najlepiej</li>
+      <li class="plus">pasuje do makijażu permanentnego i lasera (studio, precyzja)</li>
+      <li class="minus">kłóci się z jasnym, „czystym” wnętrzem; zdjęcia białego salonu wyglądają obco</li>
+      <li class="minus">długie cenniki na ciemnym tle męczą wzrok</li>
+    </ul>
+  </div>
+
+  <div class="box pal">
+    <div><span class="tag">K3</span><b>Pudrowy róż i mokka</b> <span class="small">· cieplej, bardziej kobieco</span></div>
+    <div class="sw-row">
+      <div class="sw light" style="background:#fbf6f3"><small>#FBF6F3<br>tło</small></div>
+      <div class="sw light" style="background:#f1e2da"><small>#F1E2DA<br>pudrowy róż</small></div>
+      <div class="sw light" style="background:#c08c6c"><small>#C08C6C<br>różowe złoto</small></div>
+      <div class="sw light" style="background:#b8923f"><small>#B8923F<br>złoto (logo)</small></div>
+      <div class="sw" style="background:#4a3328"><small>#4A3328<br>mokka (tekst)</small></div>
+    </div>
+    <div class="mini pal-k3">
+      <div class="mini-nav"><img src="../dane/zdjecia/logo-napis.png" alt=""><div class="links"><span>Zabiegi</span><span>Cennik</span><span>Kontakt</span></div><span class="mini-cta">Umów wizytę</span></div>
+      <div class="mini-body">
+        <div class="mini-text"><p class="eyebrow">Orzesze · makijaż permanentny · laser · paznokcie</p><p class="hd">Piękno w każdym detalu</p><p>Makijaż permanentny, depilacja laserowa, stylizacja paznokci, brwi i rzęs.</p><span class="mini-btn">Zobacz zabiegi</span></div>
+        <div class="mini-img" style="background-image:url('../dane/zdjecia/web/inspiracja-1.jpg')"></div>
+      </div>
+      <div class="mini-row"><span class="name">Makijaż permanentny brwi</span><span class="dur">3 h</span><span class="mprice">900 zł</span><span class="book">Umów</span></div>
+    </div>
+    <dl class="contrast" data-pairs="#4a3328|#fbf6f3|tekst;#7a6a62|#fbf6f3|tekst drugorzędny;#8a5a3f|#fbf6f3|akcent do tekstu;#c08c6c|#fbf6f3|różowe złoto (linie, nie tekst);#fbf6f3|#4a3328|przycisk"></dl>
+    <ul class="pm">
+      <li class="plus">miękko, ciepło; dobrze z fotografiami ust i skóry</li>
+      <li class="plus">nawiązuje do starszej, miedzianej wersji logo ze zdjęć</li>
+      <li class="minus">odchodzi od czerni i złota, które są w salonie</li>
+      <li class="minus">róż szybko robi się „słodki”; wymaga dyscypliny</li>
+    </ul>
+  </div>
+
+  <div class="box pal">
+    <div><span class="tag">K4</span><b>Szałwia i mosiądz</b> <span class="small">· spokój, natura, lotos</span></div>
+    <div class="sw-row">
+      <div class="sw light" style="background:#f7f6f1"><small>#F7F6F1<br>tło</small></div>
+      <div class="sw light" style="background:#e9ebe2"><small>#E9EBE2<br>sekcje</small></div>
+      <div class="sw" style="background:#6e7d6a"><small>#6E7D6A<br>szałwia (duże nagłówki)</small></div>
+      <div class="sw light" style="background:#b59352"><small>#B59352<br>mosiądz</small></div>
+      <div class="sw" style="background:#2f3b33"><small>#2F3B33<br>butelkowa zieleń (tekst)</small></div>
+    </div>
+    <div class="mini pal-k4">
+      <div class="mini-nav"><img src="../dane/zdjecia/logo-napis.png" alt=""><div class="links"><span>Zabiegi</span><span>Cennik</span><span>Kontakt</span></div><span class="mini-cta">Umów wizytę</span></div>
+      <div class="mini-body">
+        <div class="mini-text"><p class="eyebrow">Orzesze · makijaż permanentny · laser · paznokcie</p><p class="hd">Piękno w każdym detalu</p><p>Makijaż permanentny, depilacja laserowa, stylizacja paznokci, brwi i rzęs.</p><span class="mini-btn">Zobacz zabiegi</span></div>
+        <div class="mini-img" style="background-image:url('../dane/zdjecia/web/salon-4.jpg')"></div>
+      </div>
+      <div class="mini-row"><span class="name">Makijaż permanentny brwi</span><span class="dur">3 h</span><span class="mprice">900 zł</span><span class="book">Umów</span></div>
+    </div>
+    <dl class="contrast" data-pairs="#1c2420|#f7f6f1|tekst;#5f665f|#f7f6f1|tekst drugorzędny;#2f3b33|#f7f6f1|zieleń do tekstu;#6e7d6a|#f7f6f1|szałwia (tylko duże nagłówki);#f7f6f1|#2f3b33|przycisk"></dl>
+    <ul class="pm">
+      <li class="plus">lotos z logo + zieleń = spa, spokój, „zdrowa skóra”</li>
+      <li class="plus">rzadkie w okolicy, łatwo zapamiętać</li>
+      <li class="minus">w salonie nie ma zieleni; klientka zobaczy co innego na stronie, a co innego na miejscu</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===================================================== T -->
+<h2 id="t">T. Typografia</h2>
+<p class="intro">Logo ma szeryfowe litery z ozdobnym „L”, więc nagłówki na stronie też powinny być szeryfowe, a tekst i cennik bezszeryfowe i lekkie. Trzy pary do wyboru; każda próbka to ten sam nagłówek, podtytuł, akapit i wiersz cennika.</p>
+<div class="grid g3">
+  <div class="type t1">
+    <div><span class="tag">T1</span><span class="tag rec">rekomendacja</span></div>
+    <p class="fontmeta">Cormorant Garamond 500 + Jost 300/400</p>
+    <p class="h hd">Piękno w&nbsp;każdym detalu</p>
+    <p class="sub">Makijaż permanentny · Laser · Paznokcie · Brwi i rzęsy</p>
+    <p class="body">Pracujemy na sprawdzonych produktach i nowoczesnym sprzęcie, a wszystkie narzędzia wielorazowe poddajemy profesjonalnej sterylizacji.</p>
+    <div class="row"><span>Makijaż permanentny brwi <span class="small">· 3 h</span></span><b>900 zł</b></div>
+    <ul class="pm">
+      <li class="plus">najbliższy charakterowi logo (smukłe szeryfy, elegancki kontrast)</li>
+      <li class="plus">Jost jest lekki i geometryczny, cennik wygląda jak w dobrym menu</li>
+      <li class="minus">Cormorant w małych rozmiarach jest cienki; tylko do nagłówków i cen</li>
+    </ul>
+  </div>
+  <div class="type t2">
+    <div><span class="tag">T2</span></div>
+    <p class="fontmeta">Marcellus + Nunito Sans 400/600</p>
+    <p class="h hd">Piękno w&nbsp;każdym detalu</p>
+    <p class="sub">Makijaż permanentny · Laser · Paznokcie · Brwi i rzęsy</p>
+    <p class="body">Pracujemy na sprawdzonych produktach i nowoczesnym sprzęcie, a wszystkie narzędzia wielorazowe poddajemy profesjonalnej sterylizacji.</p>
+    <div class="row"><span>Makijaż permanentny brwi <span class="small">· 3 h</span></span><b>900 zł</b></div>
+    <ul class="pm">
+      <li class="plus">Marcellus przypomina rzymskie kapitaliki, bardzo „klasyczny salon”</li>
+      <li class="plus">Nunito Sans jest ciepły i przyjazny, dobry do dłuższych opisów</li>
+      <li class="minus">jedna grubość Marcellusa ogranicza hierarchię nagłówków</li>
+    </ul>
+  </div>
+  <div class="type t3">
+    <div><span class="tag">T3</span></div>
+    <p class="fontmeta">Bodoni Moda 400 + Montserrat 400/500</p>
+    <p class="h hd">Piękno w&nbsp;każdym detalu</p>
+    <p class="sub">Makijaż permanentny · Laser · Paznokcie · Brwi i rzęsy</p>
+    <p class="body">Pracujemy na sprawdzonych produktach i nowoczesnym sprzęcie, a wszystkie narzędzia wielorazowe poddajemy profesjonalnej sterylizacji.</p>
+    <div class="row"><span>Makijaż permanentny brwi <span class="small">· 3 h</span></span><b>900 zł</b></div>
+    <ul class="pm">
+      <li class="plus">najbardziej „magazyn mody”, mocny kontrast grubych i cienkich kresek</li>
+      <li class="minus">chłodniejszy, mniej pasuje do przyjaznego tonu opinii klientek</li>
+      <li class="minus">Montserrat jest bardzo pospolity w internecie</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===================================================== U -->
+<h2 id="u">U. Układ strony</h2>
+<p class="intro">Trzy sposoby podzielenia treści. Różnica jest praktyczna: ile podstron trzeba utrzymywać i jak dobrze strona będzie się pozycjonować na hasła typu „makijaż permanentny Orzesze” czy „depilacja laserowa Mikołów”.</p>
+<div class="grid g3">
+  <div class="box">
+    <div><span class="tag">U1</span><b>Jedna strona</b></div>
+    <p class="small">Wszystko pod sobą, menu przewija do sekcji.</p>
+    <div class="wire">
+      <div class="nav"><span>logo</span><span>zabiegi · cennik · kontakt · UMÓW</span></div>
+      <div class="b herob">hero: hasło + zdjęcie + Umów wizytę</div>
+      <div class="cols"><div class="b">makijaż permanentny</div><div class="b">laser</div><div class="b">paznokcie</div></div>
+      <div class="b">cennik (12 kategorii, rozwijane)</div>
+      <div class="b">o salonie + zespół</div>
+      <div class="b">opinie (Booksy 5,0 · Google 4,7)</div>
+      <div class="b">kontakt · godziny · mapa</div>
+    </div>
+    <ul class="pm">
+      <li class="plus">najprostsza w utrzymaniu, jeden adres</li>
+      <li class="plus">klientka widzi wszystko bez klikania</li>
+      <li class="minus">118 usług na jednej stronie robi się długie</li>
+      <li class="minus">słabsze pozycjonowanie na konkretne zabiegi</li>
+    </ul>
+  </div>
+  <div class="box">
+    <div><span class="tag">U2</span><b>Wielostronicowa</b></div>
+    <p class="small">Osobna podstrona dla każdej grupy zabiegów.</p>
+    <ul class="sitemap">
+      <li>Strona główna
+        <ul>
+          <li>Makijaż permanentny (brwi, usta, lash liner, odświeżenia)</li>
+          <li>Depilacja laserowa Alma (47 pozycji, pakiety)</li>
+          <li>Usuwanie tatuażu i makijażu (laser Q-Switch)</li>
+          <li>Brwi i rzęsy (laminacja, henna, regulacja)</li>
+          <li>Paznokcie i pedicure</li>
+          <li>Twarz (peeling węglowy, mezoterapia)</li>
+        </ul>
+      </li>
+      <li>Cennik (całość)</li>
+      <li>O nas / zespół</li>
+      <li>Kontakt</li>
+    </ul>
+    <ul class="pm">
+      <li class="plus">każdy zabieg ma swoją stronę z opisem, cenami i zdjęciami; najlepsze SEO</li>
+      <li class="minus">9 podstron do napisania i utrzymania; część z nich będzie cienka w treści</li>
+    </ul>
+  </div>
+  <div class="box rec">
+    <div><span class="tag">U3</span><span class="tag rec">rekomendacja</span><b>Hybryda</b></div>
+    <p class="small">Jedna długa strona główna + osobne podstrony tylko tam, gdzie jest co powiedzieć.</p>
+    <div class="wire">
+      <div class="nav"><span>logo</span><span>zabiegi · cennik · kontakt · UMÓW</span></div>
+      <div class="b herob">hero</div>
+      <div class="cols"><div class="b">makijaż permanentny →</div><div class="b">depilacja laserowa →</div><div class="b">usuwanie tatuażu →</div></div>
+      <div class="b">paznokcie · brwi i rzęsy · twarz: najpopularniejsze zabiegi + Umów przy każdym</div>
+      <div class="b">zespół · opinie · kontakt</div>
+    </div>
+    <ul class="sitemap">
+      <li>/makijaz-permanentny (pełna podstrona)</li>
+      <li>/depilacja-laserowa (pełna podstrona, pakiety)</li>
+      <li>/usuwanie-tatuazu (krótka podstrona)</li>
+      <li>/cennik (wszystkie 118 pozycji, filtr po kategorii)</li>
+    </ul>
+    <ul class="pm">
+      <li class="plus">podstrony tylko dla trzech drogich zabiegów, reszta na stronie głównej</li>
+      <li class="plus">cennik ma swój adres, łatwo go podlinkować z Instagrama</li>
+      <li class="minus">trochę więcej pracy niż U1</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===================================================== H -->
+<h2 id="h">H. Sekcja otwierająca (pierwszy ekran)</h2>
+<p class="intro">Trzy kompozycje pierwszego ekranu, wszystkie w palecie K1 i zestawie krojów T1, żeby porównywać sam układ. Zdjęcia są z Booksy i mają za małą rozdzielczość na pełny ekran; docelowo potrzebne są nowe, ale kompozycja jest ta sama.</p>
+
+<p><span class="tag">H1</span><b>Zdjęcie na całą szerokość, tekst na jasnej mgle</b></p>
+<div class="hero h1">
+  <div class="hnav"><img src="../dane/zdjecia/logo-napis.png" alt=""><div class="links"><span>Zabiegi</span><span>Cennik</span><span>O nas</span><span>Kontakt</span></div><span class="cta">Umów wizytę</span></div>
+  <div class="stage">
+    <div class="copy">
+      <p class="eyebrow">Salon kosmetyczny · Orzesze</p>
+      <p class="hd">Piękno w każdym detalu</p>
+      <p class="lead">Makijaż permanentny, depilacja laserowa, stylizacja paznokci oraz brwi i rzęs. Indywidualne podejście, naturalny efekt, sterylne narzędzia.</p>
+      <div class="btns"><span class="cta">Umów wizytę</span><span class="cta ghost">Zobacz cennik</span></div>
+      <div class="meta"><span><b>5,0</b> · 180 opinii Booksy</span><span><b>4,7</b> · Google</span><span>Jagodowa 24, Orzesze</span></div>
+    </div>
+  </div>
+</div>
+<ul class="pm"><li class="plus">najbardziej emocjonalny: twarz właścicielki od razu buduje zaufanie</li><li class="minus">wymaga jednego bardzo dobrego zdjęcia poziomego</li></ul>
+
+<p style="margin-top:34px"><span class="tag">H2</span><span class="tag rec">rekomendacja</span><b>Podział: tekst po lewej, zdjęcie wnętrza po prawej</b></p>
+<div class="hero h2">
+  <div class="hnav"><img src="../dane/zdjecia/logo-napis.png" alt=""><div class="links"><span>Zabiegi</span><span>Cennik</span><span>O nas</span><span>Kontakt</span></div><span class="cta">Umów wizytę</span></div>
+  <div class="stage">
+    <div class="copy">
+      <p class="eyebrow">Salon kosmetyczny · Orzesze</p>
+      <p class="hd">Piękno w każdym detalu</p>
+      <p class="lead">Makijaż permanentny, depilacja laserowa, stylizacja paznokci oraz brwi i rzęs. Indywidualne podejście, naturalny efekt, sterylne narzędzia.</p>
+      <div class="btns"><span class="cta">Umów wizytę</span><span class="cta ghost">Zobacz cennik</span></div>
+      <div class="meta"><span><b>5,0</b> · 180 opinii Booksy</span><span><b>4,7</b> · Google</span><span>pn–pt, Jagodowa 24</span></div>
+    </div>
+    <div class="pic" role="img" aria-label="Poczekalnia salonu La Beauté"></div>
+  </div>
+</div>
+<ul class="pm"><li class="plus">spokojny, czytelny; zdjęcie wnętrza pokazuje standard, a tekst jest zawsze czytelny</li><li class="plus">na telefonie zdjęcie przechodzi nad tekst bez żadnych kompromisów</li><li class="minus">mniej „wow” niż H1</li></ul>
+
+<p style="margin-top:34px"><span class="tag">H3</span><b>Edytorialny: duże hasło, pasek czterech zabiegów</b></p>
+<div class="hero h3">
+  <div class="hnav"><img src="../dane/zdjecia/logo-napis.png" alt=""><div class="links"><span>Zabiegi</span><span>Cennik</span><span>O nas</span><span>Kontakt</span></div><span class="cta">Umów wizytę</span></div>
+  <div class="stage">
+    <div class="top">
+      <div><p class="eyebrow">Salon kosmetyczny · Orzesze</p><p class="hd">Piękno, które zostaje na dłużej.</p></div>
+      <div><p class="lead" style="margin:0 0 14px">Makijaż permanentny, laser, paznokcie, brwi i rzęsy. Wizyty po rezerwacji.</p><div class="btns"><span class="cta">Umów wizytę</span></div></div>
+    </div>
+    <div class="strip">
+      <figure style="margin:0"><div style="background-image:url('../dane/zdjecia/web/inspiracja-2.jpg')"></div><figcaption>Makijaż permanentny</figcaption></figure>
+      <figure style="margin:0"><div style="background-image:url('../dane/zdjecia/web/salon-3.jpg')"></div><figcaption>Laser</figcaption></figure>
+      <figure style="margin:0"><div style="background-image:url('../dane/zdjecia/web/inspiracja-3.jpg')"></div><figcaption>Brwi i rzęsy</figcaption></figure>
+      <figure style="margin:0"><div style="background-image:url('../dane/zdjecia/web/salon-1.jpg')"></div><figcaption>Salon</figcaption></figure>
+    </div>
+  </div>
+</div>
+<ul class="pm"><li class="plus">od razu pokazuje cztery filary oferty; dobry wstęp do układu U3</li><li class="minus">potrzebuje czterech równie dobrych zdjęć w kwadracie</li></ul>
+
+<!-- ===================================================== C -->
+<h2 id="c">C. Cennik i Booksy</h2>
+<p class="intro">Oficjalne API Booksy jest dostępne tylko dla firm partnerskich Booksy (płatna umowa, klucze wydawane ręcznie), więc dla jednego salonu odpada. Są jednak trzy rzeczy, które działają (link do usługi sprawdziłem dziś w przeglądarce, kod widgetu pochodzi z dokumentacji Booksy, dane ze strony pobrałem i przeliczyłem):</p>
+<ol style="max-width:80ch">
+  <li><b>Oficjalny przycisk „Umów wizytę”</b> (widget Booksy): jedna linijka kodu, okno rezerwacji otwiera się na naszej stronie, klientka nie opuszcza strony.</li>
+  <li><b>Link do konkretnej usługi</b>: okno rezerwacji przyjmuje numer wariantu usługi, więc przy każdej pozycji cennika może być „Umów” prowadzące od razu do wyboru terminu tej usługi (sprawdzone na „Makijaż permanentny brwi”).</li>
+  <li><b>Ceny z Booksy bez API</b>: publiczna strona salonu na Booksy zawiera ustrukturyzowane dane wszystkich 118 usług (nazwa, cena, czas, opis, kategoria; jedna pozycja ma cenę „zmienna”). Skrypt może je pobierać np. raz dziennie i odbudować cennik na stronie. To rozwiązanie nieoficjalne: jeśli Booksy zmieni stronę, skrypt przestanie działać i strona ma wtedy pokazywać ostatnią dobrą wersję z datą.</li>
+</ol>
+<div class="scroll">
+<table>
+  <thead><tr><th style="width:12%">Wariant</th><th>Co widzi klientka</th><th>Jak to działa</th><th>Plusy</th><th>Minusy</th></tr></thead>
+  <tbody>
+    <tr style="background:#faf7f0">
+      <td><span class="tag">C1</span><span class="tag rec">rek.</span></td>
+      <td>Pełny cennik z cenami i czasami, podpis „ceny zgodne z Booksy, aktualizacja: data”, przy każdej pozycji „Umów”.</td>
+      <td>Skrypt pobiera dane z publicznej strony Booksy i generuje cennik; uruchamiany automatycznie (np. codziennie) albo ręcznie jednym poleceniem. W razie błędu zostaje poprzednia wersja.</td>
+      <td>właścicielka zmienia ceny tylko w Booksy; zero podwójnej roboty; zawsze spójne</td>
+      <td>zależność od układu strony Booksy; potrzebny hosting, który uruchomi skrypt (albo uruchamiam go ręcznie raz na jakiś czas)</td>
+    </tr>
+    <tr>
+      <td><span class="tag">C2</span></td>
+      <td>Jak C1, ale ceny wpisane ręcznie.</td>
+      <td>Cennik w jednym prostym pliku (tabela), który edytuje się jak arkusz; po zmianie strona jest przebudowywana.</td>
+      <td>żadnej zależności od Booksy; pełna kontrola nad nazwami i opisami</td>
+      <td>każda zmiana ceny to zmiana w dwóch miejscach; ryzyko rozbieżności</td>
+    </tr>
+    <tr>
+      <td><span class="tag">C3</span></td>
+      <td>Lista usług i kategorii bez cen; każda ma „Sprawdź cenę i umów” do Booksy.</td>
+      <td>Strona statyczna, linki do Booksy (ogólny lub do konkretnej usługi).</td>
+      <td>najprostsze, nie zestarzeje się</td>
+      <td>klientka musi przejść do Booksy, żeby zobaczyć cenę; słabsze SEO na hasła z „cennik”</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p style="margin-top:28px"><b>Makieta wiersza cennika</b> (K1 + T1). Przycisk „Umów” otwiera rezerwację tej konkretnej usługi:</p>
+<div class="cennik">
+  <header><p class="hd">Makijaż permanentny</p><span>wybrane pozycje · wykonuje Aldona</span></header>
+  <div class="r"><span>Makijaż permanentny brwi<span class="d">Do ceny należy doliczyć 200 zł za dopigmentowanie; całość 1100 zł przy zakupie bonu podarunkowego.</span></span><span class="dur">3 h</span><span class="p">900 zł</span><a class="bk" href="https://booksy.com/widget-2021/index.html?id=102895&amp;lang=pl&amp;country=pl&amp;mode=dialog&amp;theme=default&amp;variantId=5126967" target="_blank" rel="noopener" aria-label="Umów: Makijaż permanentny brwi">Umów</a></div>
+  <div class="r"><span>Makijaż permanentny ust</span><span class="dur">3 h</span><span class="p">950 zł</span><a class="bk" href="https://booksy.com/widget-2021/index.html?id=102895&amp;lang=pl&amp;country=pl&amp;mode=dialog&amp;theme=default&amp;variantId=5126973" target="_blank" rel="noopener" aria-label="Umów: Makijaż permanentny ust">Umów</a></div>
+  <div class="r"><span>Lash liner (zagęszczenie linii rzęs, góra)</span><span class="dur">1 h 30 min</span><span class="p">550 zł</span><a class="bk" href="https://booksy.com/widget-2021/index.html?id=102895&amp;lang=pl&amp;country=pl&amp;mode=dialog&amp;theme=default&amp;variantId=5126970" target="_blank" rel="noopener" aria-label="Umów: Lash liner">Umów</a></div>
+  <div class="r"><span>Konsultacja z rysunkiem wstępnym</span><span class="dur">30 min</span><span class="p">150 zł</span><a class="bk" href="https://booksy.com/widget-2021/index.html?id=102895&amp;lang=pl&amp;country=pl&amp;mode=dialog&amp;theme=default&amp;variantId=5126876" target="_blank" rel="noopener" aria-label="Umów: Konsultacja z rysunkiem wstępnym">Umów</a></div>
+  <footer>Ceny zgodne z Booksy · aktualizacja 16.10.2026 · rezerwacje do 2 tygodni do przodu</footer>
+</div>
+<p class="note">Przyciski powyżej są prawdziwe: otwierają okno Booksy w nowej karcie. Na docelowej stronie otworzą się w okienku bez opuszczania strony.</p>
+
+<p><b>Kod oficjalnego przycisku Booksy</b> (do nagłówka strony) i wzór linku do usługi:</p>
+<pre><code>&lt;script src="https://booksy.com/widget/code.js?id=102895&amp;country=pl&amp;lang=pl"&gt;&lt;/script&gt;
+
+https://booksy.com/widget-2021/index.html?id=102895&amp;lang=pl&amp;country=pl&amp;mode=dialog&amp;theme=default&amp;variantId=NUMER_WARIANTU_USŁUGI</code></pre>
+
+<!-- ===================================================== L -->
+<h2 id="l">L. Logo</h2>
+<p class="intro">Logo zostaje bez zmian, jest dobre i wisi na ścianie salonu. Mam je tylko jako JPEG z Booksy; wyciąłem tło, żeby działało na każdym kolorze. Do produkcji potrzebny jest plik wektorowy od właścicielki (SVG, PDF lub AI od grafika, który je projektował), bo z JPEG-a nie da się zrobić ostrej ikony ani wersji jednokolorowej.</p>
+<div class="logo-tiles">
+  <div class="lt" style="background:#fff"><img src="../dane/zdjecia/logo-przezroczyste.png" alt="Logo na bieli"></div>
+  <div class="lt" style="background:#f6f2ea"><img src="../dane/zdjecia/logo-przezroczyste.png" alt="Logo na kości słoniowej"></div>
+  <div class="lt" style="background:#141311"><img src="../dane/zdjecia/logo-przezroczyste.png" alt="Logo na czerni"></div>
+</div>
+<p style="margin-top:18px"><b>Ikona strony (favicon) i aplikacji:</b> sam lotos. W małych rozmiarach gradient znika, więc docelowo jedna płaska barwa złota na białym lub czarnym tle.</p>
+<div class="favs">
+  <figure><img src="../dane/zdjecia/logo-znak.png" alt="Znak lotosu, 128 px" style="width:128px"><div>128 px</div></figure>
+  <figure><img src="../dane/zdjecia/logo-znak.png" alt="Znak lotosu, 64 px" style="width:64px"><div>64 px</div></figure>
+  <figure><img src="../dane/zdjecia/logo-znak.png" alt="Znak lotosu, 32 px" style="width:32px"><div>32 px</div></figure>
+  <figure><img src="../dane/zdjecia/logo-znak.png" alt="Znak lotosu, 16 px" style="width:16px"><div>16 px</div></figure>
+</div>
+
+<!-- ===================================================== REK -->
+<h2 id="rek">Rekomendacja</h2>
+<div class="grid g2">
+  <div class="box rec">
+    <p style="margin:0 0 10px"><b>Mój zestaw: K1 · T1 · U3 · H2 · C1</b></p>
+    <ul class="pm" style="font-size:14px">
+      <li class="plus"><b>K1</b>, bo strona ma wyglądać jak salon, a salon jest biały ze złotem i czernią.</li>
+      <li class="plus"><b>T1</b>, bo Cormorant jest najbliżej liter z logo, a Jost trzyma cennik w ryzach.</li>
+      <li class="plus"><b>U3</b>, bo makijaż permanentny, depilacja laserowa i usuwanie tatuażu to drogie zabiegi, po które klientki prawdopodobnie przyjeżdżają spoza Orzesza; one zasługują na własne podstrony. Reszta mieści się na stronie głównej.</li>
+      <li class="plus"><b>H2</b>, bo zawsze czytelny i nie zależy od jednego idealnego zdjęcia.</li>
+      <li class="plus"><b>C1</b>, bo właścicielka i tak prowadzi ceny w Booksy; strona ma je tylko odzwierciedlać. Jeśli hosting nie pozwoli na automatyczne uruchamianie, ten sam skrypt uruchamiam ręcznie jednym poleceniem; cennik nadal pochodzi z Booksy.</li>
+    </ul>
+  </div>
+  <div class="box">
+    <p style="margin:0 0 10px"><b>Czego potrzebuję od właścicielki</b></p>
+    <ul class="pm" style="font-size:14px">
+      <li>logo w wektorze (SVG/PDF/AI)</li>
+      <li>zdjęcia w pełnej rozdzielczości: wnętrze, zabiegi, zespół, portret</li>
+      <li>domena (np. labeaute.pl, do sprawdzenia u rejestratora) i hosting</li>
+      <li>krótki opis zespołu i certyfikatów, rok założenia</li>
+      <li>regulamin: zadatki, odwoływanie wizyt, przeciwwskazania do zabiegów</li>
+      <li>zgoda na pokazanie opinii klientek z Booksy/Google</li>
+      <li>czy ceny mają być widoczne na stronie (C1/C2) czy tylko na Booksy (C3)</li>
+    </ul>
+  </div>
+</div>
+
+<div class="answer" style="margin-top:28px">
+  Jak odpowiedzieć: podaj kody, np. <code>K1, T1, U3, H2, C1</code>, albo napisz, co zmienić („K1, ale z przyciskami w złocie”, „H2 ze zdjęciem Aldony zamiast wnętrza”). Po wyborze buduję właściwą stronę w <code>J:\strona\labeaute\site</code>.
+</div>
+
+<p class="small" style="margin-top:40px">Źródła danych: profil Booksy (ID 102895), Facebook labeaute.at, Instagram labeaute_aldonatargiel, Google Maps. Stan na 16.10.2026. Zdjęcia pochodzą z profilu Booksy salonu i służą tylko do makiet.</p>
+
+</div>
+<script>
+(function(){
+  function lum(hex){const c=hex.replace('#','');const n=parseInt(c.length===3?c.split('').map(x=>x+x).join(''):c,16);
+    const f=v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)};
+    return 0.2126*f((n>>16)&255)+0.7152*f((n>>8)&255)+0.0722*f(n&255)}
+  function ratio(a,b){const l1=lum(a),l2=lum(b);const hi=Math.max(l1,l2),lo=Math.min(l1,l2);return (hi+0.05)/(lo+0.05)}
+  document.querySelectorAll('dl.contrast[data-pairs]').forEach(dl=>{
+    dl.getAttribute('data-pairs').split(';').forEach(p=>{
+      const [fg,bg,label]=p.split('|');const r=ratio(fg,bg);
+      const big=/duże/.test(label), deco=/nie tekst/.test(label);
+      let cls, txt;
+      if(deco){cls='warn';txt='tylko dekoracja'}
+      else if(r>=7){cls='ok';txt='AAA'}
+      else if(r>=4.5){cls='ok';txt='AA'}
+      else if(r>=3&&big){cls='warn';txt='AA tylko duży tekst'}
+      else {cls='bad';txt='za słaby'}
+      const dt=document.createElement('dt');dt.textContent=label+' '+fg+' / '+bg;
+      const dd=document.createElement('dd');dd.className=cls;dd.textContent=r.toFixed(1)+':1 '+txt;
+      dl.appendChild(dt);dl.appendChild(dd);
+    });
+  });
+})();
+</script>
+</body>
+</html>

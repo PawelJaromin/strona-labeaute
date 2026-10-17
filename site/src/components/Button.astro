@@ -1,0 +1,47 @@
+---
+/**
+ * Prostokątny przycisk-link.
+ *
+ *   <Button href="/cennik/">Zobacz cennik</Button>                       czarny (primary)
+ *   <Button href="/cennik/" variant="secondary">Zobacz cennik</Button>   obrys w złocie
+ *   <Button booksy>Umów wizytę</Button>
+ *       ogólna rezerwacja: oficjalny widget Booksy (okno na stronie);
+ *       bez JS / gdy widget się nie wczyta: link do profilu Booksy w nowej karcie
+ *   <Button href={bookingUrl(variantId)} booking="Makijaż permanentny brwi" size="sm">Umów</Button>
+ *       rezerwacja konkretnej usługi w BookingModal; bez JS: nowa karta
+ */
+import { site } from '../config/site';
+
+interface Props {
+  href?: string;
+  variant?: 'primary' | 'secondary';
+  size?: 'md' | 'sm';
+  /** Ogólny przycisk rezerwacji przez widget Booksy. `href` ignorowany (link do profilu Booksy). */
+  booksy?: boolean;
+  /** Nazwa usługi: link otwiera BookingModal z adresem `href` (bookingUrl(variantId)). */
+  booking?: string;
+  /** Otwórz w nowej karcie (rel="noopener"). */
+  external?: boolean;
+  class?: string;
+  id?: string;
+  ariaLabel?: string;
+}
+
+const { href, variant = 'primary', size = 'md', booksy = false, booking, external = false, class: className, id, ariaLabel } = Astro.props;
+
+const url = booksy ? site.booksy.linkUrl : href;
+if (!url) throw new Error('Button: brak href (albo użyj booksy).');
+const newTab = booksy || booking !== undefined || external;
+---
+
+<a
+  href={url}
+  id={id}
+  class:list={['btn', { 'btn--secondary': variant === 'secondary', 'btn--sm': size === 'sm' }, className]}
+  target={newTab ? '_blank' : undefined}
+  rel={newTab ? 'noopener' : undefined}
+  data-booksy={booksy ? '' : undefined}
+  data-booking={booking !== undefined ? '' : undefined}
+  data-booking-title={booking || undefined}
+  aria-label={ariaLabel}
+><slot /></a>

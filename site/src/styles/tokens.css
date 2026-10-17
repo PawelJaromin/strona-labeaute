@@ -1,0 +1,50 @@
+/*
+  Tokeny projektowe La Beauté: paleta K1 „Marmur i złoto” + typografia T1.
+  Biel i kość słoniowa jako tło, czerń w tekście i przyciskach, złoto jako
+  cienka linia i akcent. Złoto jasne (--c-gold) NIGDY jako kolor tekstu.
+  Pary tekst/tło sprawdza scripts/check-contrast.mjs (próg 4,5:1).
+*/
+:root {
+  /* Kroje (pliki z @fontsource, ładowane w layouts/Base.astro) */
+  --font-serif: 'Cormorant Garamond', 'Cormorant', Garamond, 'Times New Roman', serif;
+  --font-sans: 'Jost', 'Futura', 'Century Gothic', 'Segoe UI', ui-sans-serif, system-ui, sans-serif;
+
+  /* Kolory K1 */
+  --c-bg: #ffffff;          /* tło */
+  --c-bg-2: #f6f2ea;        /* tło sekcji / pasków: kość słoniowa */
+  --c-ink: #161616;         /* tekst */
+  --c-muted: #5a534c;       /* tekst drugorzędny: 7,6:1 na bieli, 6,8:1 na kości (brief: „Rytm stron”) */
+  --c-gold: #b8923f;        /* złoto jasne: tylko linie, ramki, ozdobniki */
+  --c-gold-ink: #8a6a2a;    /* złoto do tekstu: 5,0:1 na bieli, 4,5:1 na kości */
+  --c-btn: #141414;         /* czerń przycisków */
+  --c-btn-ink: #f6f2ea;     /* tekst na czarnym przycisku */
+  --c-line: #e6dfd2;        /* linie (hairline) */
+  --c-focus: #161616;       /* pierścień fokusu */
+  --c-selection: #ece3d1;   /* zaznaczenie tekstu */
+
+  /* Ciemne pasy (wstęp podstron, pas CTA, opinie na stronie głównej, stopka).
+     Klasy kontekstu: .section--dark / .tone-dark w global.css. */
+  --c-dark: #141414;        /* tło ciemnych pasów */
+  --c-dark-ink: #f6f2ea;    /* tekst, h1 i lead na ciemnym: 16,5:1 */
+  --c-dark-gold: #d9bf86;   /* eyebrow, etykiety i linki po najechaniu na ciemnym: 10,3:1 */
+  --c-dark-muted: #bfb6a8;  /* tekst drugorzędny na ciemnym: 9,2:1 */
+  --c-dark-line: #3a3631;   /* linie (hairline) na ciemnym */
+  --c-dark-focus: #d9bf86;  /* pierścień fokusu na ciemnym */
+
+  /* Układ */
+  --container: 1200px;
+  --container-narrow: 760px;
+  --gutter: clamp(20px, 5vw, 56px);
+  --header-h: 76px;
+  --section-y: clamp(80px, 9vw + 24px, 160px);
+
+  /* Ruch */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur: 220ms;
+}
+
+@media (max-width: 960px) {
+  :root {
+    --header-h: 64px;
+  }
+}

@@ -1,0 +1,232 @@
+---
+/**
+ * Opinie: oceny z Booksy, Google i Facebooka (wartości z site.reviews, każda z linkiem do źródła)
+ * oraz opcjonalne cytaty. Pełna sekcja z nagłówkiem.
+ *   <Reviews />                       sekcja na kości słoniowej, id="opinie"
+ *   <Reviews tone="dark" />           ciemny pas (strona główna, brief „Rytm stron”)
+ *   <Reviews tone="white" id="opinie-klientek" />
+ *   <Reviews quotes={[{ text: '…', author: 'Anna K.', source: 'Booksy' }]} />
+ *
+ * Cytaty: [do uzupełnienia przez właścicielkę] — research.md nie zawiera treści opinii
+ * (dane strukturalne Booksy mają puste reviewBody). Wstaw tylko prawdziwe, dosłowne opinie
+ * za zgodą autorek, z imieniem i inicjałem nazwiska, tak jak w źródle.
+ */
+import { site } from '../config/site';
+import SectionHead from './SectionHead.astro';
+
+interface Quote {
+  text: string;
+  author: string;
+  source?: 'Booksy' | 'Google' | 'Facebook';
+  href?: string;
+}
+interface Props {
+  id?: string;
+  tone?: 'ivory' | 'white' | 'dark';
+  eyebrow?: string;
+  title?: string;
+  lead?: string;
+  quotes?: Quote[];
+}
+
+const {
+  id = 'opinie',
+  tone = 'ivory',
+  eyebrow = 'Opinie',
+  title = 'Co mówią klientki',
+  lead = 'Oceny wystawione przez klientki salonu w serwisach zewnętrznych. Kliknij, aby przeczytać wszystkie opinie u źródła.',
+  quotes = [],
+} = Astro.props;
+const r = site.reviews;
+const sourceUrl = (s?: Quote['source']) => (s === 'Google' ? r.google.url : s === 'Facebook' ? r.facebook.url : r.booksy.url);
+---
+
+<section class:list={['section', 'reviews', { 'section--ivory': tone === 'ivory', 'section--dark': tone === 'dark' }]} id={id} aria-labelledby={`${id}-title`}>
+  <div class="container">
+    <SectionHead eyebrow={eyebrow} title={title} lead={lead} id={`${id}-title`} align="center" />
+
+    <ul class="reviews__scores" role="list">
+      <li class="reviews__score">
+        <a href={r.booksy.url} target="_blank" rel="noopener">
+          <span class="reviews__value">{r.booksy.rating}</span>
+          <span class="reviews__stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <span class="reviews__label">ze {r.booksy.count} opinii w Booksy</span>
+          <span class="reviews__detail">średnia ocena {r.booksy.ratingExact} w skali 1–5</span>
+          <span class="visually-hidden"> (otwiera się w nowej karcie)</span>
+        </a>
+      </li>
+      <li class="reviews__score">
+        <a href={r.google.url} target="_blank" rel="noopener">
+          <span class="reviews__value">{r.google.rating}</span>
+          <span class="reviews__stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i class="is-part"></i></span>
+          <span class="reviews__label">z {r.google.count} opinii w Google</span>
+          <span class="reviews__detail">Wizytówka salonu w Mapach Google</span>
+          <span class="visually-hidden"> (otwiera się w nowej karcie)</span>
+        </a>
+      </li>
+      <li class="reviews__score">
+        <a href={r.facebook.url} target="_blank" rel="noopener">
+          <span class="reviews__value">{r.facebook.recommendPercent}%</span>
+          <span class="reviews__stars reviews__stars--none" aria-hidden="true"></span>
+          <span class="reviews__label">poleca na Facebooku</span>
+          <span class="reviews__detail">na podstawie {r.facebook.count} opinii</span>
+          <span class="visually-hidden"> (otwiera się w nowej karcie)</span>
+        </a>
+      </li>
+    </ul>
+
+    {
+      quotes.length > 0 && (
+        <ul class="reviews__quotes" role="list">
+          {quotes.map((q) => (
+            <li>
+              <figure>
+                <blockquote>
+                  <p>{q.text}</p>
+                </blockquote>
+                <figcaption>
+                  {q.author}
+                  {q.source && (
+                    <>
+                      {' · '}
+                      <a href={q.href ?? sourceUrl(q.source)} target="_blank" rel="noopener">
+                        {q.source}
+                      </a>
+                    </>
+                  )}
+                </figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    <p class="reviews__more">
+      <a class="link-arrow" href={r.booksy.url} target="_blank" rel="noopener">Wszystkie opinie w Booksy<span class="visually-hidden"> (otwiera się w nowej karcie)</span></a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .reviews {
+    --rv-ink: var(--c-ink);
+    --rv-muted: var(--c-muted);
+    --rv-line: var(--c-line);
+    --rv-hover: rgba(255, 255, 255, 0.55);
+    --rv-label: var(--c-gold-ink);
+  }
+  .reviews.section--dark {
+    --rv-ink: var(--c-dark-ink);
+    --rv-muted: var(--c-dark-muted);
+    --rv-line: var(--c-dark-line);
+    --rv-hover: rgba(246, 242, 234, 0.05);
+    --rv-label: var(--c-dark-gold);
+  }
+  .reviews__scores {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--c-gold);
+    border-bottom: 1px solid var(--rv-line);
+  }
+  .reviews__score + .reviews__score {
+    border-left: 1px solid var(--rv-line);
+  }
+  .reviews__score a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    height: 100%;
+    padding: clamp(32px, 4vw, 52px) 20px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--rv-ink);
+    transition: background-color var(--dur) var(--ease);
+  }
+  .reviews__score a:hover {
+    background: var(--rv-hover);
+    color: var(--rv-ink);
+  }
+  .reviews__score a:hover .reviews__label {
+    text-decoration: underline;
+    text-decoration-color: var(--rv-label);
+    text-underline-offset: 0.28em;
+  }
+  .reviews__value {
+    font-family: var(--font-serif);
+    font-size: clamp(3.25rem, 2.4rem + 3vw, 5rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    font-variant-numeric: lining-nums;
+  }
+  .reviews__stars {
+    display: flex;
+    gap: 6px;
+    height: 12px;
+    margin: 6px 0 4px;
+  }
+  .reviews__stars i {
+    display: block;
+    width: 12px;
+    height: 12px;
+    background: var(--c-gold);
+    clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  }
+  .reviews__stars i.is-part {
+    background: linear-gradient(90deg, var(--c-gold) 70%, var(--rv-line) 70%);
+  }
+  .reviews__label {
+    font-size: 0.9375rem;
+    font-weight: 400;
+  }
+  .reviews__detail {
+    font-size: 0.8125rem;
+    color: var(--rv-muted);
+  }
+  .reviews__quotes {
+    list-style: none;
+    margin: clamp(48px, 6vw, 80px) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: clamp(32px, 4vw, 56px);
+  }
+  .reviews__quotes figure {
+    margin: 0;
+  }
+  .reviews__quotes blockquote {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.375rem;
+    line-height: 1.45;
+  }
+  .reviews__quotes figcaption {
+    margin-top: 16px;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--rv-label);
+  }
+  .reviews__more {
+    margin: 36px 0 0;
+    text-align: center;
+  }
+  @media (max-width: 760px) {
+    .reviews__scores {
+      grid-template-columns: 1fr;
+    }
+    .reviews__score + .reviews__score {
+      border-left: 0;
+      border-top: 1px solid var(--rv-line);
+    }
+    .reviews__score a {
+      padding: 28px 12px;
+    }
+  }
+</style>

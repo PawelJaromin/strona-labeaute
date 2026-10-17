@@ -1,0 +1,254 @@
+---
+/**
+ * /usuwanie-tatuazu/ (BRIEF.md, sekcja 3 pkt 4): krótsza podstrona. Teksty są w
+ * src/content/usuwanie-tatuazu.ts, ceny i czasy z src/data/uslugi.json (Booksy).
+ * Rytm: PageIntro (ciemny + zdjęcie) → biel (zastosowania) → kość słoniowa (metody i konsultacja)
+ *       → biel (ile zabiegów) → kość słoniowa (cennik) → ciemny pas CTA (dodaje Base).
+ */
+import Base from '../layouts/Base.astro';
+import PageIntro from '../components/PageIntro.astro';
+import SectionHead from '../components/SectionHead.astro';
+import PriceList from '../components/PriceList.astro';
+import { routes, site } from '../config/site';
+import { serviceSchema } from '../lib/schema';
+import { meta, intro, uses, methods, howMany, pricing, priceGroups, cta } from '../content/usuwanie-tatuazu';
+
+import salon3 from '../assets/photos/salon-3.jpg';
+
+const path = routes.tatuaz;
+const lastGroup = priceGroups.length - 1;
+---
+
+<Base
+  title={meta.title}
+  description={meta.description}
+  jsonLd={[serviceSchema({ name: meta.serviceName, serviceType: meta.serviceType, description: meta.description, path })]}
+  cta={cta}
+>
+  <PageIntro
+    eyebrow={intro.eyebrow}
+    title={intro.title}
+    lead={intro.lead}
+    image={salon3}
+    imageAlt={intro.imageAlt}
+    imagePosition="center"
+    primary={{ label: 'Umów wizytę', booksy: true }}
+    secondary={{ label: 'Cennik zabiegu', href: '#cennik-zabiegu' }}
+  />
+
+  <!-- ============================================================ Zastosowania (biel) -->
+  <section class="section" id="zastosowania" aria-labelledby="zastosowania-title">
+    <div class="container">
+      <SectionHead eyebrow={uses.eyebrow} title={uses.title} lead={uses.lead} id="zastosowania-title" />
+      <div class="uses">
+        {
+          uses.items.map((u, i) => (
+            <article class="use">
+              <p class="use__n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</p>
+              <h3 class="use__title">{u.title}</h3>
+              <p class="use__text">{u.text}</p>
+              <dl class="facts">
+                {
+                  u.facts.map((f) => (
+                    <div>
+                      <dt>{f.label}</dt>
+                      <dd>{f.value}</dd>
+                    </div>
+                  ))
+                }
+              </dl>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ Metody i konsultacja (kość słoniowa) -->
+  <section class="section section--ivory" id="metody" aria-labelledby="metody-title">
+    <div class="container">
+      <SectionHead eyebrow={methods.eyebrow} title={methods.title} lead={methods.lead} id="metody-title" />
+      <div class="rows">
+        {
+          methods.items.map((m) => (
+            <article class="row">
+              <h3 class="row__title">{m.title}</h3>
+              <p class="row__text">
+                {m.text}
+                {m.phone && (
+                  <>
+                    {' '}
+                    <a class="nowrap" href={site.phone.href}>{site.phone.display}</a>.
+                  </>
+                )}
+              </p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ Ile zabiegów (biel) -->
+  <section class="section" id="ile-zabiegow" aria-labelledby="ile-title">
+    <div class="container how">
+      <SectionHead eyebrow={howMany.eyebrow} title={howMany.title} lead={howMany.lead} id="ile-title" />
+      <div class="how__body">
+        <p class="how__label eyebrow eyebrow--plain">{howMany.factorsLabel}</p>
+        <ul class="hairlist how__list">
+          {howMany.factors.map((f) => <li>{f}</li>)}
+        </ul>
+        <p class="how__text">{howMany.paragraphs[0]}</p>
+        <p class="how__text">
+          {howMany.paragraphs[1]} <a class="nowrap" href={site.phone.href}>{site.phone.display}</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ Cennik (kość słoniowa) -->
+  <section class="section section--ivory" id="cennik-zabiegu" aria-labelledby="cennik-title">
+    <div class="container">
+      <SectionHead eyebrow={pricing.eyebrow} title={pricing.title} lead={pricing.lead} id="cennik-title" />
+      <div class="price-groups">
+        {
+          priceGroups.map((g, i) => (
+            <PriceList items={g.services} title={g.title} caption={g.caption} footer={i === lastGroup} />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Zastosowania: dwie kolumny rozdzielone hairline, bez kart */
+  .uses {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(40px, 6vw, 96px);
+    border-top: 1px solid var(--c-gold);
+  }
+  .use {
+    padding-top: 28px;
+  }
+  .use__n {
+    margin: 0 0 14px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.75rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--c-gold-ink);
+  }
+  .use__title {
+    margin: 0 0 14px;
+    font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.375rem);
+  }
+  .use__text {
+    margin: 0;
+    max-width: 52ch;
+  }
+  .facts {
+    margin: 28px 0 0;
+    border-top: 1px solid var(--c-line);
+  }
+  .facts > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px 20px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--c-line);
+  }
+  .facts dt {
+    font-size: 0.9375rem;
+    min-width: 0;
+  }
+  .facts dd {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 1.3125rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* Metody i konsultacja: wiersze jak w karcie menu */
+  .rows {
+    border-top: 1px solid var(--c-gold);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 8px clamp(24px, 5vw, 80px);
+    align-items: baseline;
+    padding: 26px 0;
+    border-bottom: 1px solid var(--c-line);
+  }
+  .row__title {
+    margin: 0;
+    font-size: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
+    line-height: 1.15;
+  }
+  .row__text {
+    margin: 0;
+    max-width: 62ch;
+  }
+
+  /* Ile zabiegów */
+  .how {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(36px, 7vw, 112px);
+    align-items: start;
+  }
+  .how :global(.section-head) {
+    margin-bottom: 0;
+  }
+  .how__label {
+    margin: 0 0 14px;
+  }
+  .how__list {
+    border-top: 1px solid var(--c-gold);
+  }
+  .how__list > li {
+    padding-block: 14px;
+  }
+  .how__text {
+    margin: 24px 0 0;
+    max-width: 58ch;
+  }
+  .how__list + .how__text {
+    margin-top: 32px;
+  }
+
+  /* Cennik */
+  .price-groups {
+    display: grid;
+    gap: clamp(48px, 6vw, 80px);
+  }
+
+  @media (max-width: 900px) {
+    .uses,
+    .how {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .use + .use {
+      padding-top: 40px;
+      border-top: 1px solid var(--c-line);
+    }
+  }
+  @media (max-width: 560px) {
+    .facts > div {
+      flex-wrap: wrap;
+    }
+    .facts dd {
+      text-align: left;
+    }
+  }
+</style>

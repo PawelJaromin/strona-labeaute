@@ -1,0 +1,569 @@
+---
+/**
+ * /depilacja-laserowa/ (BRIEF.md, sekcja 3 pkt 3).
+ *
+ * Rytm: PageIntro (ciemny) → O zabiegu (biel) → Cennik (kość słoniowa) → Przygotowanie (biel)
+ * → Przebieg wizyty (kość słoniowa) → Po zabiegu (biel) → FAQ (kość słoniowa) → pas CTA (ciemny, dodaje Base).
+ *
+ * Teksty, FAQ i cennik pogrupowany wg partii ciała są w src/content/depilacja-laserowa.ts.
+ * W cenniku każda partia ma w jednym wierszu „1 zabieg” i „Pakiet 6 zabiegów”, a każda pozycja
+ * ma własny przycisk „Umów” z variant_id tej pozycji (BookingModal, bez JS: link w nowej karcie).
+ */
+import Base from '../layouts/Base.astro';
+import PageIntro from '../components/PageIntro.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Steps from '../components/Steps.astro';
+import Faq from '../components/Faq.astro';
+import Button from '../components/Button.astro';
+import BookingNote from '../components/BookingNote.astro';
+import { routes } from '../config/site';
+import { serviceSchema } from '../lib/schema';
+import { formatUpdatedAt, serviceName, serviceBookingUrl, priceInfo, formatDuration, type Service } from '../lib/uslugi';
+import * as c from '../content/depilacja-laserowa';
+import salon4 from '../assets/photos/salon-4.jpg';
+
+const path = routes.depilacja;
+const NBSP = String.fromCharCode(160);
+
+const jsonLd = [
+  {
+    ...serviceSchema({ name: 'Depilacja laserowa Alma Baby Remove', serviceType: 'Depilacja laserowa', description: c.description, path }),
+    offers: c.aggregateOffer,
+  },
+];
+
+const plural = (n: number) => {
+  const d = n % 10;
+  const dd = n % 100;
+  if (n === 1) return 'pozycja';
+  if (d >= 2 && d <= 4 && (dd < 12 || dd > 14)) return 'pozycje';
+  return 'pozycji';
+};
+
+/** Dane jednej komórki cennika (czas, cena, adres rezerwacji, nazwa dla okna rezerwacji). */
+function offer(s: Service) {
+  const price = priceInfo(s.price);
+  return {
+    name: serviceName(s),
+    duration: formatDuration(s.duration_min),
+    price,
+    url: serviceBookingUrl(s),
+  };
+}
+
+/** „taniej o 90 zł” z twardą spacją przed „zł”. */
+const savingText = (amount: number) => `taniej o ${amount}${NBSP}zł`;
+
+const kinds = ['single', 'pack'] as const;
+---
+
+<Base title={c.title} description={c.description} jsonLd={jsonLd} cta={c.cta}>
+  <PageIntro
+    eyebrow={c.intro.eyebrow}
+    lead={c.intro.lead}
+    image={salon4}
+    imageAlt={c.intro.imageAlt}
+    primary={{ label: 'Umów wizytę', booksy: true }}
+    secondary={{ label: 'Cennik zabiegu', href: '#cennik-zabiegu' }}
+    note
+  >
+    <Fragment slot="title">Depilacja <em>laserowa</em></Fragment>
+  </PageIntro>
+
+  <!-- O zabiegu (biel) -->
+  <section class="section" id="o-zabiegu" aria-labelledby="o-zabiegu-title">
+    <div class="container split">
+      <div>
+        <SectionHead eyebrow={c.about.eyebrow} title={c.about.title} id="o-zabiegu-title" />
+        <div class="prose">
+          {c.about.paragraphs.map((p) => <p>{p}</p>)}
+        </div>
+      </div>
+      <dl class="facts">
+        {
+          c.about.facts.map((f) => (
+            <div class="facts__row">
+              <dt>{f.label}</dt>
+              <dd>
+                {f.value}
+                {f.note && <span class="facts__note">{f.note}</span>}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- Cennik (kość słoniowa) -->
+  <section class="section section--ivory" id="cennik-zabiegu" aria-labelledby="cennik-title">
+    <div class="container">
+      <SectionHead eyebrow={c.pricing.eyebrow} title={c.pricing.title} lead={c.pricing.lead} id="cennik-title" />
+
+      <nav class="zonenav" aria-label={c.pricing.navLabel}>
+        <ul role="list">
+          {
+            c.priceGroups.map((g) => (
+              <li>
+                <a href={`#${g.id}`}>{g.title}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      {
+        c.priceGroups.map((g) => (
+          <section class="dzg" id={g.id} aria-labelledby={`${g.id}-title`}>
+            <div class="dzg__head">
+              <h3 class="dzg__title" id={`${g.id}-title`}>
+                {g.title}
+              </h3>
+              <span class="dzg__count">
+                {g.count} {plural(g.count)}
+              </span>
+            </div>
+            {g.caption && <p class="dzg__caption">{g.caption}</p>}
+            <div class="dz-cols" aria-hidden="true">
+              <span>Partia ciała</span>
+              <span>{c.pricing.kinds.single}</span>
+              <span>{c.pricing.kinds.pack}</span>
+            </div>
+            <ul class="dz-list" role="list">
+              {g.pairs.map((p) => (
+                <li class="dz">
+                  <p class="dz__name">{p.label}</p>
+                  {kinds.map((kind) => {
+                    const s = p[kind];
+                    if (!s) {
+                      return (
+                        <div class="dz__offer dz__offer--empty">
+                          <span class="dz__kind">{c.pricing.kinds[kind]}</span>
+                          <span class="dz__none">
+                            <span class="visually-hidden">: niedostępne w cenniku</span>
+                            <span aria-hidden="true">—</span>
+                          </span>
+                        </div>
+                      );
+                    }
+                    const o = offer(s);
+                    const saving = kind === 'pack' ? p.saving : undefined;
+                    return (
+                      <div class={`dz__offer dz__offer--${kind}`}>
+                        <span class="dz__kind">{c.pricing.kinds[kind]}</span>
+                        <span class="dz__dur">
+                          {o.duration && (
+                            <>
+                              <span class="visually-hidden">Czas: </span>
+                              {o.duration}
+                            </>
+                          )}
+                        </span>
+                        <span class="dz__pricebox">
+                          <span class:list={['dz__price', { 'dz__price--var': o.price.kind === 'variable' || o.price.kind === 'unknown' }]}>
+                            <span class="visually-hidden">Cena: </span>
+                            {o.price.kind === 'from' ? <><span class="dz__from">od</span> {o.price.amountText}</> : o.price.text}
+                          </span>
+                          {saving && (
+                            <span class="dz__save">
+                              {savingText(saving.amount)}
+                              <span class="visually-hidden"> niż sześć pojedynczych zabiegów</span>
+                            </span>
+                          )}
+                        </span>
+                        <span class="dz__book">
+                          <Button href={o.url} booking={o.name} size="sm">
+                            Umów<span class="visually-hidden">: {o.name}</span>
+                          </Button>
+                        </span>
+                      </div>
+                    );
+                  })}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+
+      <div class="dz-foot">
+        <p>Ceny i czasy zabiegów według Booksy, stan na {formatUpdatedAt()}&nbsp;r.</p>
+        <BookingNote />
+        <p><a class="link-arrow" href={routes.cennik}>Pełny cennik salonu</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Jak przygotować się do zabiegu (biel) -->
+  <section class="section" id="przygotowanie" aria-labelledby="przygotowanie-title">
+    <div class="container split split--tips">
+      <div class="split__head">
+        <SectionHead eyebrow={c.prep.eyebrow} title={c.prep.title} lead={c.prep.lead} id="przygotowanie-title" />
+      </div>
+      <ul class="tips" role="list">
+        {
+          c.prep.items.map((it) => (
+            <li>
+              <h3 class="tips__t">{it.t}</h3>
+              <p class="tips__d">{it.d}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Przebieg wizyty (kość słoniowa) -->
+  <section class="section section--ivory" id="przebieg" aria-labelledby="przebieg-title">
+    <div class="container">
+      <SectionHead eyebrow={c.course.eyebrow} title={c.course.title} lead={c.course.lead} id="przebieg-title" />
+      <Steps steps={c.course.steps} cols={4} />
+    </div>
+  </section>
+
+  <!-- Po zabiegu (biel) -->
+  <section class="section" id="po-zabiegu" aria-labelledby="po-zabiegu-title">
+    <div class="container split split--tips">
+      <div class="split__head">
+        <SectionHead eyebrow={c.after.eyebrow} title={c.after.title} lead={c.after.lead} id="po-zabiegu-title" />
+      </div>
+      <ul class="tips" role="list">
+        {
+          c.after.items.map((it) => (
+            <li>
+              <h3 class="tips__t">{it.t}</h3>
+              <p class="tips__d">{it.d}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- FAQ (kość słoniowa) -->
+  <section class="section section--ivory" id="pytania" aria-labelledby="faq-title">
+    <div class="container">
+      <SectionHead eyebrow={c.faq.eyebrow} title={c.faq.title} id="faq-title" />
+      <Faq items={c.faq.items} />
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ---------------------------------------------------------------- O zabiegu */
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: clamp(40px, 6vw, 112px);
+    align-items: start;
+  }
+  .facts {
+    margin: 0;
+    border-top: 1px solid var(--c-gold);
+  }
+  .facts__row {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--c-line);
+  }
+  .facts dt {
+    margin: 0 0 6px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--c-gold-ink);
+  }
+  .facts dd {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
+    font-weight: 500;
+    line-height: 1.2;
+    font-variant-numeric: lining-nums;
+  }
+  .facts__note {
+    display: block;
+    margin-top: 4px;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 300;
+    line-height: 1.5;
+    color: var(--c-muted);
+  }
+
+  /* ---------------------------------------------------------------- Cennik: nawigacja po partiach */
+  .zonenav {
+    margin: 0 0 clamp(40px, 5vw, 64px);
+  }
+  .zonenav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .zonenav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1px solid var(--c-gold);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--c-gold-ink);
+  }
+  .zonenav a:hover {
+    background: var(--c-bg);
+    border-color: var(--c-gold-ink);
+    color: var(--c-gold-ink);
+  }
+
+  /* ---------------------------------------------------------------- Cennik: grupy i wiersze */
+  .dzg + .dzg {
+    margin-top: clamp(48px, 6vw, 80px);
+  }
+  .dzg__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 24px;
+    flex-wrap: wrap;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--c-gold);
+  }
+  .dzg__title {
+    margin: 0;
+    font-size: clamp(1.625rem, 1.35rem + 1vw, 2.25rem);
+  }
+  .dzg__count {
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+  .dzg__caption {
+    margin: 12px 0 0;
+    font-size: 0.875rem;
+    color: var(--c-muted);
+  }
+
+  .dz-cols,
+  .dz {
+    --offer-w: 19rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--offer-w) var(--offer-w);
+    column-gap: 24px;
+  }
+  .dz-cols {
+    padding: 14px 0 10px;
+    border-bottom: 1px solid var(--c-line);
+    font-size: 0.6875rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+  .dz-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .dz {
+    align-items: center;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--c-line);
+  }
+  .dz__name {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  .dz__offer {
+    display: grid;
+    grid-template-columns: 4.25rem minmax(0, 1fr) auto;
+    grid-template-areas: 'dur price book';
+    column-gap: 16px;
+    align-items: center;
+    min-width: 0;
+  }
+  .dz__kind {
+    grid-area: kind;
+    font-size: 0.6875rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--c-gold-ink);
+  }
+  /* Na szerokim ekranie nagłówki kolumn są nad listą, więc etykieta w komórce zostaje tylko dla czytników. */
+  @media (min-width: 961px) {
+    .dz__kind {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  }
+  .dz__dur {
+    grid-area: dur;
+    font-size: 0.875rem;
+    color: var(--c-muted);
+    white-space: nowrap;
+  }
+  .dz__pricebox {
+    grid-area: price;
+    display: grid;
+    justify-items: end;
+    gap: 2px;
+    text-align: right;
+  }
+  .dz__price {
+    font-family: var(--font-serif);
+    font-size: 1.375rem;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    /* Cormorant ma domyślnie cyfry nautyczne („150” wygląda jak „ı50”); w cenniku lepsze są wyrównane. */
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  .dz__from {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--c-muted);
+  }
+  .dz__price--var {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    line-height: 1.35;
+    color: var(--c-muted);
+    white-space: normal;
+  }
+  .dz__save {
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    color: var(--c-gold-ink);
+    white-space: nowrap;
+  }
+  .dz__book {
+    grid-area: book;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .dz__none {
+    grid-area: price;
+    justify-self: end;
+    color: var(--c-muted);
+  }
+
+  .dz-foot {
+    display: grid;
+    gap: 6px;
+    margin-top: 28px;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--c-muted);
+  }
+  .dz-foot p {
+    margin: 0;
+  }
+  .dz-foot .link-arrow {
+    margin-top: 8px;
+  }
+
+  /* ---------------------------------------------------------------- Przygotowanie i po zabiegu */
+  .split--tips {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  }
+  .split__head :global(.section-head) {
+    margin-bottom: 0;
+  }
+  .tips {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--c-gold);
+  }
+  .tips li {
+    display: grid;
+    grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
+    gap: 6px 28px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--c-line);
+  }
+  .tips__t {
+    margin: 0;
+    font-size: clamp(1.25rem, 1.15rem + 0.4vw, 1.5rem);
+    line-height: 1.2;
+  }
+  .tips__d {
+    margin: 0;
+    max-width: 58ch;
+  }
+
+  /* ---------------------------------------------------------------- Węższe ekrany */
+  @media (max-width: 960px) {
+    .split,
+    .split--tips {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .split--tips .split__head :global(.section-head) {
+      margin-bottom: clamp(32px, 5vw, 48px);
+    }
+
+    /* Wiersz partii: nazwa na całą szerokość, pod nią dwie oferty obok siebie z etykietami */
+    .dz-cols {
+      display: none;
+    }
+    .dz,
+    .dz-cols {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: 24px;
+    }
+    .dz {
+      row-gap: 12px;
+      align-items: start;
+      padding: 20px 0;
+    }
+    .dz__name {
+      grid-column: 1 / -1;
+      font-size: 1.1875rem;
+    }
+    .dz__offer {
+      grid-template-areas:
+        'kind kind kind'
+        'dur price book';
+      row-gap: 8px;
+    }
+    .dz__kind {
+      padding-top: 2px;
+    }
+  }
+  @media (max-width: 680px) {
+    .dz {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 14px;
+    }
+    .dz__offer + .dz__offer {
+      padding-top: 14px;
+      border-top: 1px solid var(--c-line);
+    }
+    .tips li {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

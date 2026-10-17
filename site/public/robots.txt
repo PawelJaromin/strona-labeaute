@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Adres do zmiany razem z site.url (src/config/site.ts) i SITE (astro.config.mjs), gdy domena będzie ustalona.
+Sitemap: https://labeaute.example.pl/sitemap-index.xml

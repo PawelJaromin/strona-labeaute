@@ -1,0 +1,20 @@
+---
+/**
+ * Krótka informacja przy przyciskach rezerwacji i w cenniku:
+ * „Rezerwacje online do 2 tygodni do przodu; w innym terminie zadzwoń: 784 736 463.”
+ *   <BookingNote />  albo  <BookingNote as="span" class="…" />
+ */
+import { site } from '../config/site';
+
+interface Props {
+  as?: 'p' | 'span' | 'div';
+  class?: string;
+}
+const { as = 'p', class: className } = Astro.props;
+const Tag = as;
+const weeks = site.booksy.bookingWindowWeeks;
+---
+
+<Tag class:list={['booking-note', className]}>
+  Rezerwacje online do {weeks} tygodni do przodu; w innym terminie zadzwoń: <a href={site.phone.href}>{site.phone.display}</a>.
+</Tag>

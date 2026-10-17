@@ -1,0 +1,363 @@
+---
+/**
+ * Strona główna (U3): hero H2 → Zabiegi (3 specjalności z podstronami) → Opinie → Pozostałe zabiegi
+ * (wybrane pozycje z cenami i „Umów”) → O nas (opis z Booksy, zespół, higiena) → Kontakt
+ * → pas CTA (z Base) → stopka.
+ * Rytm (brief, sekcja 2): hero biel + zdjęcie → kość słoniowa → CIEMNY pas opinii zaraz po
+ * „Zabiegach” → biel → kość słoniowa → biel → ciemny pas CTA → ciemna stopka.
+ * Teksty opierają się wyłącznie na research.md i opisie salonu z Booksy.
+ */
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import SectionHead from '../components/SectionHead.astro';
+import ServiceFeature from '../components/ServiceFeature.astro';
+import PriceList from '../components/PriceList.astro';
+import Team from '../components/Team.astro';
+import Reviews from '../components/Reviews.astro';
+import Contact from '../components/Contact.astro';
+import { site, routes } from '../config/site';
+import { beautySalonSchema } from '../lib/schema';
+import { findService, getServices, formatPrice } from '../lib/uslugi';
+
+import salon1 from '../assets/photos/salon-1.jpg';
+import salon3 from '../assets/photos/salon-3.jpg';
+import salon4 from '../assets/photos/salon-4.jpg';
+import salon5 from '../assets/photos/salon-5.jpg';
+import salon6 from '../assets/photos/salon-6.jpg';
+import inspiracja2 from '../assets/photos/inspiracja-2.jpg';
+
+/** Cena pozycji z danych Booksy (pusty tekst, gdy pozycji nie ma). */
+const price = (id: number) => formatPrice(findService(id)?.price);
+
+const features = [
+  {
+    index: '01',
+    eyebrow: 'Brwi · usta · kreska rzęs',
+    title: 'Makijaż permanentny',
+    text: 'Pigmentacja brwi, ust i linii rzęs, którą wykonuje Aldona. Zaczynamy od konsultacji i rysunku wstępnego, a efekt dopracowujemy podczas dopigmentowania po 6–12 tygodniach. Stawiamy na naturalny wygląd.',
+    image: inspiracja2,
+    imageAlt: 'Zbliżenie ust z makijażem permanentnym',
+    href: routes.makijaz,
+    priceHref: `${routes.makijaz}#cennik-zabiegu`,
+    highlights: [
+      { label: 'Brwi', value: price(1680751) },
+      { label: 'Usta', value: price(1680768) },
+      { label: 'Lash liner (kreska rzęs, góra)', value: price(1680758) },
+    ],
+  },
+  {
+    index: '02',
+    eyebrow: 'Alma Baby Remove · pakiety 6 zabiegów',
+    title: 'Depilacja laserowa',
+    text: 'Depilacja laserowa urządzeniem Alma Baby Remove: od drobnych partii twarzy po całe nogi. Każdą partię można wykupić jako pojedynczy zabieg albo w pakiecie sześciu zabiegów.',
+    image: salon4,
+    imageAlt: 'Gabinet zabiegowy La Beauté: białe szafki z marmurowym blatem, złota bateria i urządzenia kosmetyczne',
+    href: routes.depilacja,
+    priceHref: `${routes.depilacja}#cennik-zabiegu`,
+    highlights: [
+      { label: 'Pachy, 1 zabieg', value: price(3621283) },
+      { label: 'Pachy, pakiet 6 zabiegów', value: price(3631943) },
+      { label: 'Całe nogi, 1 zabieg', value: price(3621304) },
+    ],
+  },
+  {
+    index: '03',
+    eyebrow: 'Laser Nd:YAG Q-Switch · remover',
+    title: 'Usuwanie tatuażu i makijażu permanentnego',
+    text: 'Laserowe usuwanie tatuażu i makijażu permanentnego urządzeniem Nd:YAG Q-Switch, a także usuwanie makijażu permanentnego metodą remover. Opis zabiegu i ceny znajdziesz na stronie zabiegu.',
+    image: salon3,
+    imageAlt: 'Praca z urządzeniem laserowym w gabinecie La Beauté',
+    imagePosition: 'left' as const,
+    href: routes.tatuaz,
+    priceHref: `${routes.tatuaz}#cennik-zabiegu`,
+    highlights: [
+      { label: 'Usuwanie tatuażu', value: price(1677704) },
+      { label: 'Usuwanie makijażu permanentnego laserem', value: price(1677702) },
+      { label: 'Remover', value: price(4099985) },
+    ],
+  },
+];
+
+const otherGroups = [
+  {
+    id: 'paznokcie',
+    title: 'Paznokcie i pedicure',
+    text: 'Manicure hybrydowy, przedłużanie i korekta żelu, żel na naturalnej płytce oraz pedicure: klasyczny, z calluspeelingiem i premium. Stylizacją paznokci zajmują się Żaneta i Wiktoria.',
+    link: { href: `${routes.cennik}#pielegnacja-dloni-i-paznokci`, label: 'Cennik paznokci i pedicure' },
+    items: getServices([1462452, 1882622, 1675239]),
+    labels: {} as Record<number, string>,
+  },
+  {
+    id: 'brwi-i-rzesy',
+    title: 'Brwi i rzęsy',
+    text: 'Laminacja rzęs i brwi, henna, regulacja oraz stylizacja brwi farbką.',
+    link: { href: `${routes.cennik}#lifting-i-laminacja`, label: 'Cennik brwi i rzęs' },
+    items: getServices([3790924, 5008088, 1675248]),
+    labels: {} as Record<number, string>,
+  },
+  {
+    id: 'twarz',
+    title: 'Twarz',
+    text: 'Peeling węglowy z użyciem lasera (twarz, szyja, dekolt) oraz mezoterapia mikroigłowa.',
+    link: { href: `${routes.cennik}#peeling-weglowy`, label: 'Cennik zabiegów na twarz' },
+    items: getServices([1677707, 1677719, 3129074]),
+    labels: { 3129074: 'Mezoterapia mikroigłowa: blizny' } as Record<number, string>,
+  },
+];
+
+const r = site.reviews;
+---
+
+<Base
+  title="La Beauté Aldona Targiel · Salon kosmetyczny w Orzeszu"
+  brandInTitle={false}
+  description="Salon kosmetyczny La Beauté w Orzeszu: makijaż permanentny, depilacja laserowa, usuwanie tatuażu, paznokcie, brwi i rzęsy. Rezerwacja online przez Booksy."
+  jsonLd={[beautySalonSchema()]}
+>
+  <Hero
+    eyebrow="Salon kosmetyczny · Orzesze"
+    lead="Makijaż permanentny, depilacja laserowa, stylizacja paznokci oraz brwi i rzęs. Indywidualne podejście, naturalny efekt i sterylne narzędzia."
+    image={salon1}
+    imageAlt="Poczekalnia salonu La Beauté: białe ściany ze sztukaterią, złote logo na ścianie i czarne aksamitne fotele na złotych nogach"
+    primary={{ label: 'Umów wizytę', booksy: true }}
+    secondary={{ label: 'Zobacz cennik', href: routes.cennik }}
+    meta={[
+      { value: r.booksy.rating, label: `ze ${r.booksy.count} opinii w Booksy`, href: r.booksy.url },
+      { value: r.google.rating, label: `z ${r.google.count} opinii w Google`, href: r.google.url },
+      { label: `${site.address.street}, ${site.address.city}` },
+    ]}
+    note
+  >
+    <Fragment slot="title">Piękno <em>w każdym detalu</em></Fragment>
+  </Hero>
+
+  <!-- ============================================================ Zabiegi (kość słoniowa) -->
+  <section class="section section--ivory" id="zabiegi" aria-labelledby="zabiegi-title">
+    <div class="container">
+      <SectionHead
+        eyebrow="Zabiegi"
+        title="Specjalności salonu"
+        lead="Makijaż permanentny, depilacja laserowa oraz usuwanie tatuażu i makijażu permanentnego mają osobne strony z opisem zabiegu i pełnym cennikiem."
+        id="zabiegi-title"
+      />
+      <div class="features">
+        {features.map((f, i) => <ServiceFeature {...f} reverse={i % 2 === 1} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ Opinie (ciemny pas) -->
+  <Reviews tone="dark" />
+
+  <!-- ============================================================ Pozostałe zabiegi (biel) -->
+  <section class="section" id="pozostale-zabiegi" aria-labelledby="pozostale-title">
+    <div class="container">
+      <SectionHead
+        eyebrow="Pozostałe zabiegi"
+        title="Paznokcie, brwi i rzęsy, twarz"
+        lead="Kilka najczęściej wybieranych pozycji. Pełną listę z cenami i czasem trwania znajdziesz w cenniku."
+        id="pozostale-title"
+      />
+      <div class="others">
+        {
+          otherGroups.map((g) => (
+            <div class="others__row" id={g.id}>
+              <div class="others__intro">
+                <h3 class="others__title">{g.title}</h3>
+                <p class="others__text">{g.text}</p>
+                <a class="link-arrow" href={g.link.href}>
+                  {g.link.label}
+                </a>
+              </div>
+              <PriceList items={g.items} footer={false} showDescriptions={false} labels={g.labels} />
+            </div>
+          ))
+        }
+      </div>
+      <div class="others__foot">
+        <p class="muted">W cenniku także depilacja woskiem, henna i aktualne promocje.</p>
+        <a class="btn btn--secondary" href={routes.cennik}>Pełny cennik</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ O nas (kość słoniowa) -->
+  <section class="section section--ivory" id="o-nas" aria-labelledby="o-nas-title">
+    <div class="container">
+      <div class="about">
+        <div class="about__text">
+          <SectionHead eyebrow="O nas" id="o-nas-title">
+            <Fragment slot="title">Miejsce stworzone <em>z pasji do piękna</em></Fragment>
+          </SectionHead>
+          <p class="lead">
+            La Beauté to salon, w którym liczy się dbałość o każdy detal. Od lat pomagamy klientkom podkreślać ich naturalne piękno.
+          </p>
+          <p>
+            Specjalizujemy się w makijażu permanentnym, laserowym usuwaniu makijażu permanentnego i tatuaży, depilacji laserowej, stylizacji paznokci i pedicure oraz stylizacji brwi i rzęs. Stawiamy na indywidualne podejście, bezpieczeństwo i naturalne efekty.
+          </p>
+          <p>
+            Chcemy, żeby każda wizyta była chwilą relaksu, a efekt zabiegu dodawał pewności siebie na co dzień.
+          </p>
+        </div>
+        <div class="about__media">
+          <Image
+            src={salon5}
+            alt="Stanowisko do stylizacji paznokci w La Beauté: lampa do utwardzania, pochłaniacz pyłu i czarny ręcznik z haftowanym logo salonu"
+            widths={[480, 720, 1080]}
+            sizes="(max-width: 900px) calc(100vw - 40px), 560px"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </div>
+
+      <div class="team-block">
+        <div class="team-block__head">
+          <p class="eyebrow">Zespół</p>
+          <h3 class="team-block__title">Kto się Tobą zajmie</h3>
+        </div>
+        <Team as="h4" />
+      </div>
+
+      <div class="hygiene">
+        <div class="hygiene__media">
+          <Image
+            src={salon6}
+            alt="Urządzenie do sterylizacji narzędzi w gabinecie La Beauté, obok kwiaty"
+            widths={[480, 720, 1080]}
+            sizes="(max-width: 900px) calc(100vw - 40px), 520px"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div class="hygiene__text">
+          <p class="eyebrow">Standardy</p>
+          <h3 class="hygiene__title">Higiena i bezpieczeństwo</h3>
+          <ul class="hairlist hygiene__list" role="list">
+            <li>Narzędzia wielokrotnego użytku poddajemy profesjonalnej sterylizacji.</li>
+            <li>Materiały jednorazowe wykorzystujemy wyłącznie raz.</li>
+            <li>Pracujemy na sprawdzonych produktach i nowoczesnym sprzęcie.</li>
+            <li>Każdą wizytę dopasowujemy do klientki: indywidualne podejście i naturalny efekt.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ Kontakt (biel) -->
+  <Contact />
+</Base>
+
+<style>
+  /* Zabiegi */
+  .features {
+    display: grid;
+    gap: clamp(88px, 11vw, 168px);
+  }
+
+  /* Pozostałe zabiegi */
+  .others {
+    border-top: 1px solid var(--c-gold);
+  }
+  .others__row {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    gap: clamp(28px, 6vw, 96px);
+    padding-block: clamp(36px, 4vw, 56px);
+    border-bottom: 1px solid var(--c-line);
+  }
+  .others__title {
+    margin: 0 0 14px;
+    font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem);
+  }
+  .others__text {
+    margin: 0 0 18px;
+    color: var(--c-muted);
+    font-size: 1rem;
+  }
+  .others__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 32px;
+    margin-top: clamp(32px, 4vw, 48px);
+  }
+  .others__foot p {
+    margin: 0;
+  }
+
+  /* O nas */
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    gap: clamp(40px, 7vw, 112px);
+    align-items: center;
+  }
+  .about__text .lead {
+    margin-bottom: 1.1em;
+  }
+  .about__text :global(.section-head) {
+    margin-bottom: 32px;
+  }
+  .about__media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    background: var(--c-bg-2);
+  }
+  .about__media::before {
+    content: '';
+    position: absolute;
+    inset: -18px 18px 18px -18px;
+    border: 1px solid var(--c-gold);
+    pointer-events: none;
+  }
+  .about__media :global(img) {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .team-block {
+    margin-top: clamp(96px, 11vw, 168px);
+  }
+  .team-block__head {
+    margin-bottom: clamp(32px, 4vw, 52px);
+  }
+  .team-block__title,
+  .hygiene__title {
+    margin: 0;
+    font-size: clamp(2rem, 1.5rem + 1.8vw, 2.875rem);
+  }
+  .hygiene {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(40px, 7vw, 112px);
+    align-items: center;
+    margin-top: clamp(96px, 11vw, 168px);
+  }
+  .hygiene__media {
+    aspect-ratio: 4 / 3;
+    background: var(--c-bg-2);
+  }
+  .hygiene__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .hygiene__list {
+    margin-top: 28px;
+  }
+  @media (max-width: 900px) {
+    .others__row,
+    .about,
+    .hygiene {
+      grid-template-columns: 1fr;
+    }
+    .about__media {
+      aspect-ratio: 4 / 3;
+      margin: 18px 0 0 18px;
+    }
+  }
+</style>

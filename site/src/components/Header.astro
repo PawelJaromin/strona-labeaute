@@ -1,0 +1,415 @@
+---
+/**
+ * Nagłówek (sticky): logo-napis, nawigacja Zabiegi · Cennik · O nas · Kontakt, przycisk „Umów wizytę”
+ * (widget Booksy). Na telefonie menu w <details>: działa bez JS; mały skrypt zamyka je po kliknięciu
+ * linku, Esc i kliknięciu poza menu.
+ */
+import { Image } from 'astro:assets';
+import logoNapis from '../assets/logo/logo-napis.png';
+import { site, routes, addressLine } from '../config/site';
+import Button from './Button.astro';
+
+const current = Astro.url.pathname;
+const subpages = [
+  { href: routes.makijaz, label: 'Makijaż permanentny' },
+  { href: routes.depilacja, label: 'Depilacja laserowa' },
+  { href: routes.tatuaz, label: 'Usuwanie tatuażu' },
+];
+const nav: { href: string; label: string; sub?: typeof subpages }[] = [
+  { href: routes.zabiegi, label: 'Zabiegi', sub: subpages },
+  { href: routes.cennik, label: 'Cennik' },
+  { href: routes.oNas, label: 'O nas' },
+  { href: routes.kontakt, label: 'Kontakt' },
+];
+const isCurrent = (href: string) => !href.includes('#') && current === href;
+---
+
+<header class="hdr" id="site-header">
+  <div class="container hdr__in">
+    <a class="hdr__logo" href="/" aria-current={current === '/' ? 'page' : undefined}>
+      <Image src={logoNapis} alt={`${site.name}, strona główna`} height={28} densities={[1, 2, 3]} loading="eager" decoding="async" class="hdr__logo-img" />
+    </a>
+
+    <nav class="hdr__nav" aria-label="Menu główne">
+      <ul class="hdr__list" role="list">
+        {
+          nav.map((item) => (
+            <li class:list={['hdr__item', { 'hdr__item--sub': item.sub }]}>
+              <a href={item.href} class="hdr__link" aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+              {item.sub && (
+                <ul class="hdr__drop" role="list">
+                  {item.sub.map((sub) => (
+                    <li>
+                      <a href={sub.href} class="hdr__droplink" aria-current={isCurrent(sub.href) ? 'page' : undefined}>
+                        {sub.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="hdr__actions">
+      <a class="hdr__tel" href={site.phone.href}><span class="visually-hidden">Telefon: </span>{site.phone.display}</a>
+      <Button booksy size="sm" class="hdr__cta"><span>Umów<span class="hdr__cta-more"> wizytę</span></span></Button>
+
+      <details class="hdr__menu" id="mobile-menu">
+        <summary class="hdr__toggle">
+          <span class="hdr__toggle-label hdr__toggle-label--open">Menu</span>
+          <span class="hdr__toggle-label hdr__toggle-label--close">Zamknij</span>
+          <span class="hdr__bars" aria-hidden="true"><i></i><i></i></span>
+        </summary>
+        <div class="hdr__panel">
+          <nav aria-label="Menu główne (telefon)">
+            <ul class="hdr__mlist" role="list">
+              {
+                nav.map((item) => (
+                  <li>
+                    <a href={item.href} class="hdr__mlink" aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                      {item.label}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+            <ul class="hdr__msub" role="list">
+              {
+                subpages.map((item) => (
+                  <li>
+                    <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                      {item.label}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </nav>
+          <div class="hdr__mmeta">
+            <a href={site.phone.href} class="hdr__mtel">tel. {site.phone.display}</a>
+            <span>{addressLine}</span>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>
+
+<style>
+  .hdr {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--header-h);
+    background: var(--c-bg);
+    border-bottom: 1px solid var(--c-line);
+  }
+  .hdr__in {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: clamp(16px, 3vw, 40px);
+  }
+  .hdr__logo {
+    display: block;
+    flex: none;
+    margin-right: auto;
+    text-decoration: none;
+    line-height: 0;
+  }
+  /* Logo-napis: ok. 28 px na desktopie, 22 px na telefonie (brief, sekcja 2) */
+  .hdr__logo :global(img) {
+    height: 28px;
+    width: auto;
+  }
+
+  /* Desktop */
+  .hdr__nav {
+    display: block;
+    align-self: stretch;
+  }
+  .hdr__list {
+    display: flex;
+    height: 100%;
+    gap: clamp(8px, 2vw, 28px);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  /* <li> na całą wysokość nagłówka: rozwijane menu „Zabiegi” nie traci najechania na szczelinie */
+  .hdr__item {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .hdr__drop {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: -20px;
+    min-width: 260px;
+    margin: 0;
+    padding: 8px 0;
+    list-style: none;
+    background: var(--c-bg);
+    border: 1px solid var(--c-line);
+    border-top-color: var(--c-gold);
+  }
+  .hdr__item--sub:hover .hdr__drop,
+  .hdr__item--sub:focus-within .hdr__drop {
+    display: block;
+  }
+  .hdr__item--sub[data-dismissed] .hdr__drop {
+    display: none;
+  }
+  .hdr__droplink {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 20px;
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--c-ink);
+  }
+  .hdr__droplink:hover,
+  .hdr__droplink[aria-current='page'] {
+    background: var(--c-bg-2);
+    color: var(--c-gold-ink);
+  }
+  .hdr__link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 4px;
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--c-ink);
+  }
+  .hdr__link::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    bottom: 8px;
+    height: 1px;
+    background: var(--c-gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur) var(--ease);
+  }
+  .hdr__link:hover {
+    color: var(--c-ink);
+  }
+  .hdr__link:hover::after,
+  .hdr__link[aria-current='page']::after {
+    transform: scaleX(1);
+  }
+  .hdr__actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }  .hdr__tel {
+    display: none;
+    font-size: 0.875rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    color: var(--c-ink);
+    white-space: nowrap;
+  }
+  .hdr__tel:hover {
+    color: var(--c-gold-ink);
+  }
+  @media (min-width: 1180px) {
+    .hdr__tel {
+      display: inline;
+    }
+  }
+  .hdr__menu {
+    display: none;
+  }
+
+  /* Telefon i tablet */
+  @media (max-width: 960px) {
+    .hdr__logo :global(img) {
+      height: 22px;
+    }
+    .hdr__nav {
+      display: none;
+    }
+    .hdr__actions {
+      gap: 10px;
+    }
+    .hdr__menu {
+      display: block;
+    }
+    .hdr__toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 40px;
+      padding: 0 4px 0 10px;
+      list-style: none;
+      cursor: pointer;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--c-ink);
+      user-select: none;
+    }
+    .hdr__toggle::-webkit-details-marker {
+      display: none;
+    }
+    .hdr__toggle::marker {
+      content: '';
+    }
+    .hdr__toggle-label--close {
+      display: none;
+    }
+    .hdr__menu[open] .hdr__toggle-label--open {
+      display: none;
+    }
+    .hdr__menu[open] .hdr__toggle-label--close {
+      display: inline;
+    }
+    .hdr__bars {
+      display: inline-grid;
+      gap: 6px;
+      width: 22px;
+    }
+    .hdr__bars i {
+      display: block;
+      height: 1px;
+      background: currentColor;
+      transition: transform var(--dur) var(--ease);
+    }
+    .hdr__menu[open] .hdr__bars i:nth-child(1) {
+      transform: translateY(3.5px) rotate(45deg);
+    }
+    .hdr__menu[open] .hdr__bars i:nth-child(2) {
+      transform: translateY(-3.5px) rotate(-45deg);
+    }
+    .hdr__panel {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      max-height: calc(100dvh - var(--header-h));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 12px var(--gutter) 32px;
+      background: var(--c-bg);
+      border-bottom: 1px solid var(--c-line);
+    }
+    .hdr__mlist,
+    .hdr__msub {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .hdr__mlink {
+      display: flex;
+      align-items: center;
+      min-height: 60px;
+      border-bottom: 1px solid var(--c-line);
+      font-family: var(--font-serif);
+      font-size: 1.75rem;
+      font-weight: 500;
+      line-height: 1.1;
+      text-decoration: none;
+      color: var(--c-ink);
+    }
+    .hdr__mlink[aria-current='page'] {
+      color: var(--c-gold-ink);
+    }
+    .hdr__msub {
+      margin-top: 20px;
+      display: grid;
+      gap: 2px;
+    }
+    .hdr__msub a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      font-size: 0.75rem;
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--c-gold-ink);
+    }
+    .hdr__mmeta {
+      display: grid;
+      gap: 4px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--c-line);
+      font-size: 0.9375rem;
+      color: var(--c-muted);
+    }
+    .hdr__mtel {
+      font-weight: 400;
+      color: var(--c-ink);
+      text-decoration: none;
+    }
+  }
+  @media (max-width: 400px) {
+    .hdr__cta-more {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // Rozwijane menu „Zabiegi” (desktop): Esc zamyka je bez przenoszenia fokusu (WCAG 1.4.13);
+  // wraca po opuszczeniu myszą lub fokusem.
+  document.querySelectorAll<HTMLElement>('.hdr__item--sub').forEach((item) => {
+    const reset = () => item.removeAttribute('data-dismissed');
+    item.addEventListener('keydown', (e) => {
+      if ((e as KeyboardEvent).key === 'Escape') {
+        item.setAttribute('data-dismissed', '');
+        item.querySelector<HTMLElement>('.hdr__link')?.focus();
+      }
+    });
+    item.addEventListener('mouseleave', reset);
+    item.addEventListener('focusout', (e) => {
+      if (!item.contains((e as FocusEvent).relatedTarget as Node | null)) reset();
+    });
+  });
+
+  const menu = document.getElementById('mobile-menu') as HTMLDetailsElement | null;
+  if (menu) {
+    const summary = menu.querySelector('summary');
+    const close = (focus = false) => {
+      if (!menu.open) return;
+      menu.open = false;
+      if (focus) summary?.focus();
+    };
+    menu.addEventListener('toggle', () => {
+      document.documentElement.classList.toggle('is-locked', menu.open);
+    });
+    menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => close()));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.open) close(true);
+    });
+    document.addEventListener('click', (e) => {
+      if (menu.open && !menu.contains(e.target as Node)) close();
+    });
+    window.matchMedia('(min-width: 961px)').addEventListener('change', (e) => {
+      if (e.matches) close();
+    });
+  }
+</script>

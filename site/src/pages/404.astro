@@ -1,0 +1,67 @@
+---
+/**
+ * Strona błędu 404 (build: dist/404.html; .htaccess: ErrorDocument 404 /404.html).
+ * Rytm: PageIntro (ciemny, compact) → skróty do głównych stron (biel) → pas CTA (dodaje Base).
+ */
+import Base from '../layouts/Base.astro';
+import PageIntro from '../components/PageIntro.astro';
+import { routes } from '../config/site';
+
+const links = [
+  { href: routes.makijaz, label: 'Makijaż permanentny' },
+  { href: routes.depilacja, label: 'Depilacja laserowa' },
+  { href: routes.tatuaz, label: 'Usuwanie tatuażu i makijażu permanentnego' },
+  { href: routes.cennik, label: 'Cennik zabiegów' },
+  { href: routes.kontakt, label: 'Kontakt i godziny otwarcia' },
+];
+---
+
+<Base title="Nie znaleziono strony" description="Strona, której szukasz, nie istnieje lub została przeniesiona. Salon kosmetyczny La Beauté w Orzeszu." noindex>
+  <PageIntro
+    compact
+    eyebrow="Błąd 404"
+    title="Nie znaleziono strony"
+    lead="Adres mógł się zmienić albo zawiera literówkę. Zapraszamy na stronę główną, do cennika albo do kontaktu."
+    primary={{ label: 'Strona główna', href: routes.home }}
+    secondary={{ label: 'Cennik', href: routes.cennik }}
+  />
+
+  <section class="section section--tight" aria-labelledby="nf-links-title">
+    <div class="container--narrow">
+      <h2 class="nf__title" id="nf-links-title">Może szukasz</h2>
+      <ul class="nf__links" role="list">
+        {
+          links.map((l) => (
+            <li>
+              <a class="link-arrow" href={l.href}>
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf__title {
+    font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.375rem);
+    margin-bottom: 20px;
+  }
+  .nf__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--c-gold);
+  }
+  .nf__links li {
+    border-bottom: 1px solid var(--c-line);
+  }
+  .nf__links .link-arrow {
+    justify-content: space-between;
+    width: 100%;
+    min-height: 60px;
+    letter-spacing: 0.12em;
+  }
+</style>

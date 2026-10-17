@@ -1,0 +1,75 @@
+---
+/**
+ * Tabela godzin otwarcia (site.hours, wg Booksy).
+ *   <Hours />                       z podpisem „Godziny otwarcia” (ukrytym wizualnie)
+ *   <Hours caption="Godziny pracy salonu" showCaption />
+ */
+import { site, hoursText } from '../config/site';
+
+interface Props {
+  caption?: string;
+  /** Pokaż podpis tabeli (domyślnie tylko dla czytników ekranu). */
+  showCaption?: boolean;
+  class?: string;
+}
+const { caption = 'Godziny otwarcia', showCaption = false, class: className } = Astro.props;
+---
+
+<table class:list={['hours', className]}>
+  <caption class:list={{ 'visually-hidden': !showCaption, hours__caption: showCaption }}>{caption}</caption>
+  <tbody>
+    {
+      site.hours.map((h) => (
+        <tr class:list={{ 'is-closed': !h.opens }}>
+          <th scope="row">{h.day}</th>
+          <td>{hoursText(h)}</td>
+        </tr>
+      ))
+    }
+  </tbody>
+</table>
+
+<style>
+  .hours {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+  }
+  .hours__caption {
+    text-align: left;
+    padding-bottom: 12px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--c-gold-ink);
+  }
+  .hours th,
+  .hours td {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--c-line);
+    text-align: left;
+    vertical-align: baseline;
+  }
+  .hours tbody tr:first-child th,
+  .hours tbody tr:first-child td {
+    border-top: 1px solid var(--c-line);
+  }
+  .hours th {
+    font-weight: 300;
+    padding-right: 16px;
+  }
+  .hours td {
+    text-align: right;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .hours .is-closed th,
+  .hours .is-closed td {
+    color: var(--c-muted);
+  }
+  .hours .is-closed td {
+    font-weight: 300;
+  }
+</style>

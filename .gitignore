@@ -1,0 +1,11 @@
+# zależności i wyniki budowania strony
+site/node_modules/
+site/dist/
+site/dist-*/
+site/.astro/
+
+# pliki tymczasowe
+.DS_Store
+Thumbs.db
+npm-debug.log*
+*.log

@@ -1,0 +1,28 @@
+{
+  "name": "labeaute-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Strona www salonu La Beauté Aldona Targiel (Orzesze), Astro 5, statyczna.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "astro dev --port 4341 --host 127.0.0.1",
+    "build": "astro build",
+    "preview": "astro preview --port 4342 --host 127.0.0.1",
+    "icons": "node scripts/make-icons.mjs",
+    "og": "node scripts/make-og.mjs",
+    "sync": "python -I -X utf8 scripts/sync-booksy.py",
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "check:links": "python -I -X utf8 scripts/linkcheck.py",
+    "test": "npm run build && npm run check:contrast && npm run check:links"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "@fontsource/jost": "^5.3.0",
+    "astro": "^5.18.2",
+    "sharp": "^0.34.5"
+  }
+}

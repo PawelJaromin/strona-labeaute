@@ -1,0 +1,172 @@
+---
+/**
+ * Cennik jak w karcie menu: grupy z nagłówkiem, wiersze PriceRow, stopka z datą aktualizacji
+ * i informacją o rezerwacjach.
+ *
+ * Kategorie z Booksy (nazwy jak w src/data/uslugi.json, wielkość liter i spacje bez znaczenia):
+ *   <PriceList categories={['Makijaż permanentny', 'Laser nd-Yag Q-SWITCH']} />
+ * Dowolne pozycje jako jedna grupa:
+ *   <PriceList title="Najczęściej wybierane" items={getServices([1680751, 3790924])} />
+ * Bez nagłówków grup i bez stopki (np. 2–3 pozycje w sekcji strony głównej):
+ *   <PriceList items={getServices([...])} footer={false} labels={{ 3129074: 'Mezoterapia mikroigłowa: blizny' }} />
+ * Każda grupa kategorii dostaje id = slug kategorii (np. #makijaz-permanentny) do kotwic.
+ */
+import { getCategories, categoryLabel, formatUpdatedAt, slugify, type Service } from '../lib/uslugi';
+import PriceRow from './PriceRow.astro';
+import BookingNote from './BookingNote.astro';
+
+interface Props {
+  /** Kategorie z Booksy; każda jako osobna grupa z nagłówkiem. */
+  categories?: readonly string[];
+  /** Dowolne pozycje jako jedna grupa (ma pierwszeństwo przed `categories`). */
+  items?: readonly Service[];
+  /** Nagłówek grupy `items` albo nadpisanie nagłówka, gdy podano jedną kategorię. */
+  title?: string;
+  /** Poziom nagłówków grup (domyślnie h3). */
+  as?: 'h2' | 'h3' | 'h4';
+  /** Krótki podpis pod nagłówkiem grupy, np. „wykonuje Aldona”. */
+  caption?: string;
+  /** Własne nazwy pozycji: { [id usługi]: 'nazwa' }. */
+  labels?: Record<number, string>;
+  /** Pokaż opisy z Booksy (domyślnie tak). */
+  showDescriptions?: boolean;
+  /** Pozycje do pominięcia (id usług). */
+  exclude?: readonly number[];
+  /** Stopka z datą aktualizacji cen i informacją o rezerwacjach (domyślnie tak). */
+  footer?: boolean;
+  /** Pokaż liczbę pozycji przy nagłówku (domyślnie tak). */
+  count?: boolean;
+  /** id dla grupy `items` (kotwica). Grupy kategorii mają id = slug kategorii. */
+  id?: string;
+  class?: string;
+}
+
+const {
+  categories = [],
+  items,
+  title,
+  as = 'h3',
+  caption,
+  labels = {},
+  showDescriptions = true,
+  exclude = [],
+  footer = true,
+  count = true,
+  id,
+  class: className,
+} = Astro.props;
+
+interface Group {
+  title?: string;
+  id?: string;
+  services: Service[];
+}
+
+const skip = new Set(exclude);
+let groups: Group[];
+if (items) {
+  groups = [{ title, id: id ?? (title ? slugify(title) : undefined), services: items.filter((s) => !skip.has(s.id)) }];
+} else {
+  const cats = getCategories(categories);
+  groups = cats.map((c) => ({
+    title: cats.length === 1 && title ? title : categoryLabel(c.name),
+    id: c.slug,
+    services: c.services.filter((s) => !skip.has(s.id)),
+  }));
+}
+groups = groups.filter((g) => g.services.length > 0);
+
+const Tag = as;
+const plural = (n: number) => {
+  const d = n % 10;
+  const dd = n % 100;
+  if (n === 1) return 'pozycja';
+  if (d >= 2 && d <= 4 && (dd < 12 || dd > 14)) return 'pozycje';
+  return 'pozycji';
+};
+---
+
+<div class:list={['pl', className]}>
+  {
+    groups.map((g) => (
+      <section class="pl__group" id={g.id} aria-labelledby={g.title && g.id ? `${g.id}-title` : undefined}>
+        {g.title && (
+          <div class="pl__head">
+            <Tag class="pl__title" id={g.id ? `${g.id}-title` : undefined}>
+              {g.title}
+            </Tag>
+            {count && (
+              <span class="pl__count">
+                {g.services.length} {plural(g.services.length)}
+              </span>
+            )}
+          </div>
+        )}
+        {caption && <p class="pl__caption">{caption}</p>}
+        <ul class="pl__rows" role="list">
+          {g.services.map((s) => (
+            <PriceRow service={s} label={labels[s.id]} showDescription={showDescriptions} />
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+  {
+    footer && (
+      <div class="pl__foot">
+        <p>Ceny i czasy zabiegów według Booksy, stan na {formatUpdatedAt()}&nbsp;r.</p>
+        <BookingNote />
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .pl__group + .pl__group {
+    margin-top: clamp(48px, 6vw, 80px);
+  }
+  .pl__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 24px;
+    flex-wrap: wrap;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--c-gold);
+  }
+  .pl__title {
+    margin: 0;
+    font-size: clamp(1.625rem, 1.35rem + 1vw, 2.25rem);
+  }
+  .pl__count {
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+  .pl__caption {
+    margin: 12px 0 0;
+    font-size: 0.875rem;
+    color: var(--c-muted);
+  }
+  .pl__rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .pl__group > .pl__rows:first-child {
+    border-top: 1px solid var(--c-line);
+  }
+  .pl__foot {
+    display: grid;
+    gap: 6px;
+    margin-top: 28px;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--c-muted);
+  }
+  .pl__foot p {
+    margin: 0;
+  }
+</style>

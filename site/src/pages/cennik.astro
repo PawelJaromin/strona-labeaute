@@ -1,0 +1,551 @@
+---
+/**
+ * /cennik/ — pełny cennik salonu: wszystkie kategorie z Booksy w kolejności Booksy
+ * (src/data/uslugi.json, odświeżany wyłącznie przez `npm run sync`).
+ * „Popularne” jest pokazane na górze jako „Najczęściej wybierane” (te pozycje występują w Booksy
+ * tylko w tej kategorii, więc nie są duplikatami).
+ *
+ * Rytm stron (brief, sekcja 2): PageIntro (ciemny) → cennik na bieli z kotwicami do kategorii
+ * (komputer: boczny, przyklejony spis; telefon i tablet: przyklejony pasek przewijany w poziomie)
+ * → informacje o cenniku (kość słoniowa) → pas CTA (dodaje Base) → ciemna stopka.
+ *
+ * Wszystkie teksty tej strony są w tym pliku. Ceny, czasy i nazwy zabiegów pochodzą wyłącznie z
+ * danych Booksy; nic tu nie jest wpisane ręcznie poza nazwami wyświetlanymi (META poniżej).
+ */
+import Base from '../layouts/Base.astro';
+import PageIntro from '../components/PageIntro.astro';
+import PriceList from '../components/PriceList.astro';
+import SectionHead from '../components/SectionHead.astro';
+import BookingNote from '../components/BookingNote.astro';
+import { groupByCategory, loadServices, formatUpdatedAt, priceInfo, serviceName, slugify, type Category, type Service } from '../lib/uslugi';
+import { salonRef } from '../lib/schema';
+import { site, routes } from '../config/site';
+import introPhoto from '../assets/photos/inspiracja-1.jpg';
+
+const categories = groupByCategory();
+const total = loadServices().length;
+const updated = formatUpdatedAt();
+
+/* ---------------------------------------------------------------- nazwy i linki kategorii */
+
+interface CatMeta {
+  /** Krótsza nazwa w spisie kategorii (domyślnie nagłówek). */
+  nav?: string;
+  /** Nagłówek kategorii na stronie (domyślnie nazwa z Booksy po poprawkach z categoryLabel). */
+  title?: string;
+  /** Strona zabiegu, do której prowadzi link „Poznaj zabieg”. */
+  href?: string;
+  /** Własne nazwy pozycji (id usługi -> nazwa), gdy sama nazwa z Booksy nic nie mówi. */
+  labels?: Record<number, string>;
+}
+const LASER = 'epilacja-laserowa-alma-baby-remove';
+const META: Record<string, CatMeta> = {
+  'makijaz-permanentny': { href: routes.makijaz },
+  'laser-nd-yag-q-switch': { href: routes.tatuaz },
+  [LASER]: { nav: 'Depilacja laserowa', title: 'Depilacja laserowa Alma Baby Remove', href: routes.depilacja },
+  'pielegnacja-dloni-i-paznokci': { nav: 'Dłonie i paznokcie' },
+  'mezoterapia-mikroiglowa': { labels: { 3129074: 'Mezoterapia mikroigłowa: blizny' } },
+};
+const metaOf = (c: Category): CatMeta => META[c.slug] ?? {};
+const headingOf = (c: Category) => metaOf(c).title ?? c.label;
+const navLabelOf = (c: Category) => metaOf(c).nav ?? headingOf(c);
+
+const plural = (n: number) => {
+  const d = n % 10;
+  const dd = n % 100;
+  if (n === 1) return 'pozycja';
+  if (d >= 2 && d <= 4 && (dd < 12 || dd > 14)) return 'pozycje';
+  return 'pozycji';
+};
+
+/* ---------------------------------------------------------------- depilacja laserowa: podział na partie ciała */
+// 47 pozycji w jednej kategorii czyta się lepiej pogrupowanych (twarz / ręce / tułów / nogi / bikini),
+// w parach „1 zabieg” + „pakiet 6 zabiegów”. Pozycje, których nie rozpoznano (np. po przyszłej
+// synchronizacji), trafiają do grupy „Pozostałe”, więc żadna nie zniknie z cennika.
+const AREAS: { title: string; test: RegExp }[] = [
+  { title: 'Twarz i szyja', test: /wąsik|broda|twarz|szyj|kark|uszy/iu },
+  { title: 'Ręce i pachy', test: /pach|dłoni|dłonie|przedrami|ramion|ręce|rąk/iu },
+  { title: 'Tułów', test: /brzuch|klatk|tułów|plec|pośladk/iu },
+  { title: 'Nogi', test: /łydk|nogi|nóg|stopy|(?<![\p{L}])uda(?![\p{L}])/iu },
+  { title: 'Bikini', test: /bikini/iu },
+];
+const COMBO = /nogi.*bikini|bikini.*nogi/iu; // pakiet łączony: na końcu grupy „Nogi”
+const subjectOf = (s: Service) =>
+  serviceName(s)
+    .toLocaleLowerCase('pl-PL')
+    .replace(/depilacja|laserowa|pakiet|zabiegów|zabieg|\b[16]\b/g, ' ')
+    .replace(/[^\p{L}\s]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+function laserGroups(services: Service[]): { title: string; services: Service[] }[] {
+  const buckets = new Map<string, Service[]>();
+  const put = (title: string, s: Service) => buckets.set(title, [...(buckets.get(title) ?? []), s]);
+  for (const s of services) {
+    const name = serviceName(s);
+    if (COMBO.test(name)) put('Nogi', s);
+    else put(AREAS.find((a) => a.test.test(name))?.title ?? 'Pozostałe', s);
+  }
+  const titles = [...AREAS.map((a) => a.title), 'Pozostałe'];
+  return titles
+    .filter((t) => buckets.has(t))
+    .map((title) => {
+      const list = buckets.get(title)!;
+      const first = new Map<string, number>();
+      list.forEach((s, i) => {
+        const k = subjectOf(s);
+        if (!first.has(k)) first.set(k, i);
+      });
+      const rank = (s: Service) => (COMBO.test(serviceName(s)) ? 1e6 : (first.get(subjectOf(s)) ?? 0));
+      const sorted = [...list].sort((a, b) => rank(a) - rank(b) || Number(/pakiet/i.test(a.name)) - Number(/pakiet/i.test(b.name)));
+      return { title, services: sorted };
+    });
+}
+
+/* ---------------------------------------------------------------- SEO */
+
+const title = 'Cennik zabiegów w Orzeszu';
+const description =
+  'Cennik salonu La Beauté w Orzeszu: makijaż permanentny, depilacja laserowa, paznokcie, brwi, rzęsy i pedicure. Czas i cena każdego zabiegu, rezerwacja online.';
+const pageUrl = new URL(routes.cennik, site.url).href;
+
+const offerOf = (s: Service, labels: Record<number, string> = {}) => {
+  const p = priceInfo(s.price);
+  const offer: Record<string, unknown> = {
+    '@type': 'Offer',
+    // nazwa jak na stronie (z własną etykietą, jeśli kategoria ją ma)
+    itemOffered: { '@type': 'Service', name: labels[s.id] ?? serviceName(s) },
+  };
+  if (p.kind === 'fixed' && p.amount !== null) {
+    offer.price = String(p.amount);
+    offer.priceCurrency = 'PLN';
+  } else if (p.kind === 'from' && p.amount !== null) {
+    offer.priceSpecification = { '@type': 'PriceSpecification', minPrice: p.amount, priceCurrency: 'PLN' };
+  }
+  return offer;
+};
+const catalog = {
+  '@type': 'OfferCatalog',
+  '@id': `${pageUrl}#cennik`,
+  name: `Cennik zabiegów ${site.name}`,
+  url: pageUrl,
+  provider: salonRef(),
+  itemListElement: categories.map((c) => ({
+    '@type': 'OfferCatalog',
+    name: headingOf(c),
+    itemListElement: c.services.map((s) => offerOf(s, metaOf(c).labels)),
+  })),
+};
+---
+
+<Base title={title} description={description} jsonLd={[catalog]}>
+  <PageIntro
+    eyebrow="Cennik"
+    title="Cennik zabiegów"
+    lead="Czas trwania i ceny wszystkich zabiegów, tak jak w rezerwacji online w Booksy. Wybierz pozycję i kliknij „Umów”, żeby od razu zarezerwować termin."
+    image={introPhoto}
+    imageAlt="Dłoń z manicure french na krótkich paznokciach"
+    primary={{ label: 'Umów wizytę', booksy: true }}
+    secondary={{ label: `Zadzwoń: ${site.phone.display}`, href: site.phone.href }}
+    note
+  >
+    <p class="small muted">{total} {plural(total)} w {categories.length} kategoriach</p>
+  </PageIntro>
+
+  <section class="section section--tight cn" aria-label="Cennik zabiegów">
+    <div class="container cn__grid">
+      <nav class="cn__nav" aria-label="Kategorie cennika" data-cn-nav>
+        <p class="eyebrow cn__nav-title">Kategorie</p>
+        <ul class="cn__list" role="list">
+          {
+            categories.map((c) => (
+              <li>
+                <a class="cn__link" href={`#${c.slug}`}>
+                  <span>{navLabelOf(c)}</span>
+                  <span class="cn__n" aria-hidden="true">{c.services.length}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div class="cn__main">
+        {
+          categories.map((c) => {
+            const meta = metaOf(c);
+            return (
+              <section class="cn__cat" id={c.slug} aria-labelledby={`${c.slug}-title`}>
+                <div class="cn__head">
+                  <h2 class="cn__title" id={`${c.slug}-title`}>
+                    {headingOf(c)}
+                  </h2>
+                  <div class="cn__meta">
+                    <span class="cn__count">
+                      {c.services.length} {plural(c.services.length)}
+                    </span>
+                    {meta.href && (
+                      <a class="link-arrow cn__more" href={meta.href}>
+                        Poznaj zabieg
+                      </a>
+                    )}
+                  </div>
+                </div>
+                {c.slug === LASER ? (
+                  laserGroups(c.services).map((g) => (
+                    <div class="cn__sub">
+                      <PriceList items={g.services} title={g.title} as="h3" footer={false} count={false} id={slugify(`depilacja ${g.title}`)} />
+                    </div>
+                  ))
+                ) : (
+                  <PriceList items={c.services} labels={meta.labels} footer={false} count={false} />
+                )}
+              </section>
+            );
+          })
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--ivory" aria-labelledby="cennik-info-title">
+    <div class="container cn-info">
+      <SectionHead eyebrow="Dobrze wiedzieć" title="Jak czytać cennik" id="cennik-info-title" class="cn-info__head" />
+      <ul class="hairlist cn-info__list" role="list">
+        <li>
+          <strong>Aktualność</strong>
+          <p>Ceny zgodne z Booksy, aktualizacja: {updated}.</p>
+        </li>
+        <li>
+          <strong>Rezerwacja</strong>
+          <div>
+            <BookingNote />
+            <p>Przyjmujemy wyłącznie po wcześniejszej rezerwacji.</p>
+          </div>
+        </li>
+        <li>
+          <strong>Cena „od”</strong>
+          <p>Przy cenie z dopiskiem „od” podajemy kwotę początkową.</p>
+        </li>
+        <li>
+          <strong>Cena indywidualna</strong>
+          <p>
+            Przy pozycjach z napisem „cena ustalana indywidualnie” kwotę podaje salon. Zadzwoń: <a href={site.phone.href}>{site.phone.display}</a>.
+          </p>
+        </li>
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ---------------------------------------------------------------- układ: spis kategorii + cennik */
+  .cn__grid {
+    display: block;
+  }
+  .cn__main {
+    min-width: 0;
+  }
+
+  /* Telefon i tablet: przyklejony pasek pod nagłówkiem, przewijany w poziomie */
+  .cn__nav {
+    position: sticky;
+    top: calc(var(--header-h) - 1px);
+    z-index: 40;
+    margin: 0 calc(-1 * var(--gutter)) clamp(28px, 5vw, 48px);
+    padding: 0 var(--gutter);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    background: var(--c-bg);
+    border-top: 1px solid var(--c-line);
+    border-bottom: 1px solid var(--c-line);
+  }
+  .cn__nav::-webkit-scrollbar {
+    display: none;
+  }
+  .cn__nav-title,
+  .cn__n {
+    display: none;
+  }
+  .cn__list {
+    display: flex;
+    width: max-content;
+    min-width: 100%;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .cn__link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 52px;
+    padding: 0 16px;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--c-muted);
+    white-space: nowrap;
+    text-decoration: none;
+  }
+  .cn__list li:first-child .cn__link {
+    padding-left: 0;
+  }
+  .cn__link:hover {
+    color: var(--c-ink);
+  }
+  .cn__link:focus-visible {
+    outline-offset: -3px;
+  }
+  .cn__link[aria-current] {
+    color: var(--c-ink);
+    font-weight: 500;
+  }
+  .cn__link::after {
+    content: '';
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 0;
+    height: 2px;
+    background: var(--c-gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur) var(--ease);
+  }
+  .cn__list li:first-child .cn__link::after {
+    left: 0;
+  }
+  .cn__link:hover::after,
+  .cn__link[aria-current]::after {
+    transform: scaleX(1);
+  }
+
+  /* Komputer: boczny spis kategorii przyklejony obok cennika */
+  @media (min-width: 1100px) {
+    .cn__grid {
+      display: grid;
+      grid-template-columns: 232px minmax(0, 1fr);
+      gap: clamp(48px, 5vw, 88px);
+      align-items: start;
+    }
+    .cn__nav {
+      top: calc(var(--header-h) + 24px);
+      z-index: auto;
+      max-height: calc(100dvh - var(--header-h) - 48px);
+      margin: 0;
+      padding: 0;
+      overflow-x: visible;
+      overflow-y: auto;
+      border: 0;
+      background: none;
+    }
+    .cn__nav-title {
+      display: flex;
+      margin-bottom: 14px;
+    }
+    .cn__list {
+      display: block;
+      width: auto;
+      min-width: 0;
+      border-left: 1px solid var(--c-line);
+    }
+    .cn__link {
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 42px;
+      padding: 6px 4px 6px 20px;
+      white-space: normal;
+    }
+    .cn__list li:first-child .cn__link {
+      padding-left: 20px;
+    }
+    .cn__link::after,
+    .cn__list li:first-child .cn__link::after {
+      left: -1px;
+      right: auto;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      height: auto;
+      transform: scaleY(0);
+      transform-origin: center;
+    }
+    .cn__link:hover::after,
+    .cn__link[aria-current]::after {
+      transform: scaleY(1);
+    }
+    .cn__n {
+      display: inline;
+      font-size: 0.75rem;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--c-muted);
+    }
+  }
+
+  /* ---------------------------------------------------------------- kategorie */
+  .cn__cat {
+    scroll-margin-top: 56px; /* pasek kategorii (telefon, tablet); dodaje się do scroll-padding-top strony */
+  }
+  @media (min-width: 1100px) {
+    .cn__cat {
+      scroll-margin-top: 0;
+    }
+  }
+  .cn__cat + .cn__cat {
+    margin-top: clamp(56px, 7vw, 96px);
+  }
+  .cn__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 24px;
+    padding-top: 22px;
+    padding-bottom: 14px;
+    border-top: 1px solid var(--c-gold);
+  }
+  .cn__title {
+    margin: 0;
+    font-size: clamp(1.75rem, 1.4rem + 1.3vw, 2.5rem);
+  }
+  .cn__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 28px;
+  }
+  .cn__count {
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
+
+  /* Podgrupy depilacji laserowej (komponent PriceList renderuje własny nagłówek grupy) */
+  .cn__sub {
+    margin-top: 40px;
+  }
+  .cn__head + .cn__sub {
+    margin-top: 12px;
+  }
+  .cn__sub :global(.pl__head) {
+    padding-bottom: 10px;
+    border-bottom-color: var(--c-line);
+  }
+  .cn__sub :global(.pl__title) {
+    font-size: clamp(1.25rem, 1.15rem + 0.4vw, 1.5rem);
+    font-style: italic;
+  }
+
+  /* ---------------------------------------------------------------- informacje pod cennikiem */
+  .cn-info {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(32px, 6vw, 96px);
+    align-items: start;
+  }
+  .cn-info :global(.cn-info__head) {
+    margin-bottom: 0;
+  }
+  .cn-info__list li {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: 4px 24px;
+    font-size: 0.9375rem;
+    line-height: 1.65;
+  }
+  .cn-info__list strong {
+    font-weight: 500;
+  }
+  .cn-info__list p,
+  .cn-info__list :global(.booking-note) {
+    margin: 0;
+    font-size: inherit;
+    color: inherit;
+    max-width: none;
+  }
+  .cn-info__list li > div > :global(.booking-note) {
+    margin-bottom: 0.5em;
+  }
+  @media (max-width: 900px) {
+    .cn-info {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .cn-info :global(.cn-info__head) {
+      margin-bottom: 0;
+    }
+  }
+  @media (max-width: 560px) {
+    .cn-info__list li {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>
+
+<script>
+  // Wzmocnienie dla JS: zaznacza w spisie kategorię, którą akurat czytasz (aria-current="location"),
+  // i przewija sam spis (nie stronę), żeby zaznaczona pozycja była widoczna. Bez JS kotwice działają tak samo.
+  const nav = document.querySelector<HTMLElement>('[data-cn-nav]');
+  if (nav && 'IntersectionObserver' in window) {
+    const targets: { a: HTMLAnchorElement; el: HTMLElement }[] = [];
+    nav.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
+      const el = document.getElementById(decodeURIComponent(a.hash.slice(1)));
+      if (el) targets.push({ a, el });
+    });
+    const wide = window.matchMedia('(min-width: 1100px)');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const visible = new Set<Element>();
+    let current: HTMLAnchorElement | null = null;
+    let io: IntersectionObserver | null = null;
+
+    const reveal = (a: HTMLAnchorElement) => {
+      const behavior: ScrollBehavior = reduce.matches ? 'auto' : 'smooth';
+      const na = nav.getBoundingClientRect();
+      const ra = a.getBoundingClientRect();
+      if (wide.matches) {
+        if (nav.scrollHeight > nav.clientHeight) {
+          nav.scrollTo({ top: nav.scrollTop + (ra.top - na.top) - (nav.clientHeight - ra.height) / 2, behavior });
+        }
+      } else if (nav.scrollWidth > nav.clientWidth) {
+        nav.scrollTo({ left: nav.scrollLeft + (ra.left - na.left) - (nav.clientWidth - ra.width) / 2, behavior });
+      }
+    };
+    const activate = (a: HTMLAnchorElement) => {
+      if (a === current) return;
+      current?.removeAttribute('aria-current');
+      a.setAttribute('aria-current', 'location');
+      current = a;
+      reveal(a);
+    };
+    const observe = () => {
+      io?.disconnect();
+      visible.clear();
+      const header = document.getElementById('site-header');
+      const offset = (header ? header.offsetHeight : 64) + (wide.matches ? 0 : nav.offsetHeight) + 16;
+      io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) visible.add(e.target);
+            else visible.delete(e.target);
+          }
+          const first = targets.find((t) => visible.has(t.el));
+          if (first) activate(first.a);
+        },
+        { rootMargin: `-${offset}px 0px -60% 0px` },
+      );
+      targets.forEach((t) => io!.observe(t.el));
+    };
+
+    nav.addEventListener('click', (e) => {
+      const a = (e.target as Element).closest('a');
+      const hit = a && targets.find((t) => t.a === a);
+      if (hit) activate(hit.a);
+    });
+    wide.addEventListener('change', observe);
+    observe();
+  }
+</script>

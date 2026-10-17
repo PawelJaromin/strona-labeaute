@@ -1,0 +1,30 @@
+---
+/**
+ * Nagłówek sekcji: eyebrow (mała etykieta ze złotą kreską) + szeryfowy nagłówek + opcjonalny lead.
+ *
+ *   <SectionHead eyebrow="Zabiegi" title="Specjalności salonu" lead="…" id="zabiegi-title" />
+ *   <SectionHead eyebrow="Opinie" title="…" align="center" />
+ *   <SectionHead as="h1" eyebrow="Cennik" title="Cennik zabiegów" />
+ * Nagłówek z kursywą: <SectionHead eyebrow="…"><Fragment slot="title">Piękno w <em>detalu</em></Fragment></SectionHead>
+ */
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  lead?: string;
+  as?: 'h1' | 'h2' | 'h3';
+  /** id nagłówka (np. do aria-labelledby sekcji). */
+  id?: string;
+  align?: 'left' | 'center';
+  class?: string;
+}
+const { eyebrow, title, lead, as = 'h2', id, align = 'left', class: className } = Astro.props;
+const Tag = as;
+const hasTitleSlot = Astro.slots.has('title');
+---
+
+<div class:list={['section-head', { 'section-head--center': align === 'center' }, className]}>
+  {eyebrow && <p class:list={['eyebrow', { 'eyebrow--center': align === 'center' }]}>{eyebrow}</p>}
+  <Tag id={id}>{hasTitleSlot ? <slot name="title" /> : title}</Tag>
+  {lead && <p class="lead">{lead}</p>}
+  <slot />
+</div>

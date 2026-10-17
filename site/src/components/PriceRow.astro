@@ -1,0 +1,174 @@
+---
+/**
+ * Jeden wiersz cennika: nazwa (+ opis), czas, cena, przycisk „Umów”.
+ * „Umów” otwiera BookingModal z oknem Booksy tej usługi (variant_id); bez JS link w nowej karcie.
+ * Zwykle używany przez PriceList, ale można go wstawić samodzielnie w <ul class="price-rows">:
+ *   <PriceRow service={findService(1680751)!} />
+ */
+import { serviceName, serviceDescription, priceInfo, formatDuration, serviceBookingUrl, type Service } from '../lib/uslugi';
+import Button from './Button.astro';
+
+interface Props {
+  service: Service;
+  /** Własna nazwa do wyświetlenia (domyślnie serviceName(service)). */
+  label?: string;
+  /** Pokaż opis z Booksy (domyślnie tak). Długie opisy są zwinięte w „Opis zabiegu”. */
+  showDescription?: boolean;
+  /** Ukryj przycisk „Umów”. */
+  noBooking?: boolean;
+}
+
+const { service, label, showDescription = true, noBooking = false } = Astro.props;
+const name = label ?? serviceName(service);
+const desc = showDescription ? serviceDescription(service) : '';
+const longDesc = desc.length > 180 || desc.includes('\n');
+const price = priceInfo(service.price);
+const duration = formatDuration(service.duration_min);
+const url = serviceBookingUrl(service);
+---
+
+<li class="pr">
+  <div class="pr__main">
+    <span class="pr__name">{name}</span>
+    {desc && !longDesc && <span class="pr__desc">{desc}</span>}
+    {
+      desc && longDesc && (
+        <details class="pr__more">
+          <summary>Opis zabiegu</summary>
+          <p class="pr__desc pr__desc--long">{desc}</p>
+        </details>
+      )
+    }
+  </div>
+  <span class="pr__dur">{duration && <><span class="visually-hidden">Czas: </span>{duration}</>}</span>
+  <span class:list={['pr__price', { 'pr__price--var': price.kind === 'variable' || price.kind === 'unknown' }]}>
+    <span class="visually-hidden">Cena: </span>
+    {price.kind === 'from' ? <><span class="pr__from">od</span> {price.amountText}</> : price.text}
+  </span>
+  {
+    !noBooking && (
+      <span class="pr__book">
+        <Button href={url} booking={name} size="sm">
+          Umów<span class="visually-hidden">: {name}</span>
+        </Button>
+      </span>
+    )
+  }
+</li>
+
+<style>
+  .pr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 6.5rem 9rem auto;
+    gap: 8px 24px;
+    align-items: center;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--c-line);
+  }
+  .pr__main {
+    min-width: 0;
+  }
+  .pr__name {
+    display: block;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.45;
+  }
+  .pr__desc {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--c-muted);
+    max-width: 62ch;
+  }
+  .pr__desc--long {
+    white-space: pre-line;
+    margin: 8px 0 4px;
+  }
+  .pr__more summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+    margin-top: 2px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--c-gold-ink);
+    cursor: pointer;
+    list-style: none;
+  }
+  .pr__more summary::-webkit-details-marker {
+    display: none;
+  }
+  .pr__more summary::after {
+    content: '+';
+    font-size: 1rem;
+    letter-spacing: 0;
+    line-height: 1;
+  }
+  .pr__more[open] summary::after {
+    content: '–';
+  }
+  .pr__dur {
+    font-size: 0.875rem;
+    color: var(--c-muted);
+    white-space: nowrap;
+  }
+  .pr__price {
+    font-family: var(--font-serif);
+    font-size: 1.375rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .pr__from {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--c-muted);
+    letter-spacing: 0.02em;
+  }
+  .pr__price--var {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    line-height: 1.35;
+    color: var(--c-muted);
+    white-space: normal;
+  }
+  .pr__book {
+    display: flex;
+    justify-content: flex-end;
+  }
+  @media (max-width: 640px) {
+    .pr {
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas:
+        'main price'
+        'dur book';
+      gap: 10px 16px;
+      align-items: start;
+      padding: 16px 0;
+    }
+    .pr__main {
+      grid-area: main;
+    }
+    .pr__price {
+      grid-area: price;
+    }
+    .pr__price--var {
+      max-width: 8.5rem;
+    }
+    .pr__dur {
+      grid-area: dur;
+      align-self: center;
+    }
+    .pr__book {
+      grid-area: book;
+    }
+  }
+</style>

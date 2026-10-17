@@ -1,0 +1,238 @@
+---
+/**
+ * /makijaz-permanentny/ (BRIEF.md, sekcja 3 pkt 2). Teksty są w src/content/makijaz-permanentny.ts,
+ * ceny i czasy z src/data/uslugi.json (Booksy).
+ * Rytm: PageIntro (ciemny) → biel (dla kogo + zdjęcie) → kość słoniowa (przebieg wizyty)
+ *       → biel (po zabiegu) → kość słoniowa (cennik) → biel (FAQ) → ciemny pas CTA (dodaje Base).
+ */
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import PageIntro from '../components/PageIntro.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Steps from '../components/Steps.astro';
+import Faq from '../components/Faq.astro';
+import PriceList from '../components/PriceList.astro';
+import { site, routes } from '../config/site';
+import { serviceSchema } from '../lib/schema';
+import { meta, intro, forWhom, visit, aftercare, pricing, priceGroups, faq, cta } from '../content/makijaz-permanentny';
+
+import inspiracja2 from '../assets/photos/inspiracja-2.jpg';
+import inspiracja3 from '../assets/photos/inspiracja-3.jpg';
+
+const path = routes.makijaz;
+const lastGroup = priceGroups.length - 1;
+---
+
+<Base
+  title={meta.title}
+  description={meta.description}
+  jsonLd={[serviceSchema({ name: meta.serviceName, serviceType: meta.serviceType, description: meta.description, path })]}
+  cta={cta}
+>
+  <PageIntro
+    eyebrow={intro.eyebrow}
+    lead={intro.lead}
+    image={inspiracja2}
+    imageAlt={intro.imageAlt}
+    primary={{ label: 'Umów wizytę', booksy: true }}
+    secondary={{ label: 'Cennik zabiegu', href: '#cennik-zabiegu' }}
+  >
+    <Fragment slot="title">Makijaż <em>permanentny</em></Fragment>
+  </PageIntro>
+
+  <!-- ============================================================ Dla kogo (biel) -->
+  <section class="section" id="dla-kogo" aria-labelledby="dla-kogo-title">
+    <div class="container split">
+      <div class="split__text">
+        <SectionHead eyebrow={forWhom.eyebrow} title={forWhom.title} lead={forWhom.lead} id="dla-kogo-title" />
+        <div class="zones">
+          {
+            forWhom.zones.map((z) => (
+              <article class="zone">
+                <h3 class="zone__title">{z.title}</h3>
+                <div class="zone__body">
+                  <p>{z.text}</p>
+                  <p class="zone__meta">{z.meta}</p>
+                </div>
+              </article>
+            ))
+          }
+        </div>
+        <p class="muted small split__note">{forWhom.note} <a class="nowrap" href={site.phone.href}>{site.phone.display}</a>.</p>
+      </div>
+      <figure class="split__media">
+        <Image
+          src={inspiracja3}
+          alt={forWhom.imageAlt}
+          widths={[400, 640, 880, 1100]}
+          sizes="(max-width: 900px) calc(100vw - 58px), 480px"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============================================================ Przebieg wizyty (kość słoniowa) -->
+  <section class="section section--ivory" id="przebieg-wizyty" aria-labelledby="przebieg-title">
+    <div class="container">
+      <SectionHead eyebrow={visit.eyebrow} title={visit.title} lead={visit.lead} id="przebieg-title" />
+      <Steps steps={visit.steps} />
+      <p class="muted small visit__note">{visit.note}</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ Po zabiegu (biel) -->
+  <section class="section" id="po-zabiegu" aria-labelledby="po-zabiegu-title">
+    <div class="container care">
+      <SectionHead eyebrow={aftercare.eyebrow} title={aftercare.title} lead={aftercare.lead} id="po-zabiegu-title" />
+      <div class="care__body">
+        <ul class="hairlist care__list">
+          {aftercare.items.map((t) => <li>{t}</li>)}
+        </ul>
+        <p class="muted small care__note">{aftercare.disclaimer} <a class="nowrap" href={site.phone.href}>{site.phone.display}</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ Cennik (kość słoniowa) -->
+  <section class="section section--ivory" id="cennik-zabiegu" aria-labelledby="cennik-title">
+    <div class="container">
+      <SectionHead eyebrow={pricing.eyebrow} title={pricing.title} lead={pricing.lead} id="cennik-title" />
+      <div class="price-groups">
+        {
+          priceGroups.map((g, i) => (
+            <PriceList items={g.services} title={g.title} caption={g.caption} footer={i === lastGroup} />
+          ))
+        }
+      </div>
+      <p class="price-link">
+        <a class="link-arrow" href={routes.tatuaz}>Usuwanie tatuażu i makijażu permanentnego laserem</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ FAQ (biel) -->
+  <section class="section" id="pytania" aria-labelledby="faq-title">
+    <div class="container">
+      <SectionHead eyebrow={faq.eyebrow} title={faq.title} id="faq-title" />
+      <Faq items={faq.items} />
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Dla kogo: tekst + zdjęcie w złotej ramce */
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: clamp(40px, 7vw, 112px);
+    align-items: start;
+  }
+  .split__text :global(.section-head) {
+    margin-bottom: clamp(28px, 3.5vw, 44px);
+  }
+  .split__note {
+    margin-top: 24px;
+    max-width: 62ch;
+  }
+  .split__media {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 4 / 5;
+    background: var(--c-bg-2);
+  }
+  .split__media::before {
+    content: '';
+    position: absolute;
+    inset: 18px -18px -18px 18px;
+    border: 1px solid var(--c-gold);
+    pointer-events: none;
+  }
+  .split__media :global(img) {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Wiersze „menu”: nazwa po lewej, opis i cena z cennika po prawej */
+  .zones {
+    border-top: 1px solid var(--c-gold);
+  }
+  .zone {
+    display: grid;
+    grid-template-columns: minmax(0, 9.5rem) minmax(0, 1fr);
+    gap: 8px 28px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--c-line);
+  }
+  .zone__title {
+    margin: 0;
+    font-size: clamp(1.5rem, 1.35rem + 0.6vw, 1.875rem);
+    line-height: 1.15;
+  }
+  .zone__body p {
+    margin: 0;
+  }
+  .zone__body .zone__meta {
+    margin-top: 6px;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--c-muted);
+  }
+
+  /* Przebieg wizyty */
+  .visit__note {
+    margin-top: clamp(32px, 4vw, 48px);
+    max-width: 78ch;
+  }
+
+  /* Po zabiegu */
+  .care {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(36px, 7vw, 112px);
+    align-items: start;
+  }
+  .care :global(.section-head) {
+    margin-bottom: 0;
+  }
+  .care__list {
+    border-top: 1px solid var(--c-gold);
+  }
+  .care__list > li {
+    padding-block: 18px;
+  }
+  .care__note {
+    margin-top: 24px;
+  }
+
+  /* Cennik */
+  .price-groups {
+    display: grid;
+    gap: clamp(48px, 6vw, 80px);
+  }
+  .price-link {
+    margin: clamp(32px, 4vw, 48px) 0 0;
+  }
+
+  @media (max-width: 900px) {
+    .split,
+    .care {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .split__media {
+      aspect-ratio: 4 / 3;
+      width: calc(100% - 18px);
+    }
+    .split__media::before {
+      inset: 14px -14px -14px 14px;
+    }
+  }
+  @media (max-width: 560px) {
+    .zone {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

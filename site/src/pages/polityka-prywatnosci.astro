@@ -1,0 +1,91 @@
+---
+/**
+ * Polityka prywatności strony statycznej: brak własnych cookies i analityki, rezerwacje przez Booksy
+ * (skrypt i okno ładowane dopiero po wskazaniu/kliknięciu przycisku), mapa jako zwykły link.
+ * [do uzupełnienia przez właścicielkę]: pełna nazwa firmy z CEIDG, NIP, dostawca hostingu.
+ * Jeśli na stronie pojawi się analityka, osadzona mapa lub formularz, ten tekst trzeba zaktualizować.
+ * Rytm: PageIntro (ciemny, compact) → tekst (biel) → pas CTA (dodaje Base).
+ */
+import Base from '../layouts/Base.astro';
+import PageIntro from '../components/PageIntro.astro';
+import { site, addressLine } from '../config/site';
+
+const updated = '17 października 2026';
+---
+
+<Base
+  title="Polityka prywatności"
+  description="Polityka prywatności strony salonu La Beauté w Orzeszu: brak własnych plików cookies i analityki, rezerwacje online przez Booksy, kontakt i Twoje prawa."
+>
+  <PageIntro
+    compact
+    eyebrow="Informacje"
+    title="Polityka prywatności"
+    lead="Ta strona ma charakter informacyjny: nie prowadzimy na niej sklepu, nie zakładamy kont i nie zbieramy danych przez formularze. Poniżej wyjaśniamy, jakie dane mogą być przetwarzane, gdy z niej korzystasz albo gdy się z nami kontaktujesz."
+  >
+    <p class="muted small">Ostatnia aktualizacja: {updated} r.</p>
+  </PageIntro>
+
+  <section class="section" aria-label="Treść polityki prywatności">
+    <div class="container--narrow">
+      <div class="prose">
+        <h2>1. Administrator danych</h2>
+        <p>
+          Administratorem danych osobowych jest {site.owner}, właścicielka salonu {site.name} (jednoosobowa działalność gospodarcza), {addressLine}, dalej „Salon”.
+          Kontakt w sprawach danych osobowych: <a href={`mailto:${site.email}`}>{site.email}</a>, tel. <a href={site.phone.href}>{site.phone.display}</a>.
+        </p>
+
+        <h2>2. Pliki cookies i analityka</h2>
+        <p>
+          Strona nie zapisuje własnych plików cookies i nie korzysta z narzędzi analitycznych ani reklamowych (takich jak Google Analytics czy piksele serwisów społecznościowych). Czcionki i pozostałe pliki strony pochodzą z naszego serwera, a nie z serwerów zewnętrznych. Wyjątkiem jest okno rezerwacji Booksy opisane w punkcie 4.
+        </p>
+
+        <h2>3. Dzienniki serwera</h2>
+        <p>
+          Jak każdy serwer WWW, serwer, na którym działa strona, może automatycznie zapisywać w dziennikach (logach) podstawowe informacje o połączeniu: adres IP, datę i godzinę, adres odwiedzanej podstrony oraz rodzaj przeglądarki. Dane te służą wyłącznie zapewnieniu bezpieczeństwa i prawidłowego działania strony, co jest naszym prawnie uzasadnionym interesem (art. 6 ust. 1 lit. f RODO). Nie łączymy ich z innymi danymi i nie używamy ich do ustalania tożsamości odwiedzających. Są przechowywane przez okres ustalony przez dostawcę hostingu.
+        </p>
+
+        <h2>4. Rezerwacje online przez Booksy</h2>
+        <p>
+          Rezerwacje online obsługuje zewnętrzny serwis Booksy (booksy.com). Skrypt i okno rezerwacji Booksy wczytują się z serwerów Booksy dopiero wtedy, gdy wskażesz lub klikniesz przycisk „Umów wizytę” albo „Umów” przy zabiegu. Od tej chwili Booksy otrzymuje standardowe dane techniczne przeglądarki (np. adres IP) i może stosować w oknie rezerwacji własne pliki cookies.
+        </p>
+        <p>
+          Dane podane podczas rezerwacji (np. imię i nazwisko, numer telefonu, adres e-mail) trafiają do Booksy i do Salonu. Salon wykorzystuje je, aby umówić i przeprowadzić wizytę oraz kontaktować się w jej sprawie (art. 6 ust. 1 lit. b RODO). Zasady, na jakich dane przetwarza sam Booksy, opisuje polityka prywatności dostępna w serwisie Booksy.
+        </p>
+
+        <h2>5. Kontakt telefoniczny i e-mailowy</h2>
+        <p>
+          Jeśli dzwonisz lub piszesz do Salonu, przetwarzamy dane, które podajesz (np. imię, numer telefonu, adres e-mail, treść wiadomości), aby odpowiedzieć i umówić wizytę (art. 6 ust. 1 lit. b i f RODO). Przechowujemy je przez czas potrzebny do załatwienia sprawy, a dłużej tylko wtedy, gdy wymagają tego przepisy prawa. Skrzynka e-mail Salonu działa w usłudze Gmail firmy Google.
+        </p>
+
+        <h2>6. Linki do serwisów zewnętrznych</h2>
+        <p>
+          Na stronie są linki do Map Google, Facebooka, Instagrama i Booksy. Mapa nie jest osadzona na stronie, więc Google nie otrzymuje żadnych danych, dopóki nie klikniesz linku. Po przejściu do tych serwisów obowiązują ich własne zasady prywatności.
+        </p>
+
+        <h2>7. Odbiorcy danych</h2>
+        <p>Dane mogą być przekazywane wyłącznie podmiotom, które pomagają nam prowadzić stronę i obsługiwać wizyty:</p>
+        <ul>
+          <li>dostawcy hostingu, na którym działa strona (dzienniki serwera),</li>
+          <li>Booksy (rezerwacje online),</li>
+          <li>dostawcy poczty e-mail (wiadomości wysłane do Salonu).</li>
+        </ul>
+        <p>Nie sprzedajemy danych i nie przekazujemy ich w celach marketingowych.</p>
+
+        <h2>8. Twoje prawa</h2>
+        <p>
+          Masz prawo dostępu do swoich danych, ich sprostowania, usunięcia lub ograniczenia przetwarzania, przeniesienia danych oraz wniesienia sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym interesie. Aby skorzystać z tych praw, napisz na <a href={`mailto:${site.email}`}>{site.email}</a> albo zadzwoń pod numer <a href={site.phone.href}>{site.phone.display}</a>.
+        </p>
+        <p>
+          Masz też prawo wnieść skargę do Prezesa Urzędu Ochrony Danych Osobowych (ul. Stawki 2, 00-193 Warszawa), jeśli uważasz, że przetwarzamy Twoje dane niezgodnie z prawem. Podanie danych jest dobrowolne, ale bez nich nie umówimy wizyty.
+        </p>
+
+        <h2>9. Zmiany polityki</h2>
+        <p>
+          Polityka może zostać zaktualizowana, na przykład gdy zmienią się usługi zewnętrzne używane na stronie. Aktualna wersja jest zawsze dostępna pod tym adresem.
+        </p>
+        <p class="muted small">Ostatnia aktualizacja: {updated} r.</p>
+      </div>
+    </div>
+  </section>
+</Base>

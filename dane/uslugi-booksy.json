@@ -1,0 +1,2791 @@
+{
+ "business": {
+  "id": 102895,
+  "name": "La Beautè Aldona Targiel",
+  "description": "La Beauté to miejsce stworzone z pasji do piękna i dbałości o każdy detal. Nasz salon znajduje się w Orzeszu – Gardawicach i od lat pomaga podkreślać naturalne piękno swoich klientek, oferując usługi na najwyższym poziomie.\n\nSpecjalizujemy się w makijażu permanentnym, laserowym usuwaniu makijażu permanentnego i tatuaży, depilacji laserowej, stylizacji paznokci i pedicure, a także stylizacji brwi i rzęs.\n\nW La Beauté stawiamy na indywidualne podejście, bezpieczeństwo oraz naturalne efekty. Pracujemy na sprawdzonych produktach i nowoczesnym sprzęcie, a wszystkie narzędzia wielorazowego użytku poddajemy profesjonalnej sterylizacji. Materiały jednorazowe wykorzystujemy wyłącznie raz, dzięki czemu zapewniamy najwyższe standardy higieny.\n\nTworzymy miejsce, w którym profesjonalizm łączy się z przyjazną atmosferą. Chcemy, aby każda wizyta była chwilą relaksu, a efekt zabiegu dodawał pewności siebie i sprawiał, że będziesz czuć się pięknie każdego dnia.\n\nZapraszamy do La Beauté – miejsca, w którym piękno spotyka się z jakością.",
+  "website": null,
+  "location": {
+   "address": "Jagodowa 24, 43-180, Orzesze, Zawada",
+   "city": "Orzesze",
+   "coordinate": {
+    "latitude": 50.11789,
+    "longitude": 18.77495
+   }
+  },
+  "staff": [
+   {
+    "id": 598794,
+    "name": "Wiktoria",
+    "type": "S",
+    "description": "",
+    "photoUrl": "https://d375139ucebi94.cloudfront.net/region2/pl/102895/resource_photos/2066e7c860574b499c10a2571f3c9b6b.jpeg",
+    "staffUserExists": true,
+    "bookmarked": false
+   },
+   {
+    "id": 451880,
+    "name": "Żaneta",
+    "type": "S",
+    "description": "",
+    "photoUrl": "https://d375139ucebi94.cloudfront.net/region2/pl/102895/resource_photos/1312218c3dfa41e68eddf8d526b9a8a0.jpeg",
+    "staffUserExists": true,
+    "bookmarked": false
+   },
+   {
+    "id": 177419,
+    "name": "Aldona",
+    "type": "S",
+    "description": "",
+    "photoUrl": "https://d375139ucebi94.cloudfront.net/region2/pl/102895/resource_photos/dfceef3380a442c6bdc2eb5ebd025b5e.jpeg",
+    "staffUserExists": true,
+    "bookmarked": false
+   }
+  ],
+  "reviewsCount": 180,
+  "amenities": []
+ },
+ "services": [
+  {
+   "category": "Popularne  ",
+   "id": 1680751,
+   "variant_id": 5126967,
+   "name": "Makijaż permanentny brwi",
+   "description": "Do ceny wyjściowej należy doliczyć 200 zł za dopigmentowanie, całość zabiegu wynosi 1100 zł w sytuacji zakupu bonu podarunkowego",
+   "price": "900,00 zł",
+   "price_raw": 900,
+   "duration_min": 180,
+   "variants": [
+    {
+     "id": 5126967,
+     "label": "",
+     "price": "900,00 zł",
+     "duration": 180
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Popularne  ",
+   "id": 5008084,
+   "variant_id": 15528887,
+   "name": "Usuwanie makijażu permanentnego + henna pudrowa",
+   "description": "",
+   "price": "300,00 zł",
+   "price_raw": 300,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 15528887,
+     "label": "",
+     "price": "300,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Popularne  ",
+   "id": 3790924,
+   "variant_id": 9353132,
+   "name": "Laminacja Rzęs i Brwi",
+   "description": "",
+   "price": "280,00 zł",
+   "price_raw": 280,
+   "duration_min": 75,
+   "variants": [
+    {
+     "id": 9353132,
+     "label": "",
+     "price": "280,00 zł",
+     "duration": 75
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Popularne  ",
+   "id": 5008088,
+   "variant_id": 15528896,
+   "name": "Stylizacja brwi farbką z regulacją",
+   "description": "",
+   "price": "85,00 zł",
+   "price_raw": 85,
+   "duration_min": 20,
+   "variants": [
+    {
+     "id": 15528896,
+     "label": "",
+     "price": "85,00 zł",
+     "duration": 20
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Popularne  ",
+   "id": 1882622,
+   "variant_id": 5126982,
+   "name": "Manicure hybrydowy + french",
+   "description": "",
+   "price": "150,00 zł+",
+   "price_raw": 150,
+   "duration_min": 90,
+   "variants": [
+    {
+     "id": 5126982,
+     "label": "",
+     "price": "150,00 zł+",
+     "duration": 90
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "PROMOCJA",
+   "id": 3621313,
+   "variant_id": 8568627,
+   "name": "Depilacja laserowa Wąsik + Broda - 1 zabieg",
+   "description": "",
+   "price": "250,00 zł",
+   "price_raw": 250,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8568627,
+     "label": "",
+     "price": "250,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "PROMOCJA",
+   "id": 3632488,
+   "variant_id": 8610021,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów Wąsik + Broda",
+   "description": "",
+   "price": "1 350,00 zł",
+   "price_raw": 1350,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8610021,
+     "label": "",
+     "price": "1 350,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "PROMOCJA",
+   "id": 4145326,
+   "variant_id": 11138771,
+   "name": "Depilacja Laserowa Wąsik + Pachy Pakiet 6 Zabiegów",
+   "description": "",
+   "price": "1 620,00 zł",
+   "price_raw": 1620,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 11138771,
+     "label": "",
+     "price": "1 620,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "PROMOCJA",
+   "id": 3621315,
+   "variant_id": 8568629,
+   "name": "Depilacja laserowa Pachy + Bikini - 1 zabieg",
+   "description": "",
+   "price": "400,00 zł",
+   "price_raw": 400,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 8568629,
+     "label": "",
+     "price": "400,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "PROMOCJA",
+   "id": 3632492,
+   "variant_id": 8610025,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów Pachy+Bikini",
+   "description": "",
+   "price": "2 160,00 zł",
+   "price_raw": 2160,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8610025,
+     "label": "",
+     "price": "2 160,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "PROMOCJA",
+   "id": 3621317,
+   "variant_id": 8568631,
+   "name": "Depilacja Laserowa Bikini + Nogi - 1 zabieg",
+   "description": "",
+   "price": "600,00 zł",
+   "price_raw": 600,
+   "duration_min": 75,
+   "variants": [
+    {
+     "id": 8568631,
+     "label": "",
+     "price": "600,00 zł",
+     "duration": 75
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "PROMOCJA",
+   "id": 4145320,
+   "variant_id": 11138731,
+   "name": "Depilacja Laserowa Wąsik + Pachy",
+   "description": "",
+   "price": "300,00 zł",
+   "price_raw": 300,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 11138731,
+     "label": "",
+     "price": "300,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Makijaż permanentny",
+   "id": 1680768,
+   "variant_id": 5126973,
+   "name": "Makijaż permanentny ust",
+   "description": "",
+   "price": "950,00 zł",
+   "price_raw": 950,
+   "duration_min": 180,
+   "variants": [
+    {
+     "id": 5126973,
+     "label": "",
+     "price": "950,00 zł",
+     "duration": 180
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Makijaż permanentny",
+   "id": 5441747,
+   "variant_id": 18314461,
+   "name": "Konsultacja makijaż permanentny",
+   "description": "",
+   "price": "Zmienna",
+   "price_raw": null,
+   "duration_min": 15,
+   "variants": [
+    {
+     "id": 18314461,
+     "label": "",
+     "price": "Zmienna",
+     "duration": 15
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Makijaż permanentny",
+   "id": 1680758,
+   "variant_id": 5126970,
+   "name": "LASH LINER (zagęszczenie linii rzęs góra)",
+   "description": "",
+   "price": "550,00 zł",
+   "price_raw": 550,
+   "duration_min": 90,
+   "variants": [
+    {
+     "id": 5126970,
+     "label": "",
+     "price": "550,00 zł",
+     "duration": 90
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Makijaż permanentny",
+   "id": 5561544,
+   "variant_id": 19061237,
+   "name": "Makijaż permanentny ust Dopigmentowanie 6-12 tyg",
+   "description": "Usługa wyłącznie dla osób, które miały wykonany makijaż permanentny w La Beautè w przeciągu 3 miesięcy od pierwszej pigmentacji",
+   "price": "250,00 zł",
+   "price_raw": 250,
+   "duration_min": 90,
+   "variants": [
+    {
+     "id": 19061237,
+     "label": "",
+     "price": "250,00 zł",
+     "duration": 90
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Makijaż permanentny",
+   "id": 2620494,
+   "variant_id": 6717665,
+   "name": "Odświeżenie brwi do 18 miesięcy",
+   "description": "Zabieg przeznaczony dla osób, które wykonywały makijaż permanentny w La Beautè",
+   "price": "600,00 zł",
+   "price_raw": 600,
+   "duration_min": 120,
+   "variants": [
+    {
+     "id": 6717665,
+     "label": "",
+     "price": "600,00 zł",
+     "duration": 120
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Makijaż permanentny",
+   "id": 2620511,
+   "variant_id": 6717689,
+   "name": "Odświeżenie ust do 18 miesięcy",
+   "description": "Zabieg przeznaczony dla osób, które wykonywały makijaż permanentny w La Beautè",
+   "price": "650,00 zł",
+   "price_raw": 650,
+   "duration_min": 60,
+   "variants": [
+    {
+     "id": 6717689,
+     "label": "",
+     "price": "650,00 zł",
+     "duration": 60
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Makijaż permanentny",
+   "id": 2620577,
+   "variant_id": 6717777,
+   "name": "Odświeżenie zagęszczenia rzęs",
+   "description": "Zabieg przeznaczony dla osób, które wykonywały makijaż permanentny w La Beautè",
+   "price": "300,00 zł",
+   "price_raw": 300,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 6717777,
+     "label": "",
+     "price": "300,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Makijaż permanentny",
+   "id": 2522358,
+   "variant_id": 6594597,
+   "name": "Dopigmentowanie na życzenie Klienta do 3 miesięcy",
+   "description": "Usługa wyłącznie dla osób, które miały wykonany makijaż permanentny w La Beautè w przeciągu 3 miesięcy od pierwszej pigmentacji.",
+   "price": "300,00 zł",
+   "price_raw": 300,
+   "duration_min": 90,
+   "variants": [
+    {
+     "id": 6594597,
+     "label": "",
+     "price": "300,00 zł",
+     "duration": 90
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Makijaż permanentny",
+   "id": 1680792,
+   "variant_id": 5126876,
+   "name": "Konsultacja z rysunkiem wstepnym",
+   "description": "",
+   "price": "150,00 zł",
+   "price_raw": 150,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 5126876,
+     "label": "",
+     "price": "150,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Makijaż permanentny",
+   "id": 4099985,
+   "variant_id": 10920014,
+   "name": "Remover Usuwanie Makijażu Permanentnego",
+   "description": "",
+   "price": "250,00 zł",
+   "price_raw": 250,
+   "duration_min": 60,
+   "variants": [
+    {
+     "id": 10920014,
+     "label": "",
+     "price": "250,00 zł",
+     "duration": 60
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Laser nd-Yag Q-SWITCH",
+   "id": 1677704,
+   "variant_id": 5126957,
+   "name": "Usuwanie tatuażu",
+   "description": "",
+   "price": "200,00 zł+",
+   "price_raw": 200,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 5126957,
+     "label": "",
+     "price": "200,00 zł+",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Laser nd-Yag Q-SWITCH",
+   "id": 1677702,
+   "variant_id": 5126956,
+   "name": "Usuwanie makijażu permanentnego",
+   "description": "",
+   "price": "250,00 zł",
+   "price_raw": 250,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 5126956,
+     "label": "",
+     "price": "250,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Lifting i laminacja",
+   "id": 1675244,
+   "variant_id": 5126936,
+   "name": "Laminacja Rzęs",
+   "description": "Zabieg polega na  podkręceniu bądź uniesieniu rzęs w zależności od preferencji klientki.  W trakcie procedury nakładamy hennę, w skład której wchodzi olej arganowy. Na koniec kładziemy olejek z pantenolem i biotyną, która przy regularnym stosowaniu poprawia kondycję rzęs. \nEfekt utrzymuje się do 2 miesięcy.",
+   "price": "170,00 zł",
+   "price_raw": 170,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 5126936,
+     "label": "",
+     "price": "170,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Lifting i laminacja",
+   "id": 1680977,
+   "variant_id": 5126975,
+   "name": "Laminacja brwi",
+   "description": "Zmiękczenie włosa, neutralizacja, odżywianie.\n\nZabieg polega na zmiękczeniu włosków brwi, co sprawia że włos staje się podatny, a dokładna stylizacja staje się możliwa. \nNa koniec nakładamy olej arganowy odżywiając i nabłyszczając brwi.",
+   "price": "130,00 zł",
+   "price_raw": 130,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 5126975,
+     "label": "",
+     "price": "130,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Lifting i laminacja",
+   "id": 1680988,
+   "variant_id": 5126976,
+   "name": "Laminacja brwi z farbką",
+   "description": "Zmiękczenie włosa, neutralizacja, farbowanie, odżywianie.\n\nZabieg polega na zmiękczeniu włosków brwi, co sprawia że włos staje się podatny, a dokładna stylizacja staje się możliwa. \nFarbka używana w trakcie zabiegu nie zadziała na skórze, jednak na włosach trzyma się znacznie dłużej niż klasyczna henna. Na koniec nakładamy olej arganowy odżywiając i nabłyszczając brwi.",
+   "price": "160,00 zł",
+   "price_raw": 160,
+   "duration_min": 60,
+   "variants": [
+    {
+     "id": 5126976,
+     "label": "",
+     "price": "160,00 zł",
+     "duration": 60
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621251,
+   "variant_id": 8568548,
+   "name": "Depilacja Laserowa 1 Zabieg - Wąsik",
+   "description": null,
+   "price": "150,00 zł",
+   "price_raw": 150,
+   "duration_min": 20,
+   "variants": [
+    {
+     "id": 8568548,
+     "label": "",
+     "price": "150,00 zł",
+     "duration": 20
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631931,
+   "variant_id": 8609251,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów - Broda",
+   "description": "",
+   "price": "810,00 zł",
+   "price_raw": 810,
+   "duration_min": 20,
+   "variants": [
+    {
+     "id": 8609251,
+     "label": "",
+     "price": "810,00 zł",
+     "duration": 20
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631930,
+   "variant_id": 8609250,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów - Wąsik",
+   "description": "",
+   "price": "810,00 zł",
+   "price_raw": 810,
+   "duration_min": 20,
+   "variants": [
+    {
+     "id": 8609250,
+     "label": "",
+     "price": "810,00 zł",
+     "duration": 20
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621256,
+   "variant_id": 8568553,
+   "name": "Depilacja Laserowa 1 Zabieg - Broda",
+   "description": "",
+   "price": "150,00 zł",
+   "price_raw": 150,
+   "duration_min": 20,
+   "variants": [
+    {
+     "id": 8568553,
+     "label": "",
+     "price": "150,00 zł",
+     "duration": 20
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621266,
+   "variant_id": 8568563,
+   "name": "Depilacja Laserowa 1 Zabieg - Cała Twarz",
+   "description": "",
+   "price": "300,00 zł",
+   "price_raw": 300,
+   "duration_min": 40,
+   "variants": [
+    {
+     "id": 8568563,
+     "label": "",
+     "price": "300,00 zł",
+     "duration": 40
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631934,
+   "variant_id": 8609254,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów - Cała Twarz",
+   "description": "",
+   "price": "1 620,00 zł",
+   "price_raw": 1620,
+   "duration_min": 40,
+   "variants": [
+    {
+     "id": 8609254,
+     "label": "",
+     "price": "1 620,00 zł",
+     "duration": 40
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621274,
+   "variant_id": 8568574,
+   "name": "Depilacja Laserowa 1 Zabieg - Szyja",
+   "description": "",
+   "price": "200,00 zł",
+   "price_raw": 200,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8568574,
+     "label": "",
+     "price": "200,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631937,
+   "variant_id": 8609257,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów - Szyja",
+   "description": "",
+   "price": "1 080,00 zł",
+   "price_raw": 1080,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8609257,
+     "label": "",
+     "price": "1 080,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3632495,
+   "variant_id": 8610028,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów Nogi + Bikini",
+   "description": "",
+   "price": "3 240,00 zł",
+   "price_raw": 3240,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8610028,
+     "label": "",
+     "price": "3 240,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621279,
+   "variant_id": 8568580,
+   "name": "Depilacja Laserowa 1 Zabieg - Kark",
+   "description": "",
+   "price": "200,00 zł",
+   "price_raw": 200,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8568580,
+     "label": "",
+     "price": "200,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631938,
+   "variant_id": 8609258,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów - Kark",
+   "description": null,
+   "price": "1 080,00 zł",
+   "price_raw": 1080,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8609258,
+     "label": "",
+     "price": "1 080,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621280,
+   "variant_id": 8568581,
+   "name": "Depilacja Laserowa 1 Zabieg - Uszy",
+   "description": "",
+   "price": "150,00 zł",
+   "price_raw": 150,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8568581,
+     "label": "",
+     "price": "150,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631939,
+   "variant_id": 8609259,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów - Uszy",
+   "description": "",
+   "price": "810,00 zł",
+   "price_raw": 810,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8609259,
+     "label": "",
+     "price": "810,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621283,
+   "variant_id": 8568584,
+   "name": "Depilacja Laserowa 1 Zabieg - Pachy",
+   "description": null,
+   "price": "250,00 zł",
+   "price_raw": 250,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8568584,
+     "label": "",
+     "price": "250,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631943,
+   "variant_id": 8609274,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów - Pachy",
+   "description": null,
+   "price": "1 350,00 zł",
+   "price_raw": 1350,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8609274,
+     "label": "",
+     "price": "1 350,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621285,
+   "variant_id": 8568586,
+   "name": "Depilacja Laserowa 1 Zabieg - Dłonie",
+   "description": "",
+   "price": "150,00 zł",
+   "price_raw": 150,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8568586,
+     "label": "",
+     "price": "150,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631944,
+   "variant_id": 8609275,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów - Dłonie",
+   "description": "",
+   "price": "810,00 zł",
+   "price_raw": 810,
+   "duration_min": 20,
+   "variants": [
+    {
+     "id": 8609275,
+     "label": "",
+     "price": "810,00 zł",
+     "duration": 20
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621287,
+   "variant_id": 8568592,
+   "name": "Depilacja Laserowa 1 Zabieg - Przedramiona",
+   "description": "",
+   "price": "250,00 zł",
+   "price_raw": 250,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8568592,
+     "label": "",
+     "price": "250,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631946,
+   "variant_id": 8609277,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów -Przedramiona",
+   "description": "",
+   "price": "1 350,00 zł",
+   "price_raw": 1350,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8609277,
+     "label": "",
+     "price": "1 350,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621291,
+   "variant_id": 8568596,
+   "name": "Depilacja Laserowa 1 Zabieg - Ramiona",
+   "description": "",
+   "price": "250,00 zł",
+   "price_raw": 250,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8568596,
+     "label": "",
+     "price": "250,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631947,
+   "variant_id": 8609278,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów - Ramiona",
+   "description": "",
+   "price": "1 350,00 zł",
+   "price_raw": 1350,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8609278,
+     "label": "",
+     "price": "1 350,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 4145251,
+   "variant_id": 11137961,
+   "name": "Depilacja Laserowa Całe Ręce",
+   "description": "",
+   "price": "400,00 zł",
+   "price_raw": 400,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 11137961,
+     "label": "",
+     "price": "400,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 4145298,
+   "variant_id": 11138681,
+   "name": "Depilacja Laserowa Całe Ręce Pakiet 6 Zabiegów",
+   "description": "",
+   "price": "2 160,00 zł",
+   "price_raw": 2160,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 11138681,
+     "label": "",
+     "price": "2 160,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621293,
+   "variant_id": 8568598,
+   "name": "Depilacja Laserowa 1 Zabieg - Linia Brzucha",
+   "description": null,
+   "price": "150,00 zł",
+   "price_raw": 150,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8568598,
+     "label": "",
+     "price": "150,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631950,
+   "variant_id": 8609281,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów-Linia Brzucha",
+   "description": "",
+   "price": "810,00 zł",
+   "price_raw": 810,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8609281,
+     "label": "",
+     "price": "810,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621295,
+   "variant_id": 8568600,
+   "name": "Depilacja Laserowa 1 Zabieg - Brzuch",
+   "description": "",
+   "price": "300,00 zł",
+   "price_raw": 300,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 8568600,
+     "label": "",
+     "price": "300,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631952,
+   "variant_id": 8609283,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów - Brzuch",
+   "description": "",
+   "price": "1 620,00 zł",
+   "price_raw": 1620,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 8609283,
+     "label": "",
+     "price": "1 620,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621297,
+   "variant_id": 8568607,
+   "name": "Depilacja Laserowa 1 Zabieg - Klatka Piersiowa",
+   "description": "",
+   "price": "300,00 zł",
+   "price_raw": 300,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 8568607,
+     "label": "",
+     "price": "300,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631960,
+   "variant_id": 8609292,
+   "name": "Depilacja LaserowaPakiet6Zabiegów-Klatka Piersiowa",
+   "description": null,
+   "price": "1 620,00 zł",
+   "price_raw": 1620,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 8609292,
+     "label": "",
+     "price": "1 620,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621299,
+   "variant_id": 8568611,
+   "name": "Depilacja Laserowa 1 Zabieg - Tułów",
+   "description": "",
+   "price": "450,00 zł",
+   "price_raw": 450,
+   "duration_min": 60,
+   "variants": [
+    {
+     "id": 8568611,
+     "label": "",
+     "price": "450,00 zł",
+     "duration": 60
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631962,
+   "variant_id": 8609294,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów - Tułów",
+   "description": "",
+   "price": "2 430,00 zł",
+   "price_raw": 2430,
+   "duration_min": 60,
+   "variants": [
+    {
+     "id": 8609294,
+     "label": "",
+     "price": "2 430,00 zł",
+     "duration": 60
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621300,
+   "variant_id": 8568613,
+   "name": "Depilacja Laserowa 1 Zabieg - Plecy",
+   "description": "",
+   "price": "400,00 zł",
+   "price_raw": 400,
+   "duration_min": 60,
+   "variants": [
+    {
+     "id": 8568613,
+     "label": "",
+     "price": "400,00 zł",
+     "duration": 60
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631964,
+   "variant_id": 8609296,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów - Plecy",
+   "description": "",
+   "price": "2 160,00 zł",
+   "price_raw": 2160,
+   "duration_min": 60,
+   "variants": [
+    {
+     "id": 8609296,
+     "label": "",
+     "price": "2 160,00 zł",
+     "duration": 60
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621301,
+   "variant_id": 8568614,
+   "name": "Depilacja Laserowa 1 Zabieg - Pośladki",
+   "description": "",
+   "price": "250,00 zł",
+   "price_raw": 250,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8568614,
+     "label": "",
+     "price": "250,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631966,
+   "variant_id": 8609298,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów - Pośladki",
+   "description": "",
+   "price": "1 350,00 zł",
+   "price_raw": 1350,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8609298,
+     "label": "",
+     "price": "1 350,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621302,
+   "variant_id": 8568616,
+   "name": "Depilacja Laserowa 1 Zabieg - Uda",
+   "description": "",
+   "price": "400,00 zł",
+   "price_raw": 400,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 8568616,
+     "label": "",
+     "price": "400,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631968,
+   "variant_id": 8609300,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów - Uda",
+   "description": "",
+   "price": "2 160,00 zł",
+   "price_raw": 2160,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 8609300,
+     "label": "",
+     "price": "2 160,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621303,
+   "variant_id": 8568617,
+   "name": "Depilacja Laserowa 1 Zabieg - Łydki+kolana",
+   "description": "",
+   "price": "300,00 zł",
+   "price_raw": 300,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 8568617,
+     "label": "",
+     "price": "300,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631970,
+   "variant_id": 8609302,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów- Łydki+kolana",
+   "description": "",
+   "price": "1 620,00 zł",
+   "price_raw": 1620,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 8609302,
+     "label": "",
+     "price": "1 620,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621304,
+   "variant_id": 8568618,
+   "name": "Depilacja Laserowa 1 Zabieg - Całe Nogi",
+   "description": "",
+   "price": "500,00 zł",
+   "price_raw": 500,
+   "duration_min": 90,
+   "variants": [
+    {
+     "id": 8568618,
+     "label": "",
+     "price": "500,00 zł",
+     "duration": 90
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631973,
+   "variant_id": 8609305,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów - Całe Nogi",
+   "description": "",
+   "price": "2 700,00 zł",
+   "price_raw": 2700,
+   "duration_min": 90,
+   "variants": [
+    {
+     "id": 8609305,
+     "label": "",
+     "price": "2 700,00 zł",
+     "duration": 90
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621306,
+   "variant_id": 8568620,
+   "name": "Depilacja Laserowa 1 Zabieg - Stopy",
+   "description": "",
+   "price": "150,00 zł",
+   "price_raw": 150,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8568620,
+     "label": "",
+     "price": "150,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631974,
+   "variant_id": 8609306,
+   "name": "Depilacja Laserowa Pakiet 6 Zabiegów - Stopy",
+   "description": "",
+   "price": "810,00 zł",
+   "price_raw": 810,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8609306,
+     "label": "",
+     "price": "810,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621308,
+   "variant_id": 8568622,
+   "name": "Depilacja Laserowa 1 Zabieg - Bikini Płytkie",
+   "description": "",
+   "price": "250,00 zł",
+   "price_raw": 250,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8568622,
+     "label": "",
+     "price": "250,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631975,
+   "variant_id": 8609307,
+   "name": "Depilacja Laserowa Pakiet6Zabiegów-Bikini Płytkie",
+   "description": "",
+   "price": "1 350,00 zł",
+   "price_raw": 1350,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8609307,
+     "label": "",
+     "price": "1 350,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3621310,
+   "variant_id": 8568624,
+   "name": "Depilacja Laserowa 1 Zabieg - Bikini Głębokie",
+   "description": "",
+   "price": "300,00 zł",
+   "price_raw": 300,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 8568624,
+     "label": "",
+     "price": "300,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Epilacja laserowa Alma Baby Remove",
+   "id": 3631979,
+   "variant_id": 8609311,
+   "name": "Depilacja Laserowa Pakiet6Zabiegów-Bikini Głębokie",
+   "description": "",
+   "price": "1 620,00 zł",
+   "price_raw": 1620,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 8609311,
+     "label": "",
+     "price": "1 620,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Peeling węglowy",
+   "id": 1677707,
+   "variant_id": 5126958,
+   "name": "Peeling węglowy Twarz",
+   "description": "Zabieg polegający na naświetleniu laserem partii, na którą nałożona została maska węglowa. Cząsteczki węgla absorbują promienie lasera stymulując struktury komórkowe. Zabieg jest całkowicie bezpieczny, przez co może być wykonywany cały rok. \n\nEfekty/ działanie: \n- oczyszcza pory,\n- zmniejsza ilość zaskórników,\n- reguluje pracę gruczołów łojowych, \n- wyrównuje koloryt skóry,\n- wspomaga leczenie trądziku.",
+   "price": "250,00 zł",
+   "price_raw": 250,
+   "duration_min": 75,
+   "variants": [
+    {
+     "id": 5126958,
+     "label": "",
+     "price": "250,00 zł",
+     "duration": 75
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Peeling węglowy",
+   "id": 1677716,
+   "variant_id": 5126959,
+   "name": "Peeling węglowy Twarz, szyja",
+   "description": "Zabieg polegający na naświetleniu laserem partii, na którą nałożona została maska węglowa. Cząsteczki węgla absorbują promienie lasera stymulując struktury komórkowe. Zabieg jest całkowicie bezpieczny, przez co może być wykonywany cały rok. \n\nEfekty/ działanie: \n- oczyszcza pory,\n- zmniejsza ilość zaskórników,\n- reguluje pracę gruczołów łojowych, \n- wyrównuje koloryt skóry,\n- wspomaga leczenie trądziku.",
+   "price": "290,00 zł",
+   "price_raw": 290,
+   "duration_min": 75,
+   "variants": [
+    {
+     "id": 5126959,
+     "label": "",
+     "price": "290,00 zł",
+     "duration": 75
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Peeling węglowy",
+   "id": 1677719,
+   "variant_id": 5126960,
+   "name": "Peeling węglowy Twarz, szyja, dekolt",
+   "description": "Zabieg polegający na naświetleniu laserem partii, na którą nałożona została maska węglowa. Cząsteczki węgla absorbują promienie lasera stymulując struktury komórkowe. Zabieg jest całkowicie bezpieczny, przez co może być wykonywany cały rok. \n\nEfekty/ działanie: \n- oczyszcza pory,\n- zmniejsza ilość zaskórników,\n- reguluje pracę gruczołów łojowych, \n- wyrównuje koloryt skóry,\n- wspomaga leczenie trądziku.",
+   "price": "350,00 zł",
+   "price_raw": 350,
+   "duration_min": 90,
+   "variants": [
+    {
+     "id": 5126960,
+     "label": "",
+     "price": "350,00 zł",
+     "duration": 90
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pielęgnacja dłoni i paznokci",
+   "id": 1462452,
+   "variant_id": 5126922,
+   "name": "Manicure hybrydowy",
+   "description": "",
+   "price": "130,00 zł",
+   "price_raw": 130,
+   "duration_min": 75,
+   "variants": [
+    {
+     "id": 5126922,
+     "label": "",
+     "price": "130,00 zł",
+     "duration": 75
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pielęgnacja dłoni i paznokci",
+   "id": 1675217,
+   "variant_id": 5126924,
+   "name": "Korekta żelu krótkie",
+   "description": "",
+   "price": "135,00 zł+",
+   "price_raw": 135,
+   "duration_min": 90,
+   "variants": [
+    {
+     "id": 5126924,
+     "label": "",
+     "price": "135,00 zł+",
+     "duration": 90
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pielęgnacja dłoni i paznokci",
+   "id": 1882621,
+   "variant_id": 5126981,
+   "name": "Korekta żelu krótkie + french",
+   "description": "",
+   "price": "155,00 zł+",
+   "price_raw": 155,
+   "duration_min": 105,
+   "variants": [
+    {
+     "id": 5126981,
+     "label": "",
+     "price": "155,00 zł+",
+     "duration": 105
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pielęgnacja dłoni i paznokci",
+   "id": 5562525,
+   "variant_id": 19067888,
+   "name": "Korekta żelu średnie",
+   "description": "",
+   "price": "145,00 zł",
+   "price_raw": 145,
+   "duration_min": 90,
+   "variants": [
+    {
+     "id": 19067888,
+     "label": "",
+     "price": "145,00 zł",
+     "duration": 90
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pielęgnacja dłoni i paznokci",
+   "id": 5564055,
+   "variant_id": 19071282,
+   "name": "Korekta żelu średnie + french",
+   "description": "",
+   "price": "165,00 zł",
+   "price_raw": 165,
+   "duration_min": 105,
+   "variants": [
+    {
+     "id": 19071282,
+     "label": "",
+     "price": "165,00 zł",
+     "duration": 105
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pielęgnacja dłoni i paznokci",
+   "id": 2897480,
+   "variant_id": 7090693,
+   "name": "Korekta żelu długie",
+   "description": "",
+   "price": "155,00 zł",
+   "price_raw": 155,
+   "duration_min": 105,
+   "variants": [
+    {
+     "id": 7090693,
+     "label": "",
+     "price": "155,00 zł",
+     "duration": 105
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pielęgnacja dłoni i paznokci",
+   "id": 2897479,
+   "variant_id": 7090692,
+   "name": "Korekta żelu długie + french",
+   "description": "",
+   "price": "175,00 zł",
+   "price_raw": 175,
+   "duration_min": 105,
+   "variants": [
+    {
+     "id": 7090692,
+     "label": "",
+     "price": "175,00 zł",
+     "duration": 105
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pielęgnacja dłoni i paznokci",
+   "id": 1675216,
+   "variant_id": 5126923,
+   "name": "Przedłużanie paznokci krótkie",
+   "description": "",
+   "price": "170,00 zł",
+   "price_raw": 170,
+   "duration_min": 150,
+   "variants": [
+    {
+     "id": 5126923,
+     "label": "",
+     "price": "170,00 zł",
+     "duration": 150
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pielęgnacja dłoni i paznokci",
+   "id": 2879788,
+   "variant_id": 7067869,
+   "name": "Przedłużanie paznokci krótkie + french",
+   "description": "",
+   "price": "190,00 zł",
+   "price_raw": 190,
+   "duration_min": 150,
+   "variants": [
+    {
+     "id": 7067869,
+     "label": "",
+     "price": "190,00 zł",
+     "duration": 150
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pielęgnacja dłoni i paznokci",
+   "id": 5564063,
+   "variant_id": 19071296,
+   "name": "Przedłużanie paznokci średnie",
+   "description": "",
+   "price": "180,00 zł",
+   "price_raw": 180,
+   "duration_min": 150,
+   "variants": [
+    {
+     "id": 19071296,
+     "label": "",
+     "price": "180,00 zł",
+     "duration": 150
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pielęgnacja dłoni i paznokci",
+   "id": 5564068,
+   "variant_id": 19071301,
+   "name": "Przedłużanie paznokci średnich + french",
+   "description": "",
+   "price": "200,00 zł",
+   "price_raw": 200,
+   "duration_min": 150,
+   "variants": [
+    {
+     "id": 19071301,
+     "label": "",
+     "price": "200,00 zł",
+     "duration": 150
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pielęgnacja dłoni i paznokci",
+   "id": 2897475,
+   "variant_id": 7090688,
+   "name": "Przedłużanie paznokci długie",
+   "description": "",
+   "price": "190,00 zł",
+   "price_raw": 190,
+   "duration_min": 180,
+   "variants": [
+    {
+     "id": 7090688,
+     "label": "",
+     "price": "190,00 zł",
+     "duration": 180
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pielęgnacja dłoni i paznokci",
+   "id": 2897477,
+   "variant_id": 7090690,
+   "name": "Przedłużanie paznokci długie + french",
+   "description": "",
+   "price": "210,00 zł",
+   "price_raw": 210,
+   "duration_min": 180,
+   "variants": [
+    {
+     "id": 7090690,
+     "label": "",
+     "price": "210,00 zł",
+     "duration": 180
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pielęgnacja dłoni i paznokci",
+   "id": 2897482,
+   "variant_id": 7090695,
+   "name": "Żel na naturalnej płytce",
+   "description": "",
+   "price": "130,00 zł",
+   "price_raw": 130,
+   "duration_min": 75,
+   "variants": [
+    {
+     "id": 7090695,
+     "label": "",
+     "price": "130,00 zł",
+     "duration": 75
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pielęgnacja dłoni i paznokci",
+   "id": 1675230,
+   "variant_id": 4087001,
+   "name": "Naprawa paznokcia",
+   "description": "",
+   "price": "20,00 zł+",
+   "price_raw": 20,
+   "duration_min": 15,
+   "variants": [
+    {
+     "id": 4087001,
+     "label": "",
+     "price": "20,00 zł+",
+     "duration": 15
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pielęgnacja dłoni i paznokci",
+   "id": 1675218,
+   "variant_id": 5126925,
+   "name": "Ściąganie hybrydy/żelu",
+   "description": "",
+   "price": "70,00 zł",
+   "price_raw": 70,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 5126925,
+     "label": "",
+     "price": "70,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Henna",
+   "id": 1675246,
+   "variant_id": 5126830,
+   "name": "Henna rzęs lub brwi",
+   "description": "",
+   "price": "40,00 zł",
+   "price_raw": 40,
+   "duration_min": 15,
+   "variants": [
+    {
+     "id": 5126830,
+     "label": "",
+     "price": "40,00 zł",
+     "duration": 15
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Henna",
+   "id": 1675247,
+   "variant_id": 5126829,
+   "name": "Henna brwi z regulacją",
+   "description": "",
+   "price": "65,00 zł",
+   "price_raw": 65,
+   "duration_min": 15,
+   "variants": [
+    {
+     "id": 5126829,
+     "label": "",
+     "price": "65,00 zł",
+     "duration": 15
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Henna",
+   "id": 1675250,
+   "variant_id": 5126938,
+   "name": "Henna Pudrowa z regulacją",
+   "description": "",
+   "price": "90,00 zł",
+   "price_raw": 90,
+   "duration_min": 45,
+   "variants": [
+    {
+     "id": 5126938,
+     "label": "",
+     "price": "90,00 zł",
+     "duration": 45
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Henna",
+   "id": 1675248,
+   "variant_id": 5126937,
+   "name": "Henna Komplet (brwi+rzęsy+regulacja)",
+   "description": "",
+   "price": "85,00 zł",
+   "price_raw": 85,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 5126937,
+     "label": "",
+     "price": "85,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Henna",
+   "id": 1675251,
+   "variant_id": 4087037,
+   "name": "Regulacja brwi pęsetą",
+   "description": "",
+   "price": "30,00 zł",
+   "price_raw": 30,
+   "duration_min": 15,
+   "variants": [
+    {
+     "id": 4087037,
+     "label": "",
+     "price": "30,00 zł",
+     "duration": 15
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Depilacja woskiem",
+   "id": 1677641,
+   "variant_id": 4092128,
+   "name": "Regulacja brwi woskiem",
+   "description": "",
+   "price": "35,00 zł",
+   "price_raw": 35,
+   "duration_min": 15,
+   "variants": [
+    {
+     "id": 4092128,
+     "label": "",
+     "price": "35,00 zł",
+     "duration": 15
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Depilacja woskiem",
+   "id": 1677646,
+   "variant_id": 4092138,
+   "name": "Wąsik",
+   "description": "",
+   "price": "30,00 zł",
+   "price_raw": 30,
+   "duration_min": 10,
+   "variants": [
+    {
+     "id": 4092138,
+     "label": "",
+     "price": "30,00 zł",
+     "duration": 10
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Depilacja woskiem",
+   "id": 1677652,
+   "variant_id": 4092149,
+   "name": "Broda",
+   "description": null,
+   "price": "35,00 zł",
+   "price_raw": 35,
+   "duration_min": 15,
+   "variants": [
+    {
+     "id": 4092149,
+     "label": "",
+     "price": "35,00 zł",
+     "duration": 15
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Depilacja woskiem",
+   "id": 1677659,
+   "variant_id": 5126951,
+   "name": "Cała twarz",
+   "description": null,
+   "price": "50,00 zł",
+   "price_raw": 50,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 5126951,
+     "label": "",
+     "price": "50,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Depilacja woskiem",
+   "id": 1677669,
+   "variant_id": 5126952,
+   "name": "Ręce",
+   "description": null,
+   "price": "50,00 zł",
+   "price_raw": 50,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 5126952,
+     "label": "",
+     "price": "50,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Depilacja woskiem",
+   "id": 1677674,
+   "variant_id": 5126953,
+   "name": "Łydki",
+   "description": null,
+   "price": "45,00 zł",
+   "price_raw": 45,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 5126953,
+     "label": "",
+     "price": "45,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Depilacja woskiem",
+   "id": 1677684,
+   "variant_id": 5126954,
+   "name": "Uda",
+   "description": null,
+   "price": "65,00 zł",
+   "price_raw": 65,
+   "duration_min": 30,
+   "variants": [
+    {
+     "id": 5126954,
+     "label": "",
+     "price": "65,00 zł",
+     "duration": 30
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Depilacja woskiem",
+   "id": 1677689,
+   "variant_id": 5126955,
+   "name": "Nogi",
+   "description": null,
+   "price": "90,00 zł",
+   "price_raw": 90,
+   "duration_min": 60,
+   "variants": [
+    {
+     "id": 5126955,
+     "label": "",
+     "price": "90,00 zł",
+     "duration": 60
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pedicure",
+   "id": 1675236,
+   "variant_id": 5126930,
+   "name": "Pedicure klasyczny",
+   "description": "",
+   "price": "130,00 zł",
+   "price_raw": 130,
+   "duration_min": 75,
+   "variants": [
+    {
+     "id": 5126930,
+     "label": "",
+     "price": "130,00 zł",
+     "duration": 75
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pedicure",
+   "id": 1675239,
+   "variant_id": 5126932,
+   "name": "Pedicure klasyczny z hybrydą",
+   "description": "",
+   "price": "175,00 zł",
+   "price_raw": 175,
+   "duration_min": 105,
+   "variants": [
+    {
+     "id": 5126932,
+     "label": "",
+     "price": "175,00 zł",
+     "duration": 105
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pedicure",
+   "id": 2340441,
+   "variant_id": 6379273,
+   "name": "Pedicure klasyczny z hybrydą + french",
+   "description": "",
+   "price": "190,00 zł",
+   "price_raw": 190,
+   "duration_min": 105,
+   "variants": [
+    {
+     "id": 6379273,
+     "label": "",
+     "price": "190,00 zł",
+     "duration": 105
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pedicure",
+   "id": 1675238,
+   "variant_id": 5126931,
+   "name": "Pedicure Calluspeeling",
+   "description": "Pedicure wykonywany przy pomocy płatów nasączonych między innymi kwasem glikolowym, mlekowym czy gliceryna. Pozwala pozbyć się zrogowaciałego naskórka bez konieczności frezowania. Nie powoduje podrażnień ani po zabiegowego łuszczenia się skory.  \nEfekty zabiegu są widoczne już po pierwszym razie. \nUmożliwia skuteczne pozbycie się pękających pięt, a skóra po zabiegi jest gładka i miękka.",
+   "price": "170,00 zł",
+   "price_raw": 170,
+   "duration_min": 90,
+   "variants": [
+    {
+     "id": 5126931,
+     "label": "",
+     "price": "170,00 zł",
+     "duration": 90
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pedicure",
+   "id": 1675240,
+   "variant_id": 5126933,
+   "name": "Pedicure Calluspeeling z hybrydą",
+   "description": "",
+   "price": "220,00 zł",
+   "price_raw": 220,
+   "duration_min": 105,
+   "variants": [
+    {
+     "id": 5126933,
+     "label": "",
+     "price": "220,00 zł",
+     "duration": 105
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pedicure",
+   "id": 2340446,
+   "variant_id": 6379278,
+   "name": "Pedicure Calluspeeling z hybrydą + french",
+   "description": "",
+   "price": "235,00 zł",
+   "price_raw": 235,
+   "duration_min": 105,
+   "variants": [
+    {
+     "id": 6379278,
+     "label": "",
+     "price": "235,00 zł",
+     "duration": 105
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pedicure",
+   "id": 4700014,
+   "variant_id": 14037351,
+   "name": "Pedicure premium (calluspeeling + klasyczny)",
+   "description": "",
+   "price": "170,00 zł",
+   "price_raw": 170,
+   "duration_min": 90,
+   "variants": [
+    {
+     "id": 14037351,
+     "label": "",
+     "price": "170,00 zł",
+     "duration": 90
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pedicure",
+   "id": 4700018,
+   "variant_id": 14037362,
+   "name": "Pedicure premium z hybrydą",
+   "description": "",
+   "price": "220,00 zł",
+   "price_raw": 220,
+   "duration_min": 105,
+   "variants": [
+    {
+     "id": 14037362,
+     "label": "",
+     "price": "220,00 zł",
+     "duration": 105
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pedicure",
+   "id": 4700021,
+   "variant_id": 14037365,
+   "name": "Pedicure premium z hybrydą + french",
+   "description": "",
+   "price": "235,00 zł",
+   "price_raw": 235,
+   "duration_min": 105,
+   "variants": [
+    {
+     "id": 14037365,
+     "label": "",
+     "price": "235,00 zł",
+     "duration": 105
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pedicure",
+   "id": 1675241,
+   "variant_id": 5126934,
+   "name": "Hybryda paznokci stóp",
+   "description": "",
+   "price": "110,00 zł",
+   "price_raw": 110,
+   "duration_min": 60,
+   "variants": [
+    {
+     "id": 5126934,
+     "label": "",
+     "price": "110,00 zł",
+     "duration": 60
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Pedicure",
+   "id": 1882623,
+   "variant_id": 5126983,
+   "name": "Hybryda paznokci stóp + french",
+   "description": "",
+   "price": "125,00 zł",
+   "price_raw": 125,
+   "duration_min": 60,
+   "variants": [
+    {
+     "id": 5126983,
+     "label": "",
+     "price": "125,00 zł",
+     "duration": 60
+    }
+   ],
+   "staffer_ids": [
+    451880,
+    598794
+   ],
+   "online": false,
+   "promotion": null
+  },
+  {
+   "category": "Mezoterapia mikroigłowa ",
+   "id": 3129074,
+   "variant_id": 7376416,
+   "name": "Blizny",
+   "description": "",
+   "price": "100,00 zł+",
+   "price_raw": 100,
+   "duration_min": 20,
+   "variants": [
+    {
+     "id": 7376416,
+     "label": "",
+     "price": "100,00 zł+",
+     "duration": 20
+    }
+   ],
+   "staffer_ids": [
+    177419
+   ],
+   "online": false,
+   "promotion": null
+  }
+ ]
+}

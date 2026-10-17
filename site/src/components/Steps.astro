@@ -1,0 +1,115 @@
+---
+/**
+ * Etapy (np. przebieg wizyty: konsultacja → rysunek → pigmentacja → dopigmentowanie) jako
+ * numerowana lista w kolumnach rozdzielonych hairline. Bez kart i ikon. Nagłówek sekcji daje strona.
+ *   <Steps steps={[{ title: 'Konsultacja', text: '…' }, …]} />          4 kolumny (domyślnie)
+ *   <Steps cols={3} steps={[…]} />
+ * Na ciemnym pasie (section--dark) kolory przełączają się same.
+ */
+interface Step {
+  title: string;
+  text: string;
+}
+interface Props {
+  steps: Step[];
+  cols?: 2 | 3 | 4;
+  /** Poziom nagłówków etapów (domyślnie h3). */
+  as?: 'h3' | 'h4';
+  class?: string;
+}
+const { steps, cols = 4, as = 'h3', class: className } = Astro.props;
+const Tag = as;
+---
+
+<ol class:list={['steps', `steps--${cols}`, className]} role="list">
+  {
+    steps.map((s, i) => (
+      <li class="steps__item">
+        <span class="steps__n" aria-hidden="true">
+          {String(i + 1).padStart(2, '0')}
+        </span>
+        <Tag class="steps__title">{s.title}</Tag>
+        <p class="steps__text">{s.text}</p>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .steps {
+    --cols: 4;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    border-top: 1px solid var(--c-gold);
+  }
+  .steps--2 {
+    --cols: 2;
+  }
+  .steps--3 {
+    --cols: 3;
+  }
+  .steps__item {
+    padding: 28px clamp(16px, 2.4vw, 32px) 8px 0;
+    margin-right: clamp(16px, 2.4vw, 32px);
+    border-right: 1px solid var(--c-line);
+  }
+  .steps__item:last-child {
+    border-right: 0;
+    margin-right: 0;
+  }
+  .steps__n {
+    display: block;
+    margin-bottom: 18px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 1.75rem;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--c-gold-ink);
+  }
+  .steps__title {
+    margin: 0 0 10px;
+    font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+  }
+  .steps__text {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--c-muted);
+  }
+  :global(:is(.section--dark, .tone-dark)) .steps__item {
+    border-color: var(--c-dark-line);
+  }
+  :global(:is(.section--dark, .tone-dark)) .steps__n {
+    color: var(--c-dark-gold);
+  }
+  :global(:is(.section--dark, .tone-dark)) .steps__text {
+    color: var(--c-dark-muted);
+  }
+  @media (max-width: 960px) {
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .steps__item:nth-child(2n) {
+      border-right: 0;
+      margin-right: 0;
+    }
+    .steps__item {
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--c-line);
+    }
+  }
+  @media (max-width: 560px) {
+    .steps {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .steps__item {
+      border-right: 0;
+      margin-right: 0;
+      padding-right: 0;
+    }
+  }
+</style>

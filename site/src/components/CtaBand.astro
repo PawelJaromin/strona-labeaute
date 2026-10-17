@@ -1,0 +1,124 @@
+---
+/**
+ * Ciemny pas CTA przed stopką (brief, sekcja 2 „Rytm stron”): „Umów wizytę” (widget Booksy)
+ * + telefon + informacja o 2 tygodniach. Renderuje go automatycznie layouts/Base.astro na końcu
+ * <main> KAŻDEJ strony; strony nie wstawiają go same. Zmiana tekstów albo wyłączenie:
+ *   <Base … cta={{ title: 'Umów konsultację', text: '…' }}>     własne teksty
+ *   <Base … cta={false}>                                        bez pasa (nie używać bez powodu)
+ * Samodzielnie (np. w środku strony) też można: <CtaBand id="rezerwacja-2" title="…" />
+ */
+import { site } from '../config/site';
+import Button from './Button.astro';
+import BookingNote from './BookingNote.astro';
+
+interface Props {
+  /** Etykieta nad nagłówkiem (domyślnie „Rezerwacja”). */
+  eyebrow?: string;
+  /** Nagłówek h2 (domyślnie „Umów wizytę”). */
+  title?: string;
+  /** Jedno–dwa zdania pod nagłówkiem. */
+  text?: string;
+  /** Napis na przycisku Booksy (domyślnie „Umów wizytę online”). */
+  buttonLabel?: string;
+  /** id sekcji (kotwica); domyślnie "rezerwacja". */
+  id?: string;
+}
+
+const {
+  eyebrow = 'Rezerwacja',
+  title = 'Umów wizytę',
+  text = 'Zarezerwuj termin online przez Booksy albo zadzwoń do salonu. Przyjmujemy wyłącznie po wcześniejszej rezerwacji.',
+  buttonLabel = 'Umów wizytę online',
+  id = 'rezerwacja',
+} = Astro.props;
+---
+
+<section class="section--dark cta-band" id={id} aria-labelledby={`${id}-title`}>
+  <div class="container cta-band__in">
+    <div class="cta-band__copy">
+      <p class="eyebrow">{eyebrow}</p>
+      <h2 class="cta-band__title" id={`${id}-title`}>{title}</h2>
+      {text && <p class="cta-band__text">{text}</p>}
+    </div>
+    <div class="cta-band__actions">
+      <Button booksy class="cta-band__btn">{buttonLabel}</Button>
+      <p class="cta-band__phone">
+        <span class="cta-band__phone-label">lub zadzwoń</span>
+        <a href={site.phone.href}>{site.phone.display}</a>
+      </p>
+      <BookingNote class="cta-band__note" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta-band {
+    padding-block: clamp(64px, 7vw + 16px, 128px);
+    border-top: 1px solid var(--c-gold);
+  }
+  .cta-band__in {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    gap: clamp(36px, 6vw, 96px);
+    align-items: center;
+  }
+  .cta-band__title {
+    margin: 0;
+    font-size: clamp(2.25rem, 1.55rem + 2.6vw, 3.5rem);
+  }
+  .cta-band__text {
+    margin: 22px 0 0;
+    max-width: 48ch;
+    color: var(--c-dark-muted);
+  }
+  .cta-band__actions {
+    display: grid;
+    justify-items: start;
+    gap: 18px;
+    padding-left: clamp(0px, 4vw, 56px);
+    border-left: 1px solid var(--c-dark-line);
+  }
+  .cta-band__phone {
+    display: grid;
+    gap: 2px;
+    margin: 6px 0 0;
+  }
+  .cta-band__phone-label {
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--c-dark-gold);
+  }
+  .cta-band__phone a {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 1.6rem + 1.4vw, 2.75rem);
+    font-weight: 500;
+    line-height: 1.15;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .cta-band__phone a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+  .cta-band__actions :global(.cta-band__note) {
+    margin: 0;
+  }
+  @media (max-width: 860px) {
+    .cta-band__in {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .cta-band__actions {
+      padding-left: 0;
+      padding-top: 32px;
+      border-left: 0;
+      border-top: 1px solid var(--c-dark-line);
+    }
+  }
+  @media (max-width: 480px) {
+    .cta-band__actions {
+      justify-items: stretch;
+    }
+  }
+</style>

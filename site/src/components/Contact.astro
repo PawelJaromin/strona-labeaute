@@ -1,0 +1,167 @@
+---
+/**
+ * Sekcja kontaktu (id="kontakt"): adres z linkami do Map Google, telefon (tel:), e-mail (mailto:),
+ * media społecznościowe, godziny otwarcia i przycisk rezerwacji. Mapa jako link (bez osadzania,
+ * więc bez ciasteczek Google na tej stronie).
+ *   <Contact />
+ *   <Contact tone="ivory" title="Umów się na konsultację" />
+ */
+import { site } from '../config/site';
+import SectionHead from './SectionHead.astro';
+import Hours from './Hours.astro';
+import Button from './Button.astro';
+import BookingNote from './BookingNote.astro';
+
+interface Props {
+  id?: string;
+  tone?: 'white' | 'ivory';
+  eyebrow?: string;
+  title?: string;
+  lead?: string;
+}
+const {
+  id = 'kontakt',
+  tone = 'white',
+  eyebrow = 'Kontakt',
+  title = 'Zapraszamy do salonu w Orzeszu',
+  lead = 'Przyjmujemy wyłącznie po wcześniejszej rezerwacji: online przez Booksy albo telefonicznie.',
+} = Astro.props;
+const newTab = ' (otwiera się w nowej karcie)';
+---
+
+<section class:list={['section', 'contact', { 'section--ivory': tone === 'ivory' }]} id={id} aria-labelledby={`${id}-title`}>
+  <div class="container">
+    <SectionHead eyebrow={eyebrow} title={title} lead={lead} id={`${id}-title`} />
+
+    <div class="contact__grid">
+      <div class="contact__info">
+        <div class="contact__block">
+          <h3 class="contact__h">Adres</h3>
+          <address class="contact__address">
+            {site.name}<br />
+            {site.address.street}<br />
+            {site.address.postalCode} {site.address.city}
+          </address>
+          <p class="contact__links">
+            <a href={site.maps.directionsUrl} target="_blank" rel="noopener">Wyznacz trasę<span class="visually-hidden">{newTab}</span></a>
+            <a href={site.maps.placeUrl} target="_blank" rel="noopener">Zobacz w Mapach Google<span class="visually-hidden">{newTab}</span></a>
+          </p>
+        </div>
+
+        <div class="contact__block">
+          <h3 class="contact__h">Telefon i e-mail</h3>
+          <p class="contact__phone"><a href={site.phone.href}>{site.phone.display}</a></p>
+          <p class="contact__email"><a href={`mailto:${site.email}`}>{site.email}</a></p>
+        </div>
+
+        <div class="contact__block">
+          <h3 class="contact__h">W internecie</h3>
+          <ul class="contact__social" role="list">
+            <li><a href={site.social.instagram} target="_blank" rel="noopener">Instagram<span class="visually-hidden">{newTab}</span></a></li>
+            <li><a href={site.social.facebook} target="_blank" rel="noopener">Facebook<span class="visually-hidden">{newTab}</span></a></li>
+            <li><a href={site.booksy.profileUrl} target="_blank" rel="noopener">Booksy<span class="visually-hidden">{newTab}</span></a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="contact__side">
+        <h3 class="contact__h">Godziny otwarcia</h3>
+        <Hours caption="Godziny otwarcia salonu" />
+        <div class="contact__cta">
+          <Button booksy>Umów wizytę</Button>
+          <BookingNote />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(48px, 7vw, 112px);
+    align-items: start;
+  }
+  .contact__info {
+    display: grid;
+    gap: clamp(32px, 4vw, 44px);
+  }
+  .contact__block {
+    padding-top: 22px;
+    border-top: 1px solid var(--c-gold);
+  }
+  .contact__h {
+    margin: 0 0 14px;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.4;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--c-gold-ink);
+  }
+  .contact__address {
+    font-size: 1.125rem;
+    line-height: 1.6;
+  }
+  .contact__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 24px;
+    margin-top: 14px;
+    font-size: 0.9375rem;
+  }
+  .contact__links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
+  .contact__phone {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 1.6rem + 1.4vw, 2.75rem);
+    font-weight: 500;
+    line-height: 1.15;
+  }
+  .contact__phone a {
+    text-decoration: none;
+  }
+  .contact__phone a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+  .contact__email {
+    margin: 8px 0 0;
+    font-size: 1.0625rem;
+    overflow-wrap: anywhere;
+  }
+  .contact__social {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 28px;
+  }
+  .contact__social a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
+  .contact__side {
+    padding-top: 22px;
+    border-top: 1px solid var(--c-gold);
+  }
+  .contact__cta {
+    display: grid;
+    justify-items: start;
+    gap: 14px;
+    margin-top: 36px;
+  }
+  @media (max-width: 860px) {
+    .contact__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

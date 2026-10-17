@@ -1,0 +1,231 @@
+---
+/**
+ * Hero H2: tekst po lewej, zdjęcie po prawej (na telefonie zdjęcie nad tekstem). Zawiera jedyny <h1> strony.
+ *
+ *   <Hero eyebrow="Salon kosmetyczny · Orzesze" title="Piękno w każdym detalu" lead="…"
+ *         image={salon1} imageAlt="…"
+ *         primary={{ label: 'Umów wizytę', booksy: true }}
+ *         secondary={{ label: 'Zobacz cennik', href: '/cennik/' }}
+ *         meta={[{ value: '5,0', label: 'ze 180 opinii w Booksy', href: '…' }]}
+ *         note />
+ * Kursywa w tytule: <Fragment slot="title">Piękno <em>w każdym detalu</em></Fragment>.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Button from './Button.astro';
+import BookingNote from './BookingNote.astro';
+
+interface Action {
+  label: string;
+  href?: string;
+  /** true = widget Booksy (ogólna rezerwacja). */
+  booksy?: boolean;
+}
+interface Meta {
+  value?: string;
+  label: string;
+  href?: string;
+}
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  lead?: string;
+  image: ImageMetadata;
+  imageAlt: string;
+  /** Kadrowanie zdjęcia (object-position). Bez stylów inline, bo CSP ich nie dopuszcza. */
+  imagePosition?: 'center' | 'top' | 'bottom' | 'left' | 'right';
+  primary?: Action;
+  secondary?: Action;
+  meta?: Meta[];
+  /** Pokaż informację o rezerwacjach (2 tygodnie do przodu, telefon). */
+  note?: boolean;
+}
+
+const { eyebrow, title, lead, image, imageAlt, imagePosition = 'center', primary, secondary, meta = [], note = false } = Astro.props;
+const hasTitleSlot = Astro.slots.has('title');
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__copy">
+    <div class="hero__inner">
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <h1 id="hero-title">{hasTitleSlot ? <slot name="title" /> : title}</h1>
+      {lead && <p class="lead hero__lead">{lead}</p>}
+      <slot />
+      {
+        (primary || secondary) && (
+          <div class="btn-row hero__actions">
+            {primary &&
+              (primary.booksy ? (
+                <Button booksy>{primary.label}</Button>
+              ) : (
+                <Button href={primary.href}>{primary.label}</Button>
+              ))}
+            {secondary &&
+              (secondary.booksy ? (
+                <Button booksy variant="secondary">
+                  {secondary.label}
+                </Button>
+              ) : (
+                <Button href={secondary.href} variant="secondary">
+                  {secondary.label}
+                </Button>
+              ))}
+          </div>
+        )
+      }
+      {note && <BookingNote class="hero__note" />}
+      {
+        meta.length > 0 && (
+          <ul class="hero__meta" role="list">
+            {meta.map((m) => (
+              <li>
+                {m.href ? (
+                  <a href={m.href} target="_blank" rel="noopener">
+                    {m.value && <b class="hero__meta-value">{m.value}</b>} <span>{m.label}</span>
+                    <span class="visually-hidden"> (otwiera się w nowej karcie)</span>
+                  </a>
+                ) : (
+                  <>
+                    {m.value && <b class="hero__meta-value">{m.value}</b>} <span>{m.label}</span>
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+  <div class="hero__media">
+    <Image
+      src={image}
+      alt={imageAlt}
+      widths={[480, 720, 960, 1200]}
+      sizes="(max-width: 900px) 100vw, 50vw"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      class={`pos-${imagePosition}`}
+    />
+  </div>
+</section>
+
+<style>
+  .hero {
+    container-type: inline-size;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    min-height: clamp(560px, calc(100svh - var(--header-h)), 860px);
+    border-bottom: 1px solid var(--c-line);
+  }
+  .hero__copy {
+    display: flex;
+    align-items: center;
+    padding-block: clamp(56px, 7vw, 112px);
+    padding-inline-start: max(var(--gutter), calc((100cqw - var(--container)) / 2));
+    padding-inline-end: clamp(32px, 5vw, 88px);
+  }
+  .hero__inner {
+    max-width: 600px;
+  }
+  .hero h1 {
+    margin-bottom: 0;
+  }
+  .hero__lead {
+    margin: 28px 0 0;
+    color: var(--c-ink);
+  }
+  .hero__actions {
+    margin-top: 40px;
+  }
+  .hero__inner :global(.hero__note) {
+    margin: 18px 0 0;
+  }
+  .hero__meta {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 32px;
+    margin: 44px 0 0;
+    padding: 22px 0 0;
+    border-top: 1px solid var(--c-line);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--c-muted);
+  }
+  .hero__meta a {
+    color: var(--c-muted);
+    text-decoration: none;
+  }
+  .hero__meta a:hover span {
+    color: var(--c-gold-ink);
+    text-decoration: underline;
+    text-decoration-color: var(--c-gold-ink);
+  }
+  .hero__meta-value {
+    font-family: var(--font-serif);
+    font-size: 1.375rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--c-ink);
+    margin-right: 2px;
+  }
+  .hero__media {
+    position: relative;
+    min-height: 100%;
+    background: var(--c-bg-2);
+    border-left: 1px solid var(--c-line);
+  }
+  .hero__media :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .hero__media :global(.pos-top) {
+    object-position: 50% 15%;
+  }
+  .hero__media :global(.pos-bottom) {
+    object-position: 50% 85%;
+  }
+  .hero__media :global(.pos-left) {
+    object-position: 20% 50%;
+  }
+  .hero__media :global(.pos-right) {
+    object-position: 80% 50%;
+  }
+  /* Złota ramka wewnątrz zdjęcia */
+  .hero__media::after {
+    content: '';
+    position: absolute;
+    inset: clamp(14px, 1.6vw, 24px);
+    border: 1px solid rgba(184, 146, 63, 0.85);
+    pointer-events: none;
+  }
+  @media (max-width: 900px) {
+    .hero {
+      grid-template-columns: 1fr;
+      min-height: 0;
+    }
+    .hero__media {
+      order: -1;
+      aspect-ratio: 4 / 3;
+      min-height: 0;
+      border-left: 0;
+      border-bottom: 1px solid var(--c-line);
+    }
+    .hero__copy {
+      padding: 40px var(--gutter) 56px;
+    }
+    .hero__inner {
+      max-width: 620px;
+    }
+  }
+  @media (max-width: 480px) {
+    .hero__actions :global(.btn) {
+      flex: 1 1 100%;
+    }
+  }
+</style>

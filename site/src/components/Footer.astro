@@ -1,0 +1,228 @@
+---
+/**
+ * Ciemna stopka (#141414, brief „Rytm stron”): pełne logo na tabliczce w kości słoniowej
+ * (logo ma ciemne, półprzezroczyste fragmenty gradientu, które na czerni znikają; logo nie
+ * przerabiamy, więc dostaje jasne tło jak na obrazie OG), adres, godziny, telefon, e-mail,
+ * media społecznościowe, Booksy, polityka prywatności.
+ */
+import { Image } from 'astro:assets';
+import logoPelne from '../assets/logo/logo-pelne.png';
+import { site, routes, hoursText } from '../config/site';
+
+const year = new Date().getFullYear();
+const links = [
+  { href: routes.makijaz, label: 'Makijaż permanentny' },
+  { href: routes.depilacja, label: 'Depilacja laserowa' },
+  { href: routes.tatuaz, label: 'Usuwanie tatuażu' },
+  { href: routes.cennik, label: 'Cennik' },
+  { href: routes.oNas, label: 'O nas' },
+  { href: routes.kontakt, label: 'Kontakt' },
+];
+// Godziny zwięźle: dni z tymi samymi godzinami obok siebie łączone (Sb–Nd zamknięte).
+const compactHours: { days: string; text: string }[] = [];
+for (const h of site.hours) {
+  const text = hoursText(h);
+  const last = compactHours[compactHours.length - 1];
+  if (last && last.text === text && !h.opens) {
+    last.days = `${last.days.split('–')[0]}–${h.short}`;
+  } else {
+    compactHours.push({ days: h.short, text });
+  }
+}
+---
+
+<footer class="ftr tone-dark">
+  <div class="container">
+    <div class="ftr__brand">
+      <a href="/" class="ftr__logo">
+        <Image src={logoPelne} alt={`${site.name}, strona główna`} width={220} densities={[1, 2]} loading="lazy" decoding="async" />
+      </a>
+    </div>
+
+    <div class="ftr__grid">
+      <div class="ftr__col">
+        <h2 class="ftr__h">Salon</h2>
+        <address>
+          {site.address.street}<br />
+          {site.address.postalCode} {site.address.city}
+        </address>
+        <p class="ftr__lines">
+          <a href={site.phone.href}>tel. {site.phone.display}</a><br />
+          <a href={`mailto:${site.email}`}>{site.email}</a>
+        </p>
+        <p class="ftr__muted">Wizyty po wcześniejszej rezerwacji.</p>
+      </div>
+
+      <div class="ftr__col">
+        <h2 class="ftr__h">Godziny otwarcia</h2>
+        <dl class="ftr__hours">
+          {
+            compactHours.map((h) => (
+              <div>
+                <dt>{h.days}</dt>
+                <dd>{h.text}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+
+      <div class="ftr__col">
+        <h2 class="ftr__h">Na skróty</h2>
+        <ul role="list">
+          {
+            links.map((l) => (
+              <li>
+                <a href={l.href}>{l.label}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="ftr__col">
+        <h2 class="ftr__h">Znajdź nas</h2>
+        <ul role="list">
+          <li><a href={site.social.instagram} rel="noopener" target="_blank">Instagram<span class="visually-hidden"> (otwiera się w nowej karcie)</span></a></li>
+          <li><a href={site.social.facebook} rel="noopener" target="_blank">Facebook<span class="visually-hidden"> (otwiera się w nowej karcie)</span></a></li>
+          <li><a href={site.booksy.profileUrl} rel="noopener" target="_blank">Booksy: rezerwacje i opinie<span class="visually-hidden"> (otwiera się w nowej karcie)</span></a></li>
+          <li><a href={site.maps.placeUrl} rel="noopener" target="_blank">Mapy Google<span class="visually-hidden"> (otwiera się w nowej karcie)</span></a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ftr__bottom">
+      <span>© {year} {site.name}</span>
+      <a href={routes.polityka}>Polityka prywatności</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ftr {
+    flex: 1 0 auto;
+    margin-top: auto;
+    background: var(--c-dark);
+    color: var(--c-dark-ink);
+    border-top: 1px solid var(--c-dark-line);
+    padding: clamp(56px, 7vw, 96px) 0 32px;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+  }
+  .ftr a {
+    text-decoration: none;
+  }
+  .ftr a:hover {
+    text-decoration: underline;
+  }
+  .ftr__brand {
+    display: flex;
+    justify-content: center;
+    margin-bottom: clamp(40px, 5vw, 64px);
+  }
+  /* Tabliczka z logo: kość słoniowa w podwójnej złotej ramce (jak obraz OG) */
+  .ftr__logo {
+    position: relative;
+    display: block;
+    line-height: 0;
+    padding: 26px 36px;
+    background: var(--c-bg-2);
+    border: 1px solid var(--c-gold);
+  }
+  .ftr__logo::after {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(184, 146, 63, 0.45);
+    pointer-events: none;
+  }
+  .ftr__logo :global(img) {
+    width: 180px;
+    height: auto;
+  }
+  .ftr__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(28px, 4vw, 56px);
+    padding-top: clamp(32px, 4vw, 48px);
+    border-top: 1px solid var(--c-dark-line);
+  }
+  .ftr__h {
+    margin: 0 0 16px;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.4;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--c-dark-gold);
+  }
+  .ftr__col address,
+  .ftr__lines {
+    margin: 0 0 12px;
+  }
+  .ftr__lines a {
+    display: inline-block;
+    padding: 2px 0;
+  }
+  .ftr__muted {
+    color: var(--c-dark-muted);
+    font-size: 0.875rem;
+  }
+  .ftr__hours {
+    margin: 0;
+    display: grid;
+    gap: 4px;
+  }
+  .ftr__hours div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 220px;
+  }
+  .ftr__hours dt {
+    color: var(--c-dark-muted);
+  }
+  .ftr__hours dd {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .ftr ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+  }
+  .ftr ul a {
+    display: inline-block;
+    padding: 3px 0;
+  }
+  .ftr__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 24px;
+    margin-top: clamp(40px, 5vw, 64px);
+    padding-top: 20px;
+    border-top: 1px solid var(--c-dark-line);
+    font-size: 0.8125rem;
+    color: var(--c-dark-muted);
+  }
+  .ftr__bottom a {
+    color: var(--c-dark-muted);
+  }
+  .ftr__bottom a:hover {
+    color: var(--c-dark-gold);
+  }
+  @media (max-width: 960px) {
+    .ftr__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 520px) {
+    .ftr__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
