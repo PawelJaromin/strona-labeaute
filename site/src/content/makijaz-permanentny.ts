@@ -38,8 +38,8 @@ export const ID = {
 /* ---------------------------------------------------------------- pomocnicze */
 
 const NBSP = '\u00a0';
-/** Zakres bez łamania wiersza po półpauzie (U+2060 = word joiner): „6–12”. */
-const RANGE = '6–⁠12';
+/** Zakres tygodni do dopigmentowania. Zwykła półpauza: przed złamaniem wiersza po niej chroni komponent Text (span.nowrap). */
+const RANGE = '6–12';
 
 /** Spójniki jednoliterowe (a, i, o, u, w, z) nie zostają na końcu wiersza. */
 const pl = (s: string) => s.replace(/(?<=^|[\s„(])([aiouwzAIOUWZ])\s+(?=\S)/g, `$1${NBSP}`);
@@ -106,7 +106,6 @@ export const forWhom = {
   // [do uzupełnienia przez właścicielkę]: lista przeciwwskazań do makijażu permanentnego.
   // Do czasu uzupełnienia strona odsyła do salonu i niczego nie przesądza.
   note: pl('O przeciwwskazania do zabiegu zapytaj salon przed rezerwacją, telefon:'),
-  imageAlt: 'Zbliżenie oka z gęstymi, ciemnymi rzęsami',
 };
 
 /* ---------------------------------------------------------------- przebieg wizyty */

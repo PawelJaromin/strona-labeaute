@@ -14,10 +14,19 @@ Dla każdego pliku HTML:
 Dodatkowo: sitemap zawiera wszystkie strony poza 404.
 Dodatkowo: każda strona linkuje do wszystkich podstron (nawigacja + stopka), a bloki JSON-LD
 są poprawnym JSON-em.
+Podścieżka i tryb (kopia tymczasowa na GitHub Pages): skrypt czyta te same zmienne środowiskowe co build
+(SITE_URL, BASE_PATH, STAGING; patrz build-env.mjs), więc ODPALAJ GO Z TYMI SAMYMI ZMIENNYMI co build.
+Bez nich sprawdza wersję produkcyjną (adres domyślny z build-env.mjs, korzeń domeny). Przy podścieżce:
+- każdy wewnętrzny href/src/srcset zaczynający się od "/" musi zaczynać się od podścieżki,
+- canonical, og:image, JSON-LD i sitemap mają domenę + podścieżkę,
+- kopia tymczasowa: <meta name="robots" content="noindex, nofollow"> na każdej stronie i robots.txt
+  z "Disallow: /"; produkcja: brak noindex (poza 404), robots.txt z "Allow: /" i adresem sitemap,
+- site.webmanifest ma start_url i ikony pod podścieżką.
 Uruchomienie: python -I -X utf8 scripts/linkcheck.py [katalog_dist]  (po npm run build;
 domyślnie dist/, argument przydaje się przy buildzie do innego katalogu: astro build --outDir)
 """
 import json
+import os
 import re
 import sys
 from html.parser import HTMLParser
@@ -25,10 +34,26 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DIST = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else ROOT / 'dist'
-SITE_TS = ROOT / 'src' / 'config' / 'site.ts'
+BUILD_ENV = ROOT / 'build-env.mjs'
 
-m = re.search(r"url:\s*'([^']+)'", SITE_TS.read_text(encoding='utf-8'))
-SITE_URL = (m.group(1) if m else '').rstrip('/')
+
+def read_config():
+    """Adres, podścieżka i tryb: te same zmienne co przy buildzie, domyślnie z build-env.mjs."""
+    m = re.search(r"DEFAULT_SITE_URL\s*=\s*'([^']+)'", BUILD_ENV.read_text(encoding='utf-8'))
+    default_url = (m.group(1) if m else '').rstrip('/')
+    site_url = (os.environ.get('SITE_URL') or '').strip().rstrip('/') or default_url
+    raw_base = (os.environ.get('BASE_PATH') or '').strip()
+    if re.match(r'^[A-Za-z]:[\\/]', raw_base):
+        sys.exit(
+            f'BASE_PATH "{raw_base}" to ścieżka Windows: Git Bash zamienia "/nazwa" na ścieżkę dysku. '
+            'Ustaw MSYS_NO_PATHCONV=1 albo użyj PowerShell.'
+        )
+    base = '' if raw_base in ('', '/') else '/' + raw_base.strip('/')
+    staging = os.environ.get('STAGING') == '1' or base != ''
+    return default_url, site_url, base, staging
+
+
+DEFAULT_SITE_URL, SITE_URL, BASE, STAGING = read_config()
 
 
 class Page(HTMLParser):
@@ -39,6 +64,7 @@ class Page(HTMLParser):
         self.title = ''
         self.desc = None
         self.canon = None
+        self.robots = None
         self.og = {}
         self.lang = None
         self.headings = []  # (level, text)
@@ -60,6 +86,8 @@ class Page(HTMLParser):
         if tag == 'meta':
             if a.get('name') == 'description':
                 self.desc = a.get('content', '')
+            if a.get('name') == 'robots':
+                self.robots = a.get('content', '')
             if a.get('property', '').startswith('og:'):
                 self.og[a['property']] = a.get('content', '')
         if tag == 'link':
@@ -111,9 +139,14 @@ def url_path_of(page: Path) -> str:
     return '/' + rel
 
 
+def in_base(target: str) -> bool:
+    """Czy adres zaczynający się od "/" leży pod podścieżką (przy korzeniu domeny zawsze tak)."""
+    return not BASE or target == BASE or target.startswith(BASE + '/')
+
+
 def resolve(page: Path, target: str) -> Path:
     if target.startswith('/'):
-        fs = DIST / target.lstrip('/')
+        fs = DIST / target[len(BASE):].lstrip('/')
     else:
         fs = (page.parent / target).resolve()
     if fs.is_dir() or target.endswith('/'):
@@ -153,7 +186,7 @@ for page in pages:
     elif not 50 <= len(p.desc) <= 165:
         problems.append(f'{rel}: meta description ma {len(p.desc)} znaków (poza 50-165)')
     if not is404:
-        expected = SITE_URL + path
+        expected = SITE_URL + BASE + path
         if not p.canon:
             problems.append(f'{rel}: brak canonical')
         elif p.canon != expected:
@@ -161,6 +194,30 @@ for page in pages:
     for prop in ('og:title', 'og:image', 'og:description'):
         if not p.og.get(prop):
             problems.append(f'{rel}: brak {prop}')
+
+    # Indeksowanie: kopia tymczasowa zawsze noindex, nofollow; na produkcji tylko 404 jest noindex.
+    robots = ' '.join((p.robots or '').lower().replace(',', ' ').split())
+    if STAGING:
+        if robots != 'noindex nofollow':
+            problems.append(f'{rel}: kopia tymczasowa bez <meta name="robots" content="noindex, nofollow"> (jest: {p.robots!r})')
+    elif is404:
+        if 'noindex' not in robots:
+            problems.append(f'{rel}: 404 bez noindex')
+    elif 'noindex' in robots or 'nofollow' in robots:
+        problems.append(f'{rel}: produkcja nie może mieć noindex/nofollow (jest: {p.robots!r})')
+
+    # Adresy bezwzględne (canonical, og, JSON-LD) mają domenę builda i podścieżkę.
+    if DEFAULT_SITE_URL and SITE_URL != DEFAULT_SITE_URL and DEFAULT_SITE_URL in html:
+        problems.append(f'{rel}: w HTML został domyślny adres {DEFAULT_SITE_URL} (build z innym SITE_URL)')
+    if BASE:
+        for m_abs in re.finditer(re.escape(SITE_URL) + r'(?![A-Za-z0-9.-])([^"\\\s<>]*)', html):
+            rest = m_abs.group(1)
+            if not (rest == BASE or rest.startswith((BASE + '/', BASE + '#', BASE + '?'))):
+                problems.append(f'{rel}: adres bezwzględny bez podścieżki {BASE}: {SITE_URL}{rest}')
+    for prop in ('og:image', 'og:url'):
+        val = p.og.get(prop)
+        if val and not val.startswith(SITE_URL + BASE + '/'):
+            problems.append(f'{rel}: {prop} poza {SITE_URL}{BASE}/: {val}')
 
     # Rytm stron: ciemny wstęp na początku <main>, ciemny pas CTA na końcu, ciemna stopka.
     main_m = re.search(r'<main\b[^>]*>(.*)</main>', html, re.S)
@@ -210,7 +267,10 @@ for page in pages:
 
     for tag, attr, ref in p.refs:
         checked += 1
-        if ref.startswith(('http://', 'https://', 'mailto:', 'tel:', 'data:', 'javascript:', 'about:')):
+        if ref.startswith(('http://', 'https://', '//', 'mailto:', 'tel:', 'data:', 'javascript:', 'about:')):
+            continue
+        if ref.startswith('/') and not in_base(ref.split('#')[0].split('?')[0]):
+            problems.append(f'{rel}: <{tag} {attr}> bez podścieżki {BASE}: {ref}')
             continue
         target, _, frag = ref.partition('#')
         target = target.split('?')[0]
@@ -236,17 +296,18 @@ for page in pages:
         if ref.startswith('/') and not ref.startswith('//'):
             linked.add(ref.split('#')[0].split('?')[0])
     for target in all_paths:
-        if target not in linked:
-            problems.append(f'{page.relative_to(DIST).as_posix()}: brak linku do {target} (nawigacja/stopka)')
-    # JSON-LD: poprawny JSON z @context i @graph
+        if BASE + target not in linked:
+            problems.append(f'{page.relative_to(DIST).as_posix()}: brak linku do {BASE + target} (nawigacja/stopka)')
+    # JSON-LD: poprawny JSON z @context oraz @graph (Base) lub @type (samodzielny węzeł, np. FAQPage)
     for block in re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S):
         try:
             data = json.loads(block)
         except ValueError as e:
             problems.append(f'{page.relative_to(DIST).as_posix()}: niepoprawny JSON-LD ({e})')
             continue
-        if data.get('@context') != 'https://schema.org' or not data.get('@graph'):
-            problems.append(f'{page.relative_to(DIST).as_posix()}: JSON-LD bez @context/@graph')
+        # Base.astro daje blok z @graph; Faq.astro samodzielny węzeł FAQPage z @type.
+        if data.get('@context') != 'https://schema.org' or not (data.get('@graph') or data.get('@type')):
+            problems.append(f'{page.relative_to(DIST).as_posix()}: JSON-LD bez @context i @graph/@type')
 
 # Sitemap: wszystkie strony poza 404.
 sm_files = sorted(DIST.glob('sitemap-*.xml'))
@@ -256,11 +317,49 @@ for f in sm_files:
 for page in pages:
     if page.name == '404.html':
         continue
-    url = SITE_URL + url_path_of(page)
+    url = SITE_URL + BASE + url_path_of(page)
     if url not in locs:
         problems.append(f'sitemap: brak {url}')
 
-print(f'Sprawdzono {len(pages)} stron, {checked} odnośników i zasobów (site.url = {SITE_URL}).')
+# robots.txt: kopia tymczasowa blokuje wszystko, produkcja pozwala i wskazuje sitemap.
+robots_file = DIST / 'robots.txt'
+if not robots_file.exists():
+    problems.append('robots.txt: brak pliku (powinien powstać z src/pages/robots.txt.ts)')
+else:
+    rlines = [ln.strip() for ln in robots_file.read_text(encoding='utf-8').splitlines() if ln.strip() and not ln.lstrip().startswith('#')]
+    if STAGING:
+        if 'Disallow: /' not in rlines:
+            problems.append('robots.txt: kopia tymczasowa bez "Disallow: /"')
+        if 'Allow: /' in rlines:
+            problems.append('robots.txt: kopia tymczasowa nie może mieć "Allow: /"')
+    else:
+        if 'Allow: /' not in rlines:
+            problems.append('robots.txt: produkcja bez "Allow: /"')
+        if 'Disallow: /' in rlines:
+            problems.append('robots.txt: produkcja nie może mieć "Disallow: /"')
+        if f'Sitemap: {SITE_URL}{BASE}/sitemap-index.xml' not in rlines:
+            problems.append(f'robots.txt: brak "Sitemap: {SITE_URL}{BASE}/sitemap-index.xml"')
+
+# site.webmanifest: start_url i ikony pod podścieżką, pliki ikon istnieją.
+manifest_file = DIST / 'site.webmanifest'
+if not manifest_file.exists():
+    problems.append('site.webmanifest: brak pliku (powinien powstać z src/pages/site.webmanifest.ts)')
+else:
+    try:
+        manifest = json.loads(manifest_file.read_text(encoding='utf-8'))
+    except ValueError as e:
+        manifest = None
+        problems.append(f'site.webmanifest: niepoprawny JSON ({e})')
+    if manifest is not None:
+        if manifest.get('start_url') != BASE + '/':
+            problems.append(f'site.webmanifest: start_url {manifest.get("start_url")!r} != {BASE + "/"!r}')
+        for icon in manifest.get('icons', []):
+            src = icon.get('src', '')
+            if not src.startswith(BASE + '/') or not (DIST / src[len(BASE):].lstrip('/')).exists():
+                problems.append(f'site.webmanifest: ikona poza podścieżką albo nieistniejąca: {src}')
+
+mode = 'kopia tymczasowa (noindex)' if STAGING else 'produkcja'
+print(f'Sprawdzono {len(pages)} stron, {checked} odnośników i zasobów (site.url = {SITE_URL}, podścieżka = {BASE or "/"}, tryb: {mode}).')
 if problems:
     print(f'PROBLEMY ({len(problems)}):')
     for pr in problems:

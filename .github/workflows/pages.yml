@@ -1,0 +1,85 @@
+# Tymczasowa kopia strony (staging) na GitHub Pages: https://paweljaromin.github.io/strona-labeaute/
+#
+# Ten sam kod idzie później na hosting produkcyjny (Apache/OVH, korzeń domeny) bez tego workflow:
+# tam buduje się zwykłe `npm run build` w katalogu site/ (patrz site/README.md, sekcja "Wdrożenie").
+# Kopia na Pages jest zbudowana z podścieżką /strona-labeaute i oznaczona noindex, nofollow
+# (robots.txt z Disallow: / pod podścieżką nie jest czytany przez roboty, wyklucza ją meta robots).
+#
+# Jednorazowo w repozytorium: Settings -> Pages -> Build and deployment -> Source: GitHub Actions.
+name: Pages (staging)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# deploy-pages wymaga pages: write oraz id-token: write (token OIDC; wartość "read" nie istnieje).
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Jedno wdrożenie naraz; trwającego nie przerywamy, żeby nie zostawić połowicznej publikacji.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  SITE_URL: https://paweljaromin.github.io
+  BASE_PATH: /strona-labeaute
+  STAGING: '1'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Node 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      # Skrypt check:links to Python 3 (stdlib), polecenie `python` ma być pewne na runnerze.
+      - name: Python 3
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+
+      - name: Instalacja zależności
+        run: npm ci
+
+      - name: Build (staging, podścieżka ${{ env.BASE_PATH }})
+        run: npm run build
+
+      - name: Kontrast kolorów
+        run: npm run check:contrast
+
+      # Linki, meta, rytm stron, sitemap, robots, manifest sprawdzone na zbudowanym dist/.
+      # Skrypt czyta te same SITE_URL / BASE_PATH / STAGING co build (job-level env).
+      - name: Linki i meta w dist/
+        run: npm run check:links -- dist
+
+      # include-hidden-files: w artefakcie ma być public/.nojekyll (akcja domyślnie pomija pliki z kropką).
+      - name: Artefakt Pages
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/dist
+          include-hidden-files: true
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Wdrożenie na GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

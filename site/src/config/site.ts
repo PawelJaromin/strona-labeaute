@@ -1,10 +1,12 @@
 /**
  * Centralna konfiguracja strony: wszystkie fakty o salonie w jednym miejscu.
- * Źródło: J:\strona\labeaute\dane\research.md (stan na 2026-10-16).
+ * Źródło: J:\strona labeaute\dane\research.md (stan na 2026-10-16).
  * Nie dopisuj tu niczego, czego nie ma w research.md ani w danych z Booksy.
  */
 
 import uslugiData from '../data/uslugi.json';
+import { SITE_URL, STAGING } from '../../build-env.mjs';
+import { withBase } from '../lib/url';
 
 const BOOKSY_ID = 102895;
 const GOOGLE_PLACE_ID = 'ChIJQ5CkQJDLFkcRx7-H-PQnGxY';
@@ -20,12 +22,19 @@ function ratingText(rank: number | undefined, fallback: string): string {
 
 export const site = {
   /**
-   * Adres produkcyjny (bez końcowego ukośnika).
-   * DOMENA DO USTALENIA z właścicielką (labeaute.pl i labeaute-orzesze.pl były wolne
-   * w DNS 2026-10-16; trzeba sprawdzić u rejestratora). Ten sam adres jest
-   * w astro.config.mjs (stała SITE). Zmieniaj oba naraz.
+   * Adres serwisu (sama domena, bez końcowego ukośnika i bez podścieżki): zmienna SITE_URL
+   * przy budowaniu, a gdy jej brak, adres produkcyjny z build-env.mjs (DEFAULT_SITE_URL).
+   * To jedyne źródło adresu: canonical, Open Graph, JSON-LD i sitemap biorą go stąd.
+   * Pełny adres podstrony składaj przez absoluteUrl() z src/lib/url.ts (dodaje podścieżkę).
+   * DOMENA PRODUKCYJNA DO USTALENIA z właścicielką, patrz build-env.mjs.
    */
-  url: 'https://labeaute.example.pl',
+  url: SITE_URL as string,
+
+  /**
+   * Kopia tymczasowa (np. GitHub Pages pod /strona-labeaute/): STAGING=1 albo BASE_PATH inna niż "/".
+   * Wtedy każda strona ma <meta name="robots" content="noindex, nofollow"> i robots.txt z Disallow.
+   */
+  staging: STAGING as boolean,
 
   /** Pełna nazwa (w logo „LA BEAUTÉ”, na Booksy zapisana jako „La Beautè”). */
   name: 'La Beauté Aldona Targiel',
@@ -66,11 +75,12 @@ export const site = {
     id: BOOKSY_ID,
     /** Publiczny profil salonu na Booksy. */
     profileUrl: `https://booksy.com/pl-pl/${BOOKSY_ID}_la-beaute-aldona-targiel_salon-kosmetyczny_12634_orzesze`,
-    /** Krótki link do profilu (przekierowuje na profil). Fallback przycisku „Umów wizytę”. */
+    /** Krótki link do profilu (przekierowuje na profil). href przycisków „Umów wizytę” (bez JS: nowa karta). */
     linkUrl: `https://booksy.com/pl-pl/dl/show-business/${BOOKSY_ID}`,
-    /** Oficjalny skrypt widgetu (tryb dialog). */
-    widgetScript: `https://booksy.com/widget/code.js?id=${BOOKSY_ID}&country=pl&lang=pl`,
-    /** Okno rezerwacji konkretnej usługi: dopisz &variantId=<variant_id> (patrz lib/uslugi.ts bookingUrl). */
+    /**
+     * Okno rezerwacji Booksy w BookingModal. Samo (bez variantId): wszystkie usługi salonu, otwierane
+     * przyciskami „Umów wizytę”. Z &variantId=<variant_id>: konkretna usługa (lib/uslugi.ts bookingUrl).
+     */
     widgetBase: `https://booksy.com/widget-2021/index.html?id=${BOOKSY_ID}&lang=pl&country=pl&mode=dialog&theme=default`,
     /** Salon przyjmuje rezerwacje online najwyżej 2 tygodnie do przodu. */
     bookingWindowWeeks: 2,
@@ -96,6 +106,14 @@ export const site = {
 
   /** Wizyty tylko po wcześniejszej rezerwacji (Booksy). */
   appointmentOnly: true,
+
+  /**
+   * Dane administratora do polityki prywatności. [do uzupełnienia przez właścicielkę]:
+   * pełna nazwa firmy z CEIDG, NIP i nazwa dostawcy hostingu (np. „OVH sp. z o.o.”). Brak w research.md,
+   * więc pola są puste: strona ich nie pokazuje, a `npm run build` wypisuje ostrzeżenie
+   * [polityka-prywatnosci], dopóki ich nie uzupełnisz.
+   */
+  legal: { companyName: '', nip: '', hosting: '' } as { companyName: string; nip: string; hosting: string },
 
   /** Oceny ze źródeł zewnętrznych (stan na 2026-10-16). Na stronie zawsze z linkiem do źródła. */
   reviews: {
@@ -136,16 +154,20 @@ export function hoursText(h: { opens: string | null; closes: string | null }): s
   return h.opens && h.closes ? `${h.opens}–${h.closes}` : 'zamknięte';
 }
 
-/** Główne podstrony (adresy z końcowym ukośnikiem). Używane w nawigacji, stopce i linkach. */
+/**
+ * Główne podstrony (adresy z końcowym ukośnikiem) z uwzględnieniem podścieżki (`base`), więc można
+ * ich używać wprost w href: na produkcji '/cennik/', na kopii tymczasowej '/strona-labeaute/cennik/'.
+ * Używane w nawigacji, stopce i linkach. Własne ścieżki owijaj w withBase() z src/lib/url.ts.
+ */
 export const routes = {
-  home: '/',
-  makijaz: '/makijaz-permanentny/',
-  depilacja: '/depilacja-laserowa/',
-  tatuaz: '/usuwanie-tatuazu/',
-  cennik: '/cennik/',
-  polityka: '/polityka-prywatnosci/',
-  zabiegi: '/#zabiegi',
-  oNas: '/#o-nas',
-  opinie: '/#opinie',
-  kontakt: '/#kontakt',
-} as const;
+  home: withBase('/'),
+  makijaz: withBase('/makijaz-permanentny/'),
+  depilacja: withBase('/depilacja-laserowa/'),
+  tatuaz: withBase('/usuwanie-tatuazu/'),
+  cennik: withBase('/cennik/'),
+  polityka: withBase('/polityka-prywatnosci/'),
+  zabiegi: withBase('/#zabiegi'),
+  oNas: withBase('/#o-nas'),
+  opinie: withBase('/#opinie'),
+  kontakt: withBase('/#kontakt'),
+};

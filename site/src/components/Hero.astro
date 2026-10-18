@@ -18,7 +18,7 @@ import BookingNote from './BookingNote.astro';
 interface Action {
   label: string;
   href?: string;
-  /** true = widget Booksy (ogólna rezerwacja). */
+  /** true = ogólna rezerwacja: okno Booksy ze wszystkimi usługami (BookingModal). */
   booksy?: boolean;
 }
 interface Meta {
@@ -34,6 +34,11 @@ interface Props {
   imageAlt: string;
   /** Kadrowanie zdjęcia (object-position). Bez stylów inline, bo CSP ich nie dopuszcza. */
   imagePosition?: 'center' | 'top' | 'bottom' | 'left' | 'right';
+  /**
+   * Kadrowanie na telefonie i tablecie (do 900 px), gdzie zdjęcie jest nad tekstem w proporcji 4:3.
+   * Domyślnie jak imagePosition. „top” zostawia w kadrze górę zdjęcia (np. logo na ścianie w salon-1).
+   */
+  imagePositionMobile?: 'center' | 'top' | 'bottom';
   primary?: Action;
   secondary?: Action;
   meta?: Meta[];
@@ -41,7 +46,8 @@ interface Props {
   note?: boolean;
 }
 
-const { eyebrow, title, lead, image, imageAlt, imagePosition = 'center', primary, secondary, meta = [], note = false } = Astro.props;
+const { eyebrow, title, lead, image, imageAlt, imagePosition = 'center', imagePositionMobile, primary, secondary, meta = [], note = false } = Astro.props;
+const imageClass = [`pos-${imagePosition}`, imagePositionMobile && `mpos-${imagePositionMobile}`].filter(Boolean).join(' ');
 const hasTitleSlot = Astro.slots.has('title');
 ---
 
@@ -101,12 +107,12 @@ const hasTitleSlot = Astro.slots.has('title');
     <Image
       src={image}
       alt={imageAlt}
-      widths={[480, 720, 960, 1200]}
+      widths={[480, 720, 800, 960, 1200]}
       sizes="(max-width: 900px) 100vw, 50vw"
       loading="eager"
       fetchpriority="high"
       decoding="async"
-      class={`pos-${imagePosition}`}
+      class={imageClass}
     />
   </div>
 </section>
@@ -126,7 +132,11 @@ const hasTitleSlot = Astro.slots.has('title');
     padding-inline-start: max(var(--gutter), calc((100cqw - var(--container)) / 2));
     padding-inline-end: clamp(32px, 5vw, 88px);
   }
+  /* width: 100%, żeby szerokość kolumny tekstu nie zależała od szerokości najdłuższego wiersza treści
+     (np. paska ocen): inaczej zamiana kroju zapasowego na Jost/Cormorant zmieniała szerokość kolumny,
+     zawijanie wierszy i wysokość hero na tablecie (przesunięcie układu). */
   .hero__inner {
+    width: 100%;
     max-width: 600px;
   }
   .hero h1 {
@@ -215,6 +225,15 @@ const hasTitleSlot = Astro.slots.has('title');
       min-height: 0;
       border-left: 0;
       border-bottom: 1px solid var(--c-line);
+    }
+    .hero__media :global(.mpos-center) {
+      object-position: 50% 50%;
+    }
+    .hero__media :global(.mpos-top) {
+      object-position: 50% 15%;
+    }
+    .hero__media :global(.mpos-bottom) {
+      object-position: 50% 85%;
     }
     .hero__copy {
       padding: 40px var(--gutter) 56px;

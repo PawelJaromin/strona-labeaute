@@ -20,6 +20,7 @@ import BookingNote from '../components/BookingNote.astro';
 import { groupByCategory, loadServices, formatUpdatedAt, priceInfo, serviceName, slugify, type Category, type Service } from '../lib/uslugi';
 import { salonRef } from '../lib/schema';
 import { site, routes } from '../config/site';
+import { absoluteUrl } from '../lib/url';
 import introPhoto from '../assets/photos/inspiracja-1.jpg';
 
 const categories = groupByCategory();
@@ -107,7 +108,7 @@ function laserGroups(services: Service[]): { title: string; services: Service[] 
 const title = 'Cennik zabiegów w Orzeszu';
 const description =
   'Cennik salonu La Beauté w Orzeszu: makijaż permanentny, depilacja laserowa, paznokcie, brwi, rzęsy i pedicure. Czas i cena każdego zabiegu, rezerwacja online.';
-const pageUrl = new URL(routes.cennik, site.url).href;
+const pageUrl = absoluteUrl(routes.cennik);
 
 const offerOf = (s: Service, labels: Record<number, string> = {}) => {
   const p = priceInfo(s.price);
@@ -170,7 +171,7 @@ const catalog = {
         </ul>
       </nav>
 
-      <div class="cn__main">
+      <div class="cn__main" data-cn-main>
         {
           categories.map((c) => {
             const meta = metaOf(c);
@@ -186,7 +187,7 @@ const catalog = {
                     </span>
                     {meta.href && (
                       <a class="link-arrow cn__more" href={meta.href}>
-                        Poznaj zabieg
+                        Poznaj zabieg<span class="visually-hidden">: {headingOf(c)}</span>
                       </a>
                     )}
                   </div>
@@ -246,6 +247,11 @@ const catalog = {
   .cn__main {
     min-width: 0;
   }
+  /* Komputer (≥ 1100 px): pod ostatnią (krótką) kategorią tyle miejsca, ile ma wysokość spisu kategorii,
+     żeby po kliknięciu ostatniej pozycji przyklejony spis z zaznaczeniem nie wyjeżdżał nad ekran razem
+     z końcem siatki. Skrypt ustawia je bezpośrednio jako padding-bottom na .cn__main (nie jako zmienną CSS:
+     zmiana odziedziczonej zmiennej na kontenerze całego cennika przeliczała style wszystkich jego potomków
+     i dawała długie zadanie). Na telefonie i tablecie skrypt tego nie robi w ogóle. */
 
   /* Telefon i tablet: przyklejony pasek pod nagłówkiem, przewijany w poziomie */
   .cn__nav {
@@ -489,8 +495,14 @@ const catalog = {
 <script>
   // Wzmocnienie dla JS: zaznacza w spisie kategorię, którą akurat czytasz (aria-current="location"),
   // i przewija sam spis (nie stronę), żeby zaznaczona pozycja była widoczna. Bez JS kotwice działają tak samo.
+  //
+  // Wydajność: nic nie czyta układu strony synchronnie podczas ładowania (offsetHeight, getBoundingClientRect
+  // na starcie wymusiłyby przeliczenie całego, długiego cennika), a nic nie jest uruchamiane w
+  // requestAnimationFrame (to samo zadanie obejmuje wtedy pierwsze liczenie układu całej strony i Lighthouse
+  // przypisuje je temu skryptowi). Wymiary nagłówka, paska kategorii i ostatniej kategorii podaje
+  // ResizeObserver, a jego pierwsze wywołanie następuje już po policzeniu układu.
   const nav = document.querySelector<HTMLElement>('[data-cn-nav]');
-  if (nav && 'IntersectionObserver' in window) {
+  if (nav && 'IntersectionObserver' in window && 'ResizeObserver' in window) {
     const targets: { a: HTMLAnchorElement; el: HTMLElement }[] = [];
     nav.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
       const el = document.getElementById(decodeURIComponent(a.hash.slice(1)));
@@ -500,7 +512,6 @@ const catalog = {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
     const visible = new Set<Element>();
     let current: HTMLAnchorElement | null = null;
-    let io: IntersectionObserver | null = null;
 
     const reveal = (a: HTMLAnchorElement) => {
       const behavior: ScrollBehavior = reduce.matches ? 'auto' : 'smooth';
@@ -521,11 +532,24 @@ const catalog = {
       current = a;
       reveal(a);
     };
+
+    // Wymiary podawane przez ResizeObserver (bez synchronicznego odczytu układu).
+    const header = document.getElementById('site-header');
+    const main = document.querySelector<HTMLElement>('[data-cn-main]');
+    const last = targets[targets.length - 1]?.el;
+    let headerH = 64;
+    let navH = 0;
+    let lastH = 0;
+
+    // Obserwator kategorii: margines od góry = nagłówek (+ pasek kategorii na telefonie i tablecie) + 16 px.
+    let io: IntersectionObserver | null = null;
+    let ioOffset = -1;
     const observe = () => {
+      const offset = headerH + (wide.matches ? 0 : navH) + 16;
+      if (offset === ioOffset) return;
+      ioOffset = offset;
       io?.disconnect();
       visible.clear();
-      const header = document.getElementById('site-header');
-      const offset = (header ? header.offsetHeight : 64) + (wide.matches ? 0 : nav.offsetHeight) + 16;
       io = new IntersectionObserver(
         (entries) => {
           for (const e of entries) {
@@ -540,12 +564,47 @@ const catalog = {
       targets.forEach((t) => io!.observe(t.el));
     };
 
+    // Komputer (≥ 1100 px): pod ostatnią (krótką) kategorią tyle miejsca, ile ma wysokość spisu minus wysokość
+    // tej kategorii, jako padding-bottom na .cn__main (po kliknięciu ostatniej pozycji przyklejony spis nie
+    // wyjeżdża nad ekran razem z końcem siatki). Zapis idzie bezpośrednio w jeden element, a nie przez
+    // zmienną CSS: odziedziczona zmienna przeliczała style wszystkich pozycji cennika. Na telefonie i tablecie
+    // nic nie jest zapisywane.
+    let tail = -1;
+    const applyTail = () => {
+      if (!main) return;
+      if (!wide.matches) {
+        if (tail !== -1) main.style.removeProperty('padding-bottom');
+        tail = -1;
+        return;
+      }
+      const next = Math.max(0, Math.ceil(navH - lastH));
+      if (next === tail) return;
+      tail = next;
+      main.style.paddingBottom = `${next}px`;
+    };
+
+    const size = (e: ResizeObserverEntry) => Math.round(e.borderBoxSize?.[0]?.blockSize ?? e.contentRect.height);
+    const ro = new ResizeObserver((entries) => {
+      for (const e of entries) {
+        if (e.target === header) headerH = size(e);
+        else if (e.target === nav) navH = size(e);
+        else lastH = size(e);
+      }
+      observe();
+      applyTail();
+    });
+    if (header) ro.observe(header);
+    ro.observe(nav);
+    if (last) ro.observe(last);
+
     nav.addEventListener('click', (e) => {
       const a = (e.target as Element).closest('a');
       const hit = a && targets.find((t) => t.a === a);
       if (hit) activate(hit.a);
     });
-    wide.addEventListener('change', observe);
-    observe();
+    wide.addEventListener('change', () => {
+      observe();
+      applyTail();
+    });
   }
 </script>

@@ -170,11 +170,18 @@ export function getServices(ids: readonly number[]): Service[] {
 const NAME_OVERRIDES: Record<number, string> = {
   1680758: 'Lash liner (zagęszczenie linii rzęs, góra)',
   1680792: 'Konsultacja z rysunkiem wstępnym',
+  4099985: 'Remover – usuwanie makijażu permanentnego',
+  5561544: 'Makijaż permanentny ust – dopigmentowanie 6–12 tyg.',
 };
 
 /**
- * Nazwa usługi do wyświetlenia: poprawki z NAME_OVERRIDES, a poza tym tylko
- * kosmetyka zapisu z Booksy („LaserowaPakiet6Zabiegów-Klatka” -> „Laserowa Pakiet 6 Zabiegów – Klatka”).
+ * Nazwa usługi do wyświetlenia: poprawki z NAME_OVERRIDES, a poza tym tylko kosmetyka zapisu z Booksy:
+ * rozklejenie słów („LaserowaPakiet6Zabiegów-Klatka” -> „Laserowa Pakiet 6 Zabiegów – Klatka”),
+ * półpauza w zakresach („6-12” -> „6–12”) i jako myślnik („Broda - 1 zabieg” -> „Broda – 1 zabieg”),
+ * spacje wokół „+” („Pachy+Bikini” -> „Pachy + Bikini”), myślnik po „pakiet 6 zabiegów” przed partią ciała,
+ * na końcu wielkie litery jak w zdaniu: wielką literą zaczyna się tylko pierwsze słowo nazwy
+ * („Depilacja Laserowa 1 Zabieg - Cała Twarz” -> „Depilacja laserowa 1 zabieg – cała twarz”).
+ * Słowa pisane w całości wielkimi literami (skróty) zostają bez zmian.
  */
 export function serviceName(s: Pick<Service, 'id' | 'name'>): string {
   if (NAME_OVERRIDES[s.id]) return NAME_OVERRIDES[s.id];
@@ -184,17 +191,48 @@ export function serviceName(s: Pick<Service, 'id' | 'name'>): string {
     .replace(/([a-ząćęłńóśźż])([A-ZĄĆĘŁŃÓŚŹŻ])/g, '$1 $2')
     .replace(/([A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż])(\d)/g, '$1 $2')
     .replace(/(\d)([A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż])/g, '$1 $2')
-    .replace(/\s*-\s*(?=[A-ZĄĆĘŁŃÓŚŹŻ])/g, ' – ');
+    .replace(/(\d)\s*-\s*(?=\d)/g, '$1–')
+    .replace(/\s*-\s*(?=[A-ZĄĆĘŁŃÓŚŹŻ])/g, ' – ')
+    .replace(/\s+-\s+/g, ' – ')
+    .replace(/(?<=\p{L})\s*\+\s*(?=\p{L})/gu, ' + ')
+    .replace(/(?<=.)(?<![\p{L}\p{N}])\p{Lu}(?=\p{Ll})/gu, (c) => c.toLocaleLowerCase('pl-PL'))
+    .replace(/(\d zabiegów) (?=\p{Ll})/u, '$1 – ');
 }
 
-/** Opis usługi bez nadmiarowych spacji (akapity zachowane jako \n). */
+/**
+ * Poprawki opisów z Booksy (na stronie są treścią salonu): pisownia nazwy salonu, literówki oraz
+ * usunięcie zdań z obietnicami medycznymi i gwarancją bezpieczeństwa, których brief nie dopuszcza
+ * (sekcja 1: opisy ogólne i ostrożne, bez obietnic medycznych).
+ * [do uzupełnienia przez właścicielkę]: najlepiej poprawić te opisy w samym Booksy; wtedy reguły
+ * przestaną pasować i niczego nie zmienią (nowy tekst z Booksy pokaże się po `npm run sync`).
+ */
+const DESCRIPTION_FIXES: [RegExp, string][] = [
+  [/Beautè/g, 'Beauté'],
+  [/co sprawia że/g, 'co sprawia, że'],
+  [/czy gliceryna\b/g, 'czy gliceryną'],
+  // obietnice i gwarancje (peeling węglowy, pedicure calluspeeling)
+  [/ ?Zabieg jest całkowicie bezpieczny, przez co może być wykonywany cały rok\./g, ''],
+  [/,?\n- wspomaga leczenie trądziku\.?/g, '.'],
+  [/ ?Nie powoduje podrażnień ani po ?zabiegowego łuszczenia się sk[oó]ry\./g, ''],
+  [/\n?Efekty zabiegu są widoczne już po pierwszym razie\./g, ''],
+  [/\n?Umożliwia skuteczne pozbycie się pękających pięt, a skóra po zabieg[iu] jest gładka i miękka\./g, ''],
+  [/Efekty\/ ?działanie:/g, 'Działanie:'],
+  // literówki w zdaniach, które mogą zostać po zmianach w Booksy
+  [/po zabiegowego/g, 'pozabiegowego'],
+  [/łuszczenia się skory/g, 'łuszczenia się skóry'],
+  [/skóra po zabiegi\b/g, 'skóra po zabiegu'],
+];
+
+/** Opis usługi do wyświetlenia: bez nadmiarowych spacji (akapity jako \n), z poprawkami DESCRIPTION_FIXES. */
 export function serviceDescription(s: Pick<Service, 'description'>): string {
-  return (s.description ?? '')
-    .split('\n')
-    .map((l) => l.replace(/\s+/g, ' ').trim())
-    .join('\n')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
+  const tidy = (t: string) =>
+    t
+      .split('\n')
+      .map((l) => l.replace(/\s+/g, ' ').trim())
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  return tidy(DESCRIPTION_FIXES.reduce((t, [re, to]) => t.replace(re, to), tidy(s.description ?? '')));
 }
 
 /* ---------------------------------------------------------------- ceny */
@@ -205,7 +243,7 @@ export interface PriceInfo {
   kind: PriceKind;
   /** Kwota w złotych (null dla „Zmienna”). */
   amount: number | null;
-  /** Sama kwota z walutą, np. "1350 zł" (pusta dla „Zmienna”). */
+  /** Sama kwota z walutą, np. "1 350 zł" z twardymi spacjami (pusta dla „Zmienna”). */
   amountText: string;
   /** Pełny tekst do wyświetlenia: "900 zł", "od 150 zł", "cena ustalana indywidualnie". */
   text: string;
@@ -213,9 +251,14 @@ export interface PriceInfo {
 
 const NBSP = ' ';
 
+/** Kwota z odstępem tysięcy jak w Booksy (twarda spacja): 1350 -> "1 350", 150 -> "150". */
+export function formatAmount(n: number): string {
+  return String(Math.trunc(n)).replace(/\B(?=(\d{3})+(?!\d))/g, NBSP);
+}
+
 /**
  * Rozbiór ceny z Booksy.
- * "Zmienna" -> cena ustalana indywidualnie; "150,00 zł+" -> od 150 zł; "1 350,00 zł" -> 1350 zł.
+ * "Zmienna" -> cena ustalana indywidualnie; "150,00 zł+" -> od 150 zł; "1 350,00 zł" -> 1 350 zł.
  */
 export function priceInfo(price: string | null | undefined): PriceInfo {
   const src = (price ?? '').replace(/[\s  ]+/g, ' ').trim();
@@ -226,7 +269,7 @@ export function priceInfo(price: string | null | undefined): PriceInfo {
   const whole = parseInt(m[1].replace(/ /g, ''), 10);
   const fraction = m[2] && !/^0+$/.test(m[2]) ? m[2].padEnd(2, '0') : '';
   const amount = fraction ? whole + parseInt(fraction, 10) / 100 : whole;
-  const amountText = `${whole}${fraction ? ',' + fraction : ''}${NBSP}zł`;
+  const amountText = `${formatAmount(whole)}${fraction ? ',' + fraction : ''}${NBSP}zł`;
   const from = Boolean(m[3]);
   return { kind: from ? 'from' : 'fixed', amount, amountText, text: from ? `od${NBSP}${amountText}` : amountText };
 }
@@ -246,12 +289,12 @@ export function formatDuration(minutes: number | null | undefined): string {
   return `${m}${NBSP}min`;
 }
 
-/** Zakres cen z danych, np. { min: 20, max: 3240, text: "20–3240 zł" }. */
+/** Zakres cen z danych, np. { min: 20, max: 3240, text: "20–3 240 zł" } (twarde spacje). */
 export function priceRange(services: Service[] = data.services): { min: number; max: number; text: string } {
   const vals = services.map((s) => priceInfo(s.price).amount).filter((v): v is number => typeof v === 'number');
   const min = Math.min(...vals);
   const max = Math.max(...vals);
-  return { min, max, text: `${min}–${max}${NBSP}zł` };
+  return { min, max, text: `${formatAmount(min)}–${formatAmount(max)}${NBSP}zł` };
 }
 
 /* ---------------------------------------------------------------- rezerwacja */

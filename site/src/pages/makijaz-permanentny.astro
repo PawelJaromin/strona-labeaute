@@ -2,22 +2,24 @@
 /**
  * /makijaz-permanentny/ (BRIEF.md, sekcja 3 pkt 2). Teksty są w src/content/makijaz-permanentny.ts,
  * ceny i czasy z src/data/uslugi.json (Booksy).
- * Rytm: PageIntro (ciemny) → biel (dla kogo + zdjęcie) → kość słoniowa (przebieg wizyty)
+ * Rytm: PageIntro (ciemny) → biel (dla kogo) → kość słoniowa (przebieg wizyty)
  *       → biel (po zabiegu) → kość słoniowa (cennik) → biel (FAQ) → ciemny pas CTA (dodaje Base).
  */
-import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import PageIntro from '../components/PageIntro.astro';
 import SectionHead from '../components/SectionHead.astro';
 import Steps from '../components/Steps.astro';
 import Faq from '../components/Faq.astro';
 import PriceList from '../components/PriceList.astro';
+import Text from '../components/Text.astro';
 import { site, routes } from '../config/site';
 import { serviceSchema } from '../lib/schema';
 import { meta, intro, forWhom, visit, aftercare, pricing, priceGroups, faq, cta } from '../content/makijaz-permanentny';
 
 import inspiracja2 from '../assets/photos/inspiracja-2.jpg';
-import inspiracja3 from '../assets/photos/inspiracja-3.jpg';
+// [do uzupełnienia przez właścicielkę]: zdjęcie makijażu permanentnego (brwi albo linii rzęs) do sekcji
+// „Dla kogo”. Wcześniejsze inspiracja-3.jpg (gęste, puszyste rzęsy jak po przedłużaniu) sugerowało
+// usługę, której ta strona nie dotyczy, więc sekcja jest na razie bez zdjęcia.
 
 const path = routes.makijaz;
 const lastGroup = priceGroups.length - 1;
@@ -36,6 +38,7 @@ const lastGroup = priceGroups.length - 1;
     imageAlt={intro.imageAlt}
     primary={{ label: 'Umów wizytę', booksy: true }}
     secondary={{ label: 'Cennik zabiegu', href: '#cennik-zabiegu' }}
+    note
   >
     <Fragment slot="title">Makijaż <em>permanentny</em></Fragment>
   </PageIntro>
@@ -43,8 +46,8 @@ const lastGroup = priceGroups.length - 1;
   <!-- ============================================================ Dla kogo (biel) -->
   <section class="section" id="dla-kogo" aria-labelledby="dla-kogo-title">
     <div class="container split">
-      <div class="split__text">
-        <SectionHead eyebrow={forWhom.eyebrow} title={forWhom.title} lead={forWhom.lead} id="dla-kogo-title" />
+      <SectionHead eyebrow={forWhom.eyebrow} title={forWhom.title} lead={forWhom.lead} id="dla-kogo-title" class="split__head" />
+      <div class="split__body">
         <div class="zones">
           {
             forWhom.zones.map((z) => (
@@ -60,16 +63,6 @@ const lastGroup = priceGroups.length - 1;
         </div>
         <p class="muted small split__note">{forWhom.note} <a class="nowrap" href={site.phone.href}>{site.phone.display}</a>.</p>
       </div>
-      <figure class="split__media">
-        <Image
-          src={inspiracja3}
-          alt={forWhom.imageAlt}
-          widths={[400, 640, 880, 1100]}
-          sizes="(max-width: 900px) calc(100vw - 58px), 480px"
-          loading="lazy"
-          decoding="async"
-        />
-      </figure>
     </div>
   </section>
 
@@ -88,7 +81,7 @@ const lastGroup = priceGroups.length - 1;
       <SectionHead eyebrow={aftercare.eyebrow} title={aftercare.title} lead={aftercare.lead} id="po-zabiegu-title" />
       <div class="care__body">
         <ul class="hairlist care__list">
-          {aftercare.items.map((t) => <li>{t}</li>)}
+          {aftercare.items.map((t) => <li><Text text={t} /></li>)}
         </ul>
         <p class="muted small care__note">{aftercare.disclaimer} <a class="nowrap" href={site.phone.href}>{site.phone.display}</a>.</p>
       </div>
@@ -122,38 +115,19 @@ const lastGroup = priceGroups.length - 1;
 </Base>
 
 <style>
-  /* Dla kogo: tekst + zdjęcie w złotej ramce */
+  /* Dla kogo: nagłówek po lewej, strefy (wiersze jak w karcie menu) po prawej; jak „Po zabiegu” */
   .split {
     display: grid;
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    gap: clamp(40px, 7vw, 112px);
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(36px, 7vw, 112px);
     align-items: start;
   }
-  .split__text :global(.section-head) {
-    margin-bottom: clamp(28px, 3.5vw, 44px);
+  .split :global(.split__head) {
+    margin-bottom: 0;
   }
   .split__note {
     margin-top: 24px;
     max-width: 62ch;
-  }
-  .split__media {
-    position: relative;
-    margin: 0;
-    aspect-ratio: 4 / 5;
-    background: var(--c-bg-2);
-  }
-  .split__media::before {
-    content: '';
-    position: absolute;
-    inset: 18px -18px -18px 18px;
-    border: 1px solid var(--c-gold);
-    pointer-events: none;
-  }
-  .split__media :global(img) {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
   }
 
   /* Wiersze „menu”: nazwa po lewej, opis i cena z cennika po prawej */
@@ -221,13 +195,6 @@ const lastGroup = priceGroups.length - 1;
     .split,
     .care {
       grid-template-columns: minmax(0, 1fr);
-    }
-    .split__media {
-      aspect-ratio: 4 / 3;
-      width: calc(100% - 18px);
-    }
-    .split__media::before {
-      inset: 14px -14px -14px 14px;
     }
   }
   @media (max-width: 560px) {

@@ -1,8 +1,10 @@
 ---
 /**
  * Polityka prywatności strony statycznej: brak własnych cookies i analityki, rezerwacje przez Booksy
- * (skrypt i okno ładowane dopiero po wskazaniu/kliknięciu przycisku), mapa jako zwykły link.
- * [do uzupełnienia przez właścicielkę]: pełna nazwa firmy z CEIDG, NIP, dostawca hostingu.
+ * (okno Booksy w iframe wczytywane dopiero po kliknięciu „Umów”; strona nie wczytuje skryptów Booksy),
+ * mapa jako zwykły link.
+ * [do uzupełnienia przez właścicielkę]: pełna nazwa firmy z CEIDG, NIP, dostawca hostingu. Wpisuje się
+ * je w site.legal (src/config/site.ts); do tego czasu build wypisuje ostrzeżenie, a tekst ich nie podaje.
  * Jeśli na stronie pojawi się analityka, osadzona mapa lub formularz, ten tekst trzeba zaktualizować.
  * Rytm: PageIntro (ciemny, compact) → tekst (biel) → pas CTA (dodaje Base).
  */
@@ -10,7 +12,13 @@ import Base from '../layouts/Base.astro';
 import PageIntro from '../components/PageIntro.astro';
 import { site, addressLine } from '../config/site';
 
-const updated = '17 października 2026';
+const updated = '18 października 2026';
+
+const { companyName, nip, hosting } = site.legal;
+const missing = [!companyName && 'pełna nazwa firmy z CEIDG', !nip && 'NIP', !hosting && 'dostawca hostingu'].filter(Boolean);
+if (missing.length) {
+  console.warn(`[polityka-prywatnosci] Brak danych administratora: ${missing.join(', ')}. Uzupełnij site.legal w src/config/site.ts [do uzupełnienia przez właścicielkę].`);
+}
 ---
 
 <Base
@@ -31,7 +39,7 @@ const updated = '17 października 2026';
       <div class="prose">
         <h2>1. Administrator danych</h2>
         <p>
-          Administratorem danych osobowych jest {site.owner}, właścicielka salonu {site.name} (jednoosobowa działalność gospodarcza), {addressLine}, dalej „Salon”.
+          Administratorem danych osobowych jest {site.owner}, właścicielka salonu {site.name} (jednoosobowa działalność gospodarcza{companyName && <>, firma: {companyName}</>}{nip && <>, NIP {nip}</>}), {addressLine}, dalej „Salon”.
           Kontakt w sprawach danych osobowych: <a href={`mailto:${site.email}`}>{site.email}</a>, tel. <a href={site.phone.href}>{site.phone.display}</a>.
         </p>
 
@@ -42,12 +50,15 @@ const updated = '17 października 2026';
 
         <h2>3. Dzienniki serwera</h2>
         <p>
-          Jak każdy serwer WWW, serwer, na którym działa strona, może automatycznie zapisywać w dziennikach (logach) podstawowe informacje o połączeniu: adres IP, datę i godzinę, adres odwiedzanej podstrony oraz rodzaj przeglądarki. Dane te służą wyłącznie zapewnieniu bezpieczeństwa i prawidłowego działania strony, co jest naszym prawnie uzasadnionym interesem (art. 6 ust. 1 lit. f RODO). Nie łączymy ich z innymi danymi i nie używamy ich do ustalania tożsamości odwiedzających. Są przechowywane przez okres ustalony przez dostawcę hostingu.
+          Jak każdy serwer WWW, serwer, na którym działa strona, może automatycznie zapisywać w dziennikach (logach) podstawowe informacje o połączeniu: adres IP, datę i godzinę, adres odwiedzanej podstrony oraz rodzaj przeglądarki. Dane te służą wyłącznie zapewnieniu bezpieczeństwa i prawidłowego działania strony, co jest naszym prawnie uzasadnionym interesem (art. 6 ust. 1 lit. f RODO). Nie łączymy ich z innymi danymi i nie używamy ich do ustalania tożsamości odwiedzających. Są przechowywane przez okres ustalony przez dostawcę hostingu{hosting && <> ({hosting})</>}.
         </p>
 
         <h2>4. Rezerwacje online przez Booksy</h2>
         <p>
-          Rezerwacje online obsługuje zewnętrzny serwis Booksy (booksy.com). Skrypt i okno rezerwacji Booksy wczytują się z serwerów Booksy dopiero wtedy, gdy wskażesz lub klikniesz przycisk „Umów wizytę” albo „Umów” przy zabiegu. Od tej chwili Booksy otrzymuje standardowe dane techniczne przeglądarki (np. adres IP) i może stosować w oknie rezerwacji własne pliki cookies.
+          Rezerwacje online obsługuje zewnętrzny serwis Booksy (booksy.com). Strona nie wczytuje żadnych skryptów Booksy. Okno rezerwacji to strona serwisu Booksy wyświetlana w ramce (iframe) i wczytuje się z serwerów Booksy dopiero wtedy, gdy klikniesz przycisk „Umów wizytę” albo „Umów” przy zabiegu. Od tej chwili Booksy otrzymuje standardowe dane techniczne przeglądarki (np. adres IP).
+        </p>
+        <p>
+          W oknie rezerwacji Booksy może stosować własne pliki cookies oraz narzędzia analityczne i do zarządzania zgodami, także swoich partnerów (np. Google Tag Manager), i może wyświetlić własny baner zgód na cookies. Te narzędzia działają w serwisie Booksy, a nie na naszej stronie, i obowiązują je zasady Booksy.
         </p>
         <p>
           Dane podane podczas rezerwacji (np. imię i nazwisko, numer telefonu, adres e-mail) trafiają do Booksy i do Salonu. Salon wykorzystuje je, aby umówić i przeprowadzić wizytę oraz kontaktować się w jej sprawie (art. 6 ust. 1 lit. b RODO). Zasady, na jakich dane przetwarza sam Booksy, opisuje polityka prywatności dostępna w serwisie Booksy.
@@ -66,7 +77,7 @@ const updated = '17 października 2026';
         <h2>7. Odbiorcy danych</h2>
         <p>Dane mogą być przekazywane wyłącznie podmiotom, które pomagają nam prowadzić stronę i obsługiwać wizyty:</p>
         <ul>
-          <li>dostawcy hostingu, na którym działa strona (dzienniki serwera),</li>
+          <li>dostawcy hostingu, na którym działa strona{hosting && <> ({hosting})</>} (dzienniki serwera),</li>
           <li>Booksy (rezerwacje online),</li>
           <li>dostawcy poczty e-mail (wiadomości wysłane do Salonu).</li>
         </ul>

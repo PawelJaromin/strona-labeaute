@@ -7,11 +7,13 @@
  */
 import { site } from '../config/site';
 import { priceRange } from './uslugi';
+import { absoluteUrl } from './url';
 
-export const salonId = `${site.url}/#salon`;
-export const websiteId = `${site.url}/#website`;
+// Adresy z domeną i podścieżką builda (SITE_URL, BASE_PATH), więc zgadzają się z canonical.
+export const salonId = absoluteUrl('/#salon');
+export const websiteId = absoluteUrl('/#website');
 
-const abs = (path: string) => new URL(path, site.url).href;
+const abs = absoluteUrl;
 
 const postalAddress = () => ({
   '@type': 'PostalAddress',
@@ -40,7 +42,7 @@ export function beautySalonSchema(): Record<string, unknown> {
     '@type': 'BeautySalon',
     '@id': salonId,
     name: site.name,
-    url: `${site.url}/`,
+    url: abs('/'),
     logo: abs('/icon-512.png'),
     image: abs('/og.png'),
     telephone: site.phone.intl,
@@ -49,7 +51,8 @@ export function beautySalonSchema(): Record<string, unknown> {
     geo: { '@type': 'GeoCoordinates', latitude: site.geo.lat, longitude: site.geo.lng },
     hasMap: site.maps.placeUrl,
     openingHoursSpecification,
-    priceRange: priceRange().text.replace(' ', ' '),
+    // Liczby bez odstępu tysięcy (tekst dla wyszukiwarek), np. „20–3240 zł”.
+    priceRange: (({ min, max }) => `${min}–${max} zł`)(priceRange()),
     currenciesAccepted: 'PLN',
     sameAs: [site.social.facebook, site.social.instagram, site.booksy.profileUrl],
   };
@@ -61,7 +64,7 @@ export function salonRef(): Record<string, unknown> {
     '@type': 'BeautySalon',
     '@id': salonId,
     name: site.name,
-    url: `${site.url}/`,
+    url: abs('/'),
     telephone: site.phone.intl,
     address: postalAddress(),
   };

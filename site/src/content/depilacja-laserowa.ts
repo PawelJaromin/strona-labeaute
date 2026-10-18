@@ -26,10 +26,10 @@
  *    są w danych Booksy; pokazujemy je tak, jak są, do potwierdzenia przez właścicielkę.
  */
 import { site } from '../config/site';
-import { getServicesByCategory, serviceName, priceInfo, formatDuration, type Service } from '../lib/uslugi';
+import { getServicesByCategory, serviceName, priceInfo, formatDuration, formatAmount, type Service } from '../lib/uslugi';
 
 const NBSP = String.fromCharCode(160); // twarda spacja (U+00A0) w cenach i czasach
-const zl = (n: number) => `${n}${NBSP}zł`;
+const zl = (n: number) => `${formatAmount(n)}${NBSP}zł`;
 
 export type OfferKind = 'single' | 'pack';
 
@@ -211,7 +211,9 @@ export const aggregateOffer = {
 
 /* ------------------------------------------------------------------ SEO i wstęp */
 
-export const title = 'Depilacja laserowa Alma Baby Remove w Orzeszu';
+// Bez nazwy urządzenia: z dopiskiem „ · La Beauté Orzesze” tytuł miał 65 znaków (Google ucina ok. 60).
+// „Alma Baby Remove” jest w description, eyebrow i treści strony.
+export const title = 'Depilacja laserowa w Orzeszu';
 export const description = `Depilacja laserowa Alma Baby Remove w La Beauté w Orzeszu: twarz, ręce, tułów, nogi, bikini.${
   minSingle != null ? ` Zabieg od ${zl(minSingle)}` : ' Zabieg'
 } lub pakiet 6 zabiegów, cennik i rezerwacja online.`;

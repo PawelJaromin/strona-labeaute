@@ -18,7 +18,7 @@ import Reviews from '../components/Reviews.astro';
 import Contact from '../components/Contact.astro';
 import { site, routes } from '../config/site';
 import { beautySalonSchema } from '../lib/schema';
-import { findService, getServices, formatPrice } from '../lib/uslugi';
+import { findService, getServices, formatPrice, serviceName } from '../lib/uslugi';
 
 import salon1 from '../assets/photos/salon-1.jpg';
 import salon3 from '../assets/photos/salon-3.jpg';
@@ -29,11 +29,16 @@ import inspiracja2 from '../assets/photos/inspiracja-2.jpg';
 
 /** Cena pozycji z danych Booksy (pusty tekst, gdy pozycji nie ma). */
 const price = (id: number) => formatPrice(findService(id)?.price);
+/** Nazwa pozycji jak w cenniku (serviceName), żeby ta sama usługa nie miała dwóch nazw. */
+const label = (id: number, fallback: string) => {
+  const s = findService(id);
+  return s ? serviceName(s) : fallback;
+};
 
 const features = [
   {
     index: '01',
-    eyebrow: 'Brwi · usta · kreska rzęs',
+    eyebrow: 'Brwi · usta · linia rzęs',
     title: 'Makijaż permanentny',
     text: 'Pigmentacja brwi, ust i linii rzęs, którą wykonuje Aldona. Zaczynamy od konsultacji i rysunku wstępnego, a efekt dopracowujemy podczas dopigmentowania po 6–12 tygodniach. Stawiamy na naturalny wygląd.',
     image: inspiracja2,
@@ -43,7 +48,7 @@ const features = [
     highlights: [
       { label: 'Brwi', value: price(1680751) },
       { label: 'Usta', value: price(1680768) },
-      { label: 'Lash liner (kreska rzęs, góra)', value: price(1680758) },
+      { label: label(1680758, 'Lash liner'), value: price(1680758) },
     ],
   },
   {
@@ -84,7 +89,11 @@ const otherGroups = [
     id: 'paznokcie',
     title: 'Paznokcie i pedicure',
     text: 'Manicure hybrydowy, przedłużanie i korekta żelu, żel na naturalnej płytce oraz pedicure: klasyczny, z calluspeelingiem i premium. Stylizacją paznokci zajmują się Żaneta i Wiktoria.',
-    link: { href: `${routes.cennik}#pielegnacja-dloni-i-paznokci`, label: 'Cennik paznokci i pedicure' },
+    // Paznokcie dłoni i pedicure to w cenniku dwie osobne kategorie, więc dwa linki.
+    links: [
+      { href: `${routes.cennik}#pielegnacja-dloni-i-paznokci`, label: 'Cennik paznokci' },
+      { href: `${routes.cennik}#pedicure`, label: 'Cennik pedicure' },
+    ],
     items: getServices([1462452, 1882622, 1675239]),
     labels: {} as Record<number, string>,
   },
@@ -92,7 +101,10 @@ const otherGroups = [
     id: 'brwi-i-rzesy',
     title: 'Brwi i rzęsy',
     text: 'Laminacja rzęs i brwi, henna, regulacja oraz stylizacja brwi farbką.',
-    link: { href: `${routes.cennik}#lifting-i-laminacja`, label: 'Cennik brwi i rzęs' },
+    links: [
+      { href: `${routes.cennik}#lifting-i-laminacja`, label: 'Cennik laminacji' },
+      { href: `${routes.cennik}#henna`, label: 'Cennik henny i regulacji' },
+    ],
     items: getServices([3790924, 5008088, 1675248]),
     labels: {} as Record<number, string>,
   },
@@ -100,7 +112,10 @@ const otherGroups = [
     id: 'twarz',
     title: 'Twarz',
     text: 'Peeling węglowy z użyciem lasera (twarz, szyja, dekolt) oraz mezoterapia mikroigłowa.',
-    link: { href: `${routes.cennik}#peeling-weglowy`, label: 'Cennik zabiegów na twarz' },
+    links: [
+      { href: `${routes.cennik}#peeling-weglowy`, label: 'Cennik peelingu węglowego' },
+      { href: `${routes.cennik}#mezoterapia-mikroiglowa`, label: 'Cennik mezoterapii' },
+    ],
     items: getServices([1677707, 1677719, 3129074]),
     labels: { 3129074: 'Mezoterapia mikroigłowa: blizny' } as Record<number, string>,
   },
@@ -120,6 +135,7 @@ const r = site.reviews;
     lead="Makijaż permanentny, depilacja laserowa, stylizacja paznokci oraz brwi i rzęs. Indywidualne podejście, naturalny efekt i sterylne narzędzia."
     image={salon1}
     imageAlt="Poczekalnia salonu La Beauté: białe ściany ze sztukaterią, złote logo na ścianie i czarne aksamitne fotele na złotych nogach"
+    imagePositionMobile="top"
     primary={{ label: 'Umów wizytę', booksy: true }}
     secondary={{ label: 'Zobacz cennik', href: routes.cennik }}
     meta={[
@@ -144,6 +160,9 @@ const r = site.reviews;
       <div class="features">
         {features.map((f, i) => <ServiceFeature {...f} reverse={i % 2 === 1} />)}
       </div>
+      <p class="features__foot">
+        <a class="link-arrow" href={routes.cennik}>Pełny cennik wszystkich zabiegów</a>
+      </p>
     </div>
   </section>
 
@@ -166,9 +185,15 @@ const r = site.reviews;
               <div class="others__intro">
                 <h3 class="others__title">{g.title}</h3>
                 <p class="others__text">{g.text}</p>
-                <a class="link-arrow" href={g.link.href}>
-                  {g.link.label}
-                </a>
+                <ul class="others__links" role="list">
+                  {g.links.map((l) => (
+                    <li>
+                      <a class="link-arrow" href={l.href}>
+                        {l.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </div>
               <PriceList items={g.items} footer={false} showDescriptions={false} labels={g.labels} />
             </div>
@@ -255,6 +280,11 @@ const r = site.reviews;
     display: grid;
     gap: clamp(88px, 11vw, 168px);
   }
+  .features__foot {
+    margin: clamp(56px, 7vw, 96px) 0 0;
+    padding-top: 28px;
+    border-top: 1px solid var(--c-line);
+  }
 
   /* Pozostałe zabiegi */
   .others {
@@ -275,6 +305,14 @@ const r = site.reviews;
     margin: 0 0 18px;
     color: var(--c-muted);
     font-size: 1rem;
+  }
+  .others__links {
+    display: grid;
+    justify-items: start;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
   .others__foot {
     display: flex;

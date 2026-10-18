@@ -1,12 +1,14 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import { SITE_URL, BASE_PATH } from './build-env.mjs';
 
-// Adres produkcyjny: DOMENA DO USTALENIA z właścicielką (np. labeaute.pl).
-// Ten sam adres jest w src/config/site.ts (site.url). Zmieniaj oba naraz.
-const SITE = 'https://labeaute.example.pl';
+// Adres (`site`) i podścieżka (`base`) pochodzą ze zmiennych środowiskowych SITE_URL i BASE_PATH
+// (domyślnie: adres produkcyjny z build-env.mjs i korzeń domeny). Szczegóły i zasady: build-env.mjs.
+// Tymczasowa kopia na GitHub Pages: SITE_URL=https://paweljaromin.github.io BASE_PATH=/strona-labeaute.
 
 export default defineConfig({
-  site: SITE,
+  site: SITE_URL,
+  base: BASE_PATH,
   trailingSlash: 'always',
   build: {
     format: 'directory',

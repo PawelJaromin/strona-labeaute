@@ -22,11 +22,12 @@ import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import Button from './Button.astro';
 import BookingNote from './BookingNote.astro';
+import Text from './Text.astro';
 
 interface Action {
   label: string;
   href?: string;
-  /** true = ogólna rezerwacja przez widget Booksy (href ignorowany). */
+  /** true = ogólna rezerwacja: okno Booksy ze wszystkimi usługami (BookingModal; href ignorowany). */
   booksy?: boolean;
 }
 interface Props {
@@ -76,7 +77,7 @@ const hasMedia = Boolean(image) && !compact;
       {eyebrow && <p class="eyebrow">{eyebrow}</p>}
       <h1 id={id} class="page-intro__title">{hasTitleSlot ? <slot name="title" /> : title}</h1>
       <span class="rule-gold page-intro__rule" aria-hidden="true"></span>
-      {lead && <p class="lead page-intro__lead">{lead}</p>}
+      {lead && <p class="lead page-intro__lead"><Text text={lead} /></p>}
       {Astro.slots.has('default') && <div class="page-intro__extra"><slot /></div>}
       {
         (primary || secondary) && (

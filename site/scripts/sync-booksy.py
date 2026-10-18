@@ -339,6 +339,13 @@ def summarize_changes(old, new):
 
 
 def main():
+    # Polskie komunikaty także przy zwykłym `python -I` na konsoli Windows (cp1252) i przy
+    # przekierowaniu wyjścia do pliku; bez tego pierwszy komunikat kończył się UnicodeEncodeError.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding='utf-8', errors='replace')
+        except (AttributeError, ValueError):
+            pass
     ap = argparse.ArgumentParser(description='Synchronizacja cennika z Booksy do src/data/uslugi.json')
     ap.add_argument('--html', help='zapisana strona Booksy (zamiast pobierania)')
     ap.add_argument('--out', help='plik wynikowy (domyślnie src/data/uslugi.json)')

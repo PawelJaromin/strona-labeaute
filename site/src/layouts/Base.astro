@@ -15,27 +15,24 @@
  * Na stronie głównej podaj pełny tytuł i `brandInTitle={false}`.
  * Pas CTA: `cta={{ title, text, eyebrow, buttonLabel }}` zmienia teksty, `cta={false}` go wyłącza.
  */
-import '@fontsource/cormorant-garamond/latin-500.css';
-import '@fontsource/cormorant-garamond/latin-ext-500.css';
-import '@fontsource/cormorant-garamond/latin-500-italic.css';
-import '@fontsource/cormorant-garamond/latin-ext-500-italic.css';
-import '@fontsource/cormorant-garamond/latin-600.css';
-import '@fontsource/cormorant-garamond/latin-ext-600.css';
-import '@fontsource/jost/latin-300.css';
-import '@fontsource/jost/latin-ext-300.css';
-import '@fontsource/jost/latin-400.css';
-import '@fontsource/jost/latin-ext-400.css';
-import '@fontsource/jost/latin-500.css';
-import '@fontsource/jost/latin-ext-500.css';
+// Pełne pliki wag z @fontsource: każdy podzbiór (latin, latin-ext, …) ma w nich unicode-range,
+// więc przeglądarka pobiera tylko te, których znaki są na stronie (polskie litery: latin-ext).
+// Pliki latin-*.css / latin-ext-*.css nie mają unicode-range i oba podzbiory pobierały się zawsze.
+import '@fontsource/cormorant-garamond/500.css';
+import '@fontsource/cormorant-garamond/500-italic.css';
+import '@fontsource/cormorant-garamond/600.css';
+import '@fontsource/jost/300.css';
+import '@fontsource/jost/400.css';
+import '@fontsource/jost/500.css';
 import '../styles/global.css';
 
+// Preload tylko podstawowego podzbioru (latin) dwóch najczęstszych krojów: nagłówki i tekst.
 import serifLatin from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-normal.woff2?url';
-import serifLatinExt from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-ext-500-normal.woff2?url';
 import sansLatin from '@fontsource/jost/files/jost-latin-300-normal.woff2?url';
-import sansLatinExt from '@fontsource/jost/files/jost-latin-ext-300-normal.woff2?url';
 
 import { site } from '../config/site';
 import { websiteId } from '../lib/schema';
+import { absoluteUrl, withBase } from '../lib/url';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import BookingModal from '../components/BookingModal.astro';
@@ -50,9 +47,9 @@ interface Props {
   brandInTitle?: boolean;
   /** Dodatkowe węzły JSON-LD (np. beautySalonSchema(), serviceSchema()). */
   jsonLd?: Record<string, unknown>[];
-  /** Strona wykluczona z indeksu (404): bez canonical i og:url. */
+  /** Strona wykluczona z indeksu (404): bez canonical i og:url. Kopia tymczasowa (site.staging) jest wykluczona zawsze. */
   noindex?: boolean;
-  /** Obraz OG (ścieżka w public/). Domyślnie /og.png. */
+  /** Obraz OG (ścieżka w public/, bez podścieżki: layout ją dopisze). Domyślnie /og.png. */
   ogImage?: string;
   /** Ciemny pas CTA przed stopką: własne teksty albo false (bez pasa). Domyślnie teksty z CtaBand. */
   cta?: false | { eyebrow?: string; title?: string; text?: string; buttonLabel?: string; id?: string };
@@ -62,10 +59,13 @@ const { title, description, brandInTitle = true, jsonLd = [], noindex = false, o
 
 const fullTitle = brandInTitle ? `${title} · ${site.shortName} Orzesze` : title;
 const path = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
-const canonical = new URL(path, site.url).href;
-const ogImageUrl = new URL(ogImage, site.url).href;
+// Astro.url.pathname zawiera już podścieżkę (base); absoluteUrl() dopisuje domenę i nie dubluje podścieżki.
+const canonical = absoluteUrl(path);
+const ogImageUrl = absoluteUrl(ogImage);
+// Kopia tymczasowa (GitHub Pages): noindex, nofollow na każdej stronie, także na 404.
+const robotsMeta = site.staging ? 'noindex, nofollow' : noindex ? 'noindex, follow' : null;
 const ogAlt = `${site.name}, salon kosmetyczny w Orzeszu`;
-const preloadFonts = [serifLatin, serifLatinExt, sansLatin, sansLatinExt];
+const preloadFonts = [serifLatin, sansLatin];
 
 const graph = {
   '@context': 'https://schema.org',
@@ -73,7 +73,7 @@ const graph = {
     {
       '@type': 'WebSite',
       '@id': websiteId,
-      url: `${site.url}/`,
+      url: absoluteUrl('/'),
       name: site.name,
       inLanguage: 'pl-PL',
     },
@@ -90,7 +90,8 @@ const safeJson = (o: unknown) => JSON.stringify(o).replace(/</g, '\\u003c');
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
-    {noindex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
+    {robotsMeta && <meta name="robots" content={robotsMeta} />}
+    {!noindex && <link rel="canonical" href={canonical} />}
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.name} />
@@ -109,14 +110,14 @@ const safeJson = (o: unknown) => JSON.stringify(o).replace(/</g, '\\u003c');
     <meta name="twitter:image:alt" content={ogAlt} />
 
     {preloadFonts.map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
-    <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" href={withBase('/favicon.ico')} sizes="32x32" />
+    <link rel="icon" href={withBase('/favicon-32.png')} type="image/png" sizes="32x32" />
+    <link rel="icon" href={withBase('/favicon-16.png')} type="image/png" sizes="16x16" />
+    <link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} />
+    <link rel="manifest" href={withBase('/site.webmanifest')} />
     <meta name="theme-color" content={site.themeColor} />
     <meta name="format-detection" content="telephone=no" />
-    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
 
     <script type="application/ld+json" set:html={safeJson(graph)} />
   </head>

@@ -1,26 +1,39 @@
 ---
 /**
- * Okno rezerwacji (montowane raz w layouts/Base.astro). Obsługuje dwa rodzaje linków:
+ * Okno rezerwacji (montowane raz w layouts/Base.astro): <dialog> na wysokość ekranu z <iframe>
+ * okna Booksy „widget-2021”. Iframe ma stałą wysokość okna, a treść Booksy przewija się w nim,
+ * więc komunikaty Booksy (np. „Brak wolnych terminów”) są zawsze na ekranie. Obsługuje dwa rodzaje linków:
  *
- * 1) a[data-booking]: rezerwacja konkretnej usługi. Link ma href = bookingUrl(variantId)
- *    (okno Booksy „widget-2021” z variantId) i otwiera się tu w <dialog> z <iframe>.
- *    Zamykanie: przycisk, Esc, kliknięcie w tło; blokada przewijania tła; fokus wraca na link.
- *    Bez JS: zwykły link w nowej karcie (target="_blank" rel="noopener").
+ * 1) a[data-booking]: rezerwacja konkretnej usługi. href = bookingUrl(variantId), tytuł z data-booking-title.
  *    Najprościej: <Button href={bookingUrl(id)} booking="Nazwa usługi" size="sm">Umów</Button>
  *
- * 2) a[data-booksy]: ogólny przycisk „Umów wizytę”. Ładuje oficjalny skrypt Booksy
- *    (booksy.com/widget/code.js, tryb dialog) dopiero, gdy ktoś wskaże lub kliknie przycisk,
- *    i otwiera jego okno. Gdy skrypt się nie wczyta: przejście do profilu salonu w Booksy.
+ * 2) a[data-booksy]: ogólny przycisk „Umów wizytę” (nagłówek, hero, wstęp podstron, pas CTA, kontakt).
+ *    Otwiera to samo okno z adresem site.booksy.widgetBase (wszystkie usługi salonu, bez variantId),
+ *    tytuł „Rezerwacja online · La Beauté”. href linku to profil salonu w Booksy (bez JS: nowa karta).
  *    Najprościej: <Button booksy>Umów wizytę</Button>
+ *
+ * Oficjalnego skryptu Booksy (booksy.com/widget/code.js) celowo nie używamy: jego okno rozciągało
+ * iframe do pełnej wysokości treści (8–10 tys. px), więc komunikaty Booksy lądowały daleko pod ekranem.
+ *
+ * Zamykanie: przycisk, Esc, kliknięcie w tło, prośba okna Booksy (postMessage „close”). Blokada
+ * przewijania tła (html.is-locked), fokus na przycisku zamknięcia, po zamknięciu wraca na link.
+ * Bez JS albo bez obsługi <dialog>: zwykły link w nowej karcie (target="_blank" rel="noopener").
  */
 import { site } from '../config/site';
 ---
 
-<dialog class="bm" id="booking-modal" aria-labelledby="bm-title" data-widget-script={site.booksy.widgetScript}>
+<dialog
+  class="bm"
+  id="booking-modal"
+  aria-labelledby="bm-title"
+  data-general-url={site.booksy.widgetBase}
+  data-general-title={site.shortName}
+>
   <div class="bm__bar">
     <p class="bm__title" id="bm-title">
-      <span class="bm__eyebrow">Rezerwacja online</span>
-      <span class="bm__service" data-bm-service></span>
+      <span class="bm__eyebrow">Rezerwacja online</span><span class="visually-hidden"> · </span><span
+        class="bm__service"
+        data-bm-service></span>
     </p>
     <a class="bm__ext" href={site.booksy.linkUrl} target="_blank" rel="noopener" data-bm-ext>
       Otwórz w nowej karcie
@@ -39,13 +52,11 @@ import { site } from '../config/site';
   </p>
 </dialog>
 
-<!-- Miejsce na oficjalny widget Booksy (jego własny przycisk jest ukryty; uruchamiają go nasze przyciski data-booksy). -->
-<div id="booksy-host" hidden></div>
-
 <style>
+  /* Okno zajmuje wysokość ekranu (bez 16 px marginesu z każdej strony), iframe resztę okna. */
   .bm {
     width: min(860px, calc(100vw - 32px));
-    height: min(820px, calc(100dvh - 32px));
+    height: min(960px, calc(100dvh - 32px));
     max-width: none;
     max-height: none;
     margin: auto;
@@ -55,6 +66,7 @@ import { site } from '../config/site';
     background: var(--c-bg);
     color: var(--c-ink);
     overflow: hidden;
+    overscroll-behavior: contain;
   }
   .bm[open] {
     display: flex;
@@ -86,6 +98,7 @@ import { site } from '../config/site';
     color: var(--c-gold-ink);
   }
   .bm__service {
+    min-width: 0;
     font-family: var(--font-serif);
     font-size: 1.375rem;
     font-weight: 500;
@@ -128,6 +141,7 @@ import { site } from '../config/site';
   .bm__frame iframe {
     position: relative;
     z-index: 1;
+    display: block;
     width: 100%;
     height: 100%;
     border: 0;
@@ -156,6 +170,7 @@ import { site } from '../config/site';
     color: var(--c-ink);
     white-space: nowrap;
   }
+  /* Telefon w pionie: pełny ekran. */
   @media (max-width: 600px) {
     .bm {
       width: 100vw;
@@ -173,6 +188,36 @@ import { site } from '../config/site';
       padding: 8px 16px;
     }
   }
+  /* Niski ekran (telefon w poziomie): pełny ekran, niższy pasek tytułu i jednowierszowa informacja,
+     żeby iframe Booksy dostał jak najwięcej wysokości. */
+  @media (max-height: 500px) {
+    .bm {
+      width: 100vw;
+      height: 100dvh;
+      border: 0;
+    }
+    .bm__bar {
+      padding: 3px 8px 3px 16px;
+      gap: 12px;
+    }
+    .bm__title {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .bm__eyebrow {
+      flex: none;
+    }
+    .bm__service {
+      flex: 1;
+      font-size: 1.125rem;
+    }
+    .bm__note {
+      padding: 5px 16px;
+      font-size: 0.75rem;
+      line-height: 1.4;
+    }
+  }
 </style>
 
 <script>
@@ -181,19 +226,20 @@ import { site } from '../config/site';
   const serviceEl = dlg?.querySelector<HTMLElement>('[data-bm-service]') ?? null;
   const extLink = dlg?.querySelector<HTMLAnchorElement>('[data-bm-ext]') ?? null;
   const closeBtn = dlg?.querySelector<HTMLButtonElement>('[data-bm-close]') ?? null;
+  const generalUrl = dlg?.dataset.generalUrl ?? '';
+  const generalTitle = dlg?.dataset.generalTitle ?? '';
   const BOOKSY_ORIGIN = 'https://booksy.com';
   const MODAL_UID = 'labeaute-booking';
+  const LINKS = 'a[data-booking], a[data-booksy]';
+  // Bez <dialog> (bardzo stare przeglądarki) linki działają zwyczajnie: nowa karta z Booksy.
+  const canOpen = Boolean(dlg && frame && typeof dlg.showModal === 'function');
   let lastTrigger: HTMLElement | null = null;
 
   const setLocked = (on: boolean) => document.documentElement.classList.toggle('is-locked', on);
   const modifiedClick = (e: MouseEvent) => e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
 
-  /* ------------------------------------------------ 1) okno usługi (dialog + iframe) */
   function openBooking(url: string, title: string, trigger: HTMLElement | null) {
-    if (!dlg || !frame || typeof dlg.showModal !== 'function') {
-      window.open(url, '_blank', 'noopener');
-      return;
-    }
+    if (!dlg || !frame) return;
     lastTrigger = trigger;
     if (serviceEl) serviceEl.textContent = title;
     if (extLink) extLink.href = url;
@@ -211,132 +257,43 @@ import { site } from '../config/site';
     closeBtn?.focus();
   }
 
-  dlg?.addEventListener('close', () => {
-    if (frame) frame.src = 'about:blank';
-    setLocked(false);
-    lastTrigger?.focus();
-    lastTrigger = null;
-  });
-  closeBtn?.addEventListener('click', () => dlg?.close());
-  // Kliknięcie w przyciemnione tło (poza oknem) zamyka okno.
-  dlg?.addEventListener('click', (e) => {
-    if (e.target !== dlg) return;
-    const r = dlg.getBoundingClientRect();
-    const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-    if (!inside) dlg.close();
-  });
-  // Okno Booksy może samo poprosić o zamknięcie (przycisk „zamknij” w widgecie).
-  window.addEventListener('message', (e) => {
-    if (e.origin !== BOOKSY_ORIGIN || !dlg?.open) return;
-    const d = e.data as { uniqueId?: string; events?: Record<string, unknown> } | null;
-    if (d && d.uniqueId === MODAL_UID && d.events && 'close' in d.events) dlg.close();
-  });
+  if (canOpen && dlg) {
+    // Z JS linki rezerwacji otwierają okno na tej stronie, a nie nową kartę: mówimy o tym czytnikom ekranu.
+    document.querySelectorAll<HTMLAnchorElement>(LINKS).forEach((a) => a.setAttribute('aria-haspopup', 'dialog'));
 
-  /* ------------------------------------------------ 2) oficjalny widget Booksy */
-  const host = document.getElementById('booksy-host');
-  const scriptUrl = dlg?.dataset.widgetScript ?? '';
-  let widgetPromise: Promise<HTMLElement | null> | null = null;
-
-  function loadWidget(): Promise<HTMLElement | null> {
-    if (widgetPromise) return widgetPromise;
-    widgetPromise = new Promise((resolve) => {
-      if (!host || !scriptUrl) return resolve(null);
-      const find = () => host.querySelector<HTMLElement>('.booksy-widget-button');
-      const timer = window.setTimeout(() => resolve(find()), 6000);
-      const s = document.createElement('script');
-      s.src = scriptUrl;
-      s.async = true;
-      s.onload = () => {
-        window.clearTimeout(timer);
-        resolve(find());
-      };
-      s.onerror = () => {
-        window.clearTimeout(timer);
-        resolve(null);
-      };
-      host.appendChild(s);
+    dlg.addEventListener('close', () => {
+      if (frame) frame.src = 'about:blank';
+      setLocked(false);
+      lastTrigger?.focus({ preventScroll: true });
+      lastTrigger = null;
     });
-    return widgetPromise;
-  }
-
-  function watchBooksyDialog(trigger: HTMLElement, scrollY: number) {
-    const dialogs = document.querySelectorAll<HTMLElement>('body > .booksy-widget-dialog');
-    const box = dialogs[dialogs.length - 1];
-    const overlays = document.querySelectorAll<HTMLElement>('body > .booksy-widget-overlay');
-    const overlay = overlays[overlays.length - 1];
-    // Skrypt Booksy przewija stronę do góry; okno jest przypięte w CSS, więc wracamy na miejsce.
-    window.scrollTo({ top: scrollY, behavior: 'instant' as ScrollBehavior });
-    if (!box) return;
-    setLocked(true);
-    box.setAttribute('role', 'dialog');
-    box.setAttribute('aria-modal', 'true');
-    box.setAttribute('aria-label', 'Rezerwacja wizyty w serwisie Booksy');
-    const iframe = box.querySelector('iframe');
-    if (iframe) iframe.title = 'Rezerwacja wizyty w serwisie Booksy';
-
-    const close = () => {
-      box.remove();
-      overlay?.remove();
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') close();
-    };
-    document.addEventListener('keydown', onKey);
-    overlay?.addEventListener('click', close);
-    const obs = new MutationObserver(() => {
-      if (!box.isConnected) {
-        obs.disconnect();
-        document.removeEventListener('keydown', onKey);
-        overlay?.remove();
-        setLocked(false);
-        trigger.focus();
-      }
+    closeBtn?.addEventListener('click', () => dlg.close());
+    // Kliknięcie w przyciemnione tło (poza oknem) zamyka okno.
+    dlg.addEventListener('click', (e) => {
+      if (e.target !== dlg) return;
+      const r = dlg.getBoundingClientRect();
+      const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+      if (!inside) dlg.close();
     });
-    obs.observe(document.body, { childList: true });
-    // Fokus na oknie (nie w iframe): wtedy Esc trafia do tej strony i zamyka okno.
-    // Po kliknięciu w treść Booksy klawisze obsługuje już iframe; zamyka je wtedy „X” Booksy.
-    box.tabIndex = -1;
-    window.setTimeout(() => box.focus({ preventScroll: true }), 50);
-  }
+    // Okno Booksy może samo poprosić o zamknięcie (przycisk „zamknij” w widgecie).
+    window.addEventListener('message', (e) => {
+      if (e.origin !== BOOKSY_ORIGIN || !dlg.open) return;
+      const d = e.data as { uniqueId?: string; events?: Record<string, unknown> } | null;
+      if (d && d.uniqueId === MODAL_UID && d.events && 'close' in d.events) dlg.close();
+    });
 
-  async function openWidget(trigger: HTMLAnchorElement) {
-    trigger.setAttribute('aria-busy', 'true');
-    const button = await loadWidget();
-    trigger.removeAttribute('aria-busy');
-    if (!button) {
-      // Widget niedostępny (blokada, brak sieci): profil salonu w Booksy.
-      window.location.assign(trigger.href);
-      return;
-    }
-    const y = window.scrollY;
-    button.click();
-    watchBooksyDialog(trigger, y);
-  }
-
-  // Wczytaj skrypt Booksy z wyprzedzeniem, gdy ktoś wskaże przycisk lub przejdzie do niego klawiaturą.
-  const prefetch = (e: Event) => {
-    const t = e.target as Element | null;
-    if (t && typeof t.closest === 'function' && t.closest('a[data-booksy]')) void loadWidget();
-  };
-  document.addEventListener('pointerover', prefetch, { passive: true });
-  document.addEventListener('focusin', prefetch);
-  document.addEventListener('touchstart', prefetch, { passive: true });
-
-  /* ------------------------------------------------ delegacja kliknięć */
-  document.addEventListener('click', (e) => {
-    if (e.defaultPrevented || modifiedClick(e)) return;
-    const target = e.target as Element | null;
-    if (!target || typeof target.closest !== 'function') return;
-    const booking = target.closest<HTMLAnchorElement>('a[data-booking]');
-    if (booking) {
+    // Delegacja kliknięć: „Umów” przy usłudze (data-booking) i ogólne „Umów wizytę” (data-booksy).
+    document.addEventListener('click', (e) => {
+      if (e.defaultPrevented || modifiedClick(e)) return;
+      const target = e.target as Element | null;
+      if (!target || typeof target.closest !== 'function') return;
+      const link = target.closest<HTMLAnchorElement>(LINKS);
+      if (!link) return;
+      const general = link.hasAttribute('data-booksy');
+      const url = general ? generalUrl : link.href;
+      if (!url) return; // brak adresu okna: zwykły link (nowa karta)
       e.preventDefault();
-      openBooking(booking.href, booking.dataset.bookingTitle ?? '', booking);
-      return;
-    }
-    const booksy = target.closest<HTMLAnchorElement>('a[data-booksy]');
-    if (booksy) {
-      e.preventDefault();
-      void openWidget(booksy);
-    }
-  });
+      openBooking(url, general ? generalTitle : (link.dataset.bookingTitle ?? ''), link);
+    });
+  }
 </script>

@@ -1,7 +1,7 @@
 ---
 /**
  * Nagłówek (sticky): logo-napis, nawigacja Zabiegi · Cennik · O nas · Kontakt, przycisk „Umów wizytę”
- * (widget Booksy). Na telefonie menu w <details>: działa bez JS; mały skrypt zamyka je po kliknięciu
+ * (okno rezerwacji Booksy, BookingModal). Na telefonie menu w <details>: działa bez JS; mały skrypt zamyka je po kliknięciu
  * linku, Esc i kliknięciu poza menu.
  */
 import { Image } from 'astro:assets';
@@ -26,7 +26,7 @@ const isCurrent = (href: string) => !href.includes('#') && current === href;
 
 <header class="hdr" id="site-header">
   <div class="container hdr__in">
-    <a class="hdr__logo" href="/" aria-current={current === '/' ? 'page' : undefined}>
+    <a class="hdr__logo" href={routes.home} aria-current={current === routes.home ? 'page' : undefined}>
       <Image src={logoNapis} alt={`${site.name}, strona główna`} height={28} densities={[1, 2, 3]} loading="eager" decoding="async" class="hdr__logo-img" />
     </a>
 
@@ -66,7 +66,7 @@ const isCurrent = (href: string) => !href.includes('#') && current === href;
           <span class="hdr__bars" aria-hidden="true"><i></i><i></i></span>
         </summary>
         <div class="hdr__panel">
-          <nav aria-label="Menu główne (telefon)">
+          <nav aria-label="Menu główne">
             <ul class="hdr__mlist" role="list">
               {
                 nav.map((item) => (

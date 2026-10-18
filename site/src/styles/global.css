@@ -19,12 +19,14 @@ html.is-locked {
   html {
     scroll-behavior: auto;
   }
+  /* Bez animacji i przejść (a nie tylko z czasem 0,01 ms): przy transition-property: all każda zmiana
+     stylu w czasie ładowania strony była „przejściem” i pierwsza klatka pokazywała stare wartości
+     (np. zdjęcie hero pod tekstem na telefonie, potem skok układu, CLS 0,55). */
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation: none !important;
+    transition: none !important;
   }
 }
 body {
@@ -503,46 +505,4 @@ address {
 }
 .nowrap {
   white-space: nowrap;
-}
-
-/* ================================================================ Widget Booksy
-   Okno z oficjalnego skryptu (booksy.com/widget/code.js) domyślnie jest
-   pozycjonowane absolutnie na górze dokumentu i przewija stronę do góry.
-   Tu przypinamy je do środka ekranu; skrypt w BookingModal.astro przywraca
-   pozycję przewinięcia, blokuje tło i obsługuje Esc. */
-.booksy-widget-overlay {
-  z-index: 900 !important;
-}
-.booksy-widget-dialog {
-  position: fixed !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  margin: 0 !important;
-  width: min(770px, calc(100vw - 32px)) !important;
-  max-height: calc(100dvh - 32px);
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  border-radius: 0 !important;
-  overscroll-behavior: contain;
-}
-.booksy-widget-dialog iframe {
-  display: block;
-  width: 100% !important;
-  border: 0;
-  border-radius: 0 !important;
-  min-height: min(660px, calc(100dvh - 32px));
-}
-@media (max-width: 600px) {
-  .booksy-widget-dialog {
-    top: 0 !important;
-    left: 0 !important;
-    transform: none !important;
-    width: 100% !important;
-    height: 100% !important;
-    max-height: none;
-  }
-  .booksy-widget-dialog iframe {
-    min-height: 100%;
-  }
 }

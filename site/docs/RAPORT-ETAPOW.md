@@ -149,9 +149,9 @@ src/lib/schema.ts: `beautySalonSchema()` (home), `serviceSchema({name, descripti
 src/config/site.ts: `site` (name, address, geo, phone{display,intl,href}, email, social, booksy{id, profileUrl, linkUrl, widgetScript, widgetBase, bookingWindowWeeks:2}, maps, hours, team, reviews), `addressLine`, `hoursText()`, and `routes` (home, makijaz, depilacja, tatuaz, cennik, polityka, zabiegi:'/#zabiegi', oNas, opinie, kontakt).
 
 BOOKING:
-- `<Button booksy>Umów wizytę</Button>`: general booking. href is booksy linkUrl with target _blank (works without JS). On hover, focus or touch it lazy-loads booksy.com/widget/code.js into the hidden #booksy-host; on click it opens the official Booksy dialog, pinned centred in global.css, with background scroll locked; Esc or overlay click closes it and focus returns to the button. If the script fails it falls back to the link.
+- `<Button booksy>Umów wizytę</Button>`: general booking. href is booksy linkUrl with target _blank (works without JS). With JS it opens the same BookingModal as the price rows, loaded with `site.booksy.widgetBase` (all services, no variantId) and the title bar „Rezerwacja online · La Beauté”. (Changed 2026-10-18: the official booksy.com/widget/code.js is no longer used; see „Poprawki po przeglądzie” below.)
 - `<Button href={bookingUrl(s.variant_id)} booking="Service name" size="sm">Umów</Button>`: per-service booking; PriceRow does this. It opens BookingModal (`<dialog>` + iframe of widget-2021 with that variantId, title bar with the service name, "Otwórz w nowej karcie", 2-week note). Close via button, Esc, backdrop click or Booksy's postMessage close. It locks html scroll (`html.is-locked`), focuses the close button and returns focus to the trigger. Without JS it is a new-tab link.
-- Both handlers are delegated document clicks on `a[data-booksy]` and `a[data-booking]`. BookingModal is mounted once by Base.
+- One delegated document click handler covers `a[data-booksy]` and `a[data-booking]`; with JS both get `aria-haspopup="dialog"`. BookingModal is mounted once by Base. The dialog is viewport-sized (min(860px, 100vw−32px) × min(960px, 100dvh−32px); full screen below 600 px width or 500 px height) and the Booksy iframe scrolls inside it.
 
 CONTENT LOCATION: page text lives in that page's .astro file. Salon facts go in src/config/site.ts. Prices come only from src/data/uslugi.json (updated by `npm run sync`, never by hand). Photos are in src/assets/photos. Mark unknown facts with `[do uzupełnienia przez właścicielkę]` in code comments only. After changes run `npm run test`, which must pass, including the rhythm checks.
 
@@ -300,3 +300,59 @@ Otwarte sprawy:
 - Shared Header (not mine): the closed mobile menu's .hdr__msub submenu links have layout boxes up to 19 px past the viewport at 375 and 768 px. They are invisible and do not cause horizontal scroll (scrollWidth equals the viewport), so this is cosmetic and only matters if a checker counts element bounding boxes.
 - Mobile length: on 375 px the price list is about 8,200 px tall (27 rows, two offers each, stacked). That is readable but long. A compact mobile row would need a change to the layout or the shared pattern; I left it, since a denser layout risks cramping at 320 px.
 - Process note: my first headless Chrome was killed externally during QA, probably by another agent cleaning up chrome.exe. I relaunched it on its own port and profile and stopped it by PID. The scratchpad shots folder is shared with other agents, so I used my own shots-depil subfolder. Anyone running a blanket taskkill on chrome.exe affects other agents' sessions.
+
+## Poprawki po przeglądzie (2026-10-18)
+
+Agent poprawek (Opus). `npm run test` przechodzi (build, kontrast, 7 stron i ok. 760 odnośników bez problemów). Szczegóły testu w przeglądarce są w raporcie dla orkiestratora.
+
+ZMIANY
+- Rezerwacja (zgłoszenie właściciela): przyciski „Umów wizytę” (nagłówek, hero, wstęp podstron, pas CTA, kontakt) otwierają teraz własny BookingModal z oknem `widget-2021` bez variantId (wszystkie usługi), tytuł „Rezerwacja online · La Beauté”. Oficjalny skrypt `booksy.com/widget/code.js` nie jest już ładowany: jego okno rozciągało iframe do 8–10 tys. px, więc komunikat Booksy „Brak wolnych terminów” był daleko pod ekranem. Usunięte: ładowanie skryptu, prefetch przy wskazaniu, `#booksy-host`, `site.booksy.widgetScript`, style `.booksy-widget-*`, w CSP `script-src/style-src/img-src/connect-src/form-action https://booksy.com` i hash `'unsafe-hashes'` (zostaje `frame-src https://booksy.com`). Bez JS przyciski są linkami do profilu w nowej karcie. Okno ma wysokość ekranu minus 2×16 px (do 960 px), a na niskich ekranach (≤ 500 px, telefon w poziomie) pełny ekran z niższym paskiem.
+- `prefers-reduced-motion`: `animation: none; transition: none` zamiast czasów 0,01 ms (przesunięcie hero na telefonie, CLS 0,55).
+- Hero na telefonie i tablecie: nowy prop `imagePositionMobile` (strona główna: `top`), logo na ścianie nie jest już ucięte.
+- Opisy z Booksy (`serviceDescription`): „Beautè” → „Beauté”, literówki, usunięte zdania z obietnicami („całkowicie bezpieczny”, „wspomaga leczenie trądziku”, „nie powoduje podrażnień”, „efekty widoczne po pierwszym razie”, „skuteczne pozbycie się pękających pięt”). Reguły są w `DESCRIPTION_FIXES` w `src/lib/uslugi.ts`.
+- Nazwy usług (`serviceName`): wielkie litery jak w zdaniu, półpauzy, spacje wokół „+”; nowe NAME_OVERRIDES dla Removera i dopigmentowania ust.
+- Ceny z odstępem tysięcy jak w Booksy („1 350 zł”, twarda spacja; `formatAmount`). JSON-LD `priceRange` bez odstępu.
+- /makijaz-permanentny/ i /usuwanie-tatuazu/: informacja o 2 tygodniach i telefonie pod przyciskami we wstępie (`note`). Z sekcji „Dla kogo” usunięte zdjęcie inspiracja-3 (rzęsy jak po przedłużaniu); układ jak w „Po zabiegu”.
+- Strona główna: „linia rzęs” zamiast „kreska rzęs”, nazwa lash linera z cennika; po dwa linki do właściwych kategorii cennika w „Pozostałych zabiegach”.
+- /cennik/: ukryty dopisek z nazwą kategorii w linkach „Poznaj zabieg”; zapas pod ostatnią kategorią (komputer), żeby przyklejony spis nie znikał; obserwator kategorii startuje po pierwszym wyrenderowaniu.
+- Tytuł /depilacja-laserowa/: „Depilacja laserowa w Orzeszu · La Beauté Orzesze” (48 znaków zamiast 65).
+- Zakres „6–12” bez niewidocznego U+2060: nowy komponent `Text.astro` (zakresy liczb w `span.nowrap`), użyty w PageIntro (lead), Steps i liście pielęgnacji.
+- Fonty: pełne pliki wag z @fontsource (z unicode-range), preload tylko latin 500 (szeryf) i latin 300 (Jost).
+- Polityka prywatności: punkt 4 opisuje okno Booksy w iframe (bez skryptów Booksy na stronie) oraz narzędzia Booksy w oknie (cookies, Google Tag Manager, baner zgód). Dane rejestrowe idą z `site.legal` w `src/config/site.ts`.
+- Nagłówek: menu na telefonie ma nazwę „Menu główne”. `scripts/sync-booksy.py`: polskie komunikaty działają też przy zwykłym `python -I`.
+
+OTWARTE SPRAWY (dla właścicielki)
+- Polityka prywatności: brak pełnej nazwy firmy z CEIDG, NIP i nazwy dostawcy hostingu. Wpisz je w `site.legal` (`src/config/site.ts`); do tego czasu `npm run build` wypisuje ostrzeżenie `[polityka-prywatnosci]`, a strona podaje tylko imię, nazwisko, adres i kontakt.
+- Opisy usług w Booksy (peeling węglowy, pedicure calluspeeling, pisownia „La Beautè”) warto poprawić u źródła; strona do tego czasu je filtruje.
+- Zdjęcie makijażu permanentnego (brwi lub linii rzęs) do sekcji „Dla kogo” na /makijaz-permanentny/.
+- Kalendarz Aldony w Booksy: 2026-10-18 każda jej usługa pokazywała „Brak wolnych terminów” (rezerwacje tylko 2 tygodnie do przodu). Warto sprawdzić, czy to zamierzone.
+
+
+## Poprawki wydajności: CLS i /cennik/ (2026-10-18)
+
+Agent wydajności. `npm run test` przechodzi (build, kontrast, 7 stron i 759 odnośników). Pomiary: Lighthouse 12, tryb mobilny domyślny, `astro preview` na 127.0.0.1, Windows z sesją RDP.
+
+PRZYCZYNA CLS 0,55 NA TELEFONIE (strona główna)
+- Na tym komputerze (sesja RDP wyłącza animacje systemu) Chrome i Lighthouse działają z `prefers-reduced-motion: reduce`. Dawna reguła dla tego trybu dawała `transition-duration: 0.01ms` przy domyślnym `transition-property: all`, więc każda zmiana stylu po zastosowaniu zapytań mediów (hero na telefonie: `order: -1`, `aspect-ratio: 4/3`) była „przejściem”, a pierwsza klatka pokazywała stare wartości (zdjęcie pod tekstem). Potem `.hero__copy` i `.hero__media` przeskakiwały: przesunięcie 0,5505.
+- Odtworzone na kopii `dist` ze starą regułą: CLS 0,55 w 2 z 3 uruchomień Lighthouse (0,551 i 0,55) i w 5 z 6 własnych ładowań przy 412 px. Obecna reguła (`animation: none; transition: none !important` w `global.css`) daje CLS 0 w każdym uruchomieniu. To jest naprawa przyczyny; tej reguły nie wolno wracać do czasów 0,01 ms.
+- Bez ograniczonego ruchu przejścia dotyczą tylko koloru, `transform` i szerokości kreski przy najechaniu, nie układu, więc zwykłych użytkowników to nie dotyczyło.
+- Sprawdzone i wykluczone: zamiana fontów (zapas → Jost/Cormorant, także przy sztucznym opóźnieniu plików fontów 1,2–1,5 s: przesunięcie ≤ 0,002 na tabletach i komputerze, 0 na telefonie), zdjęcie hero (ma `width`/`height` i `aspect-ratio`), `html.is-locked` i menu (ustawiane dopiero po kliknięciu), animacje wejścia (brak), niezgodność preloadów (zgodne `crossorigin`, brak podwójnych pobrań).
+
+ZMIANY
+- `src/components/Hero.astro`: `.hero__inner { width: 100% }`. Szerokość kolumny tekstu zależała od najdłuższego wiersza treści (pasek ocen), więc zamiana kroju zapasowego na Jost zmieniała ją na tabletach (555 → 607 px), a z nią zawijanie wierszy. Wynik końcowy bez zmian (ta sama wysokość tekstu), tylko stabilny od pierwszej klatki. Do tego `widths` zdjęcia hero: dodany wariant 800 px (49 KB zamiast 63 KB dla ekranów ok. 720–800 px fizycznych, np. emulacja Lighthouse 412 px × 1,75 wybierała 960 px, bo 721 > 720).
+- `src/pages/cennik.astro` (skrypt i CSS): przyczyna długiego zadania skryptu `/cennik/` to (1) zapis zmiennej CSS `--cn-tail` na `.cn__main` w ResizeObserverze (odziedziczona zmienna przeliczała style wszystkich pozycji cennika, także na telefonie, gdzie ta wartość nie jest nigdzie używana), (2) uruchamianie obserwatora w `requestAnimationFrame` (to samo zadanie obejmuje wtedy pierwsze liczenie układu całej strony, które Lighthouse przypisuje skryptowi) i (3) synchroniczny odczyt `offsetHeight` (wymuszony układ ok. 27 ms). Teraz: jeden ResizeObserver podaje wysokości nagłówka, paska kategorii i ostatniej kategorii (bez odczytu układu), z nich liczony jest margines IntersectionObservera (odświeża się też przy zmianie rozmiaru, wcześniej tylko przy przejściu przez 1100 px), a zapas pod ostatnią kategorią to `padding-bottom` ustawiany bezpośrednio na `.cn__main` wyłącznie na komputerze (≥ 1100 px). Zachowanie bez zmian: na 1440 px padding 377 px, wysokość dokumentu 15 026 px, kolejność `aria-current` jak wcześniej, po zwężeniu do 800 px padding znika, po powrocie wraca.
+
+POMIARY (Lighthouse mobile, domyślny preset)
+| Strona | Przed | Po |
+|---|---|---|
+| / (3 uruchomienia) | wynik 100 / 100 / 91, CLS 0 / 0 / 0, TBT 0 | wynik 92 / 92 / 92, CLS 0 / 0 / 0, TBT 0 |
+| / ze starą regułą ruchu (kopia dist, tylko dla dowodu) | CLS 0,551 / 0,55 / 0 | nie dotyczy |
+| /cennik/ | wynik 92, TBT 195 ms, długie zadanie skryptu 245 ms (symulacja ×4; w śladzie bez dławienia: 130 ms klatki z rAF + 28 ms wymuszonego układu) | wynik 95 i 100, TBT 0 i 39 ms, zadanie skryptu 0 i 72 ms (symulacja; w śladzie bez dławienia ok. 13 ms) |
+- Własna macierz ładowań (7 stron × 5 szerokości × 2 tryby ruchu = 70 ładowań, oraz 18 ładowań z throttlingiem 4G i 4× CPU): najgorszy CLS 0,0014 (/cennik/ przy 1024 px, zamiana kroju w linkach spisu), na telefonie i w ładowaniach z throttlingiem nie więcej niż 0,0005.
+- Wynik / zależy od środowiska pomiarowego: w ok. połowie uruchomień pierwsza klatka jest prezentowana dopiero po ok. 1,2 s mimo zakończonego ładowania (DCL ok. 0,2 s). Ten sam skok występuje na lekkich stronach (/404.html, /polityka-prywatnosci/: 4 z 10 uruchomień), więc to nie wina treści. W takim uruchomieniu wynik / to 91–93, w pozostałych 97–100. Cel ≥ 90 jest spełniony w każdym z 17 uruchomień po zmianach (minimum 91), ale zapas w „wolnym” przebiegu to 1–3 punkty.
+
+NIEZMIENIONE, DO DECYZJI
+- Render-blocking CSS (3 pliki na /, 4 na /cennik/) zostaje: `inlineStylesheets: 'never'` jest potrzebne dla CSP bez `unsafe-inline`.
+- Pierwsze liczenie układu na / to ok. 80–120 ms (nieprzeliczone fonty, 14 000 px wysokości na telefonie). `content-visibility: auto` na sekcjach pod pierwszym ekranem skróciłoby je, ale zmienia wysokości przy kotwicach (#kontakt) i przewijaniu, więc nie zostało włączone bez przeglądu na prawdziwych urządzeniach.
+- Metryki zapasowych krojów (`size-adjust`) nie są potrzebne: zamiana fontów daje przesunięcie ≤ 0,002.
+- Windows: przed `npm run build` zatrzymaj `astro preview`, bo trzyma pliki w `dist` i budowa kończy się błędem EPERM przy kopiowaniu obrazów. `astro check` nie jest zainstalowany (pyta o instalację i wisi).

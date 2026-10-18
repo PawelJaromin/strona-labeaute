@@ -1,0 +1,16 @@
+---
+/**
+ * Zwykły tekst, w którym zakresy liczb („6–12”, „20–3240”) nie łamią się na końcu wiersza
+ * (owinięte w span.nowrap). Zamiast niewidocznego łącznika U+2060 w treści: tekst zostaje
+ * zwykłym „6–12”, więc działa wyszukiwanie (Ctrl+F) i kopiowanie.
+ *
+ *   <p><Text text={lead} /></p>
+ */
+interface Props {
+  text?: string;
+}
+const { text = '' } = Astro.props;
+const parts = text.split(/(\d+\s?–\s?\d+)/);
+---
+
+{parts.map((part, i) => (i % 2 === 1 ? <span class="nowrap">{part}</span> : part))}

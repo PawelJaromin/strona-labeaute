@@ -35,18 +35,17 @@ AddDefaultCharset UTF-8
 ErrorDocument 404 /404.html
 
 # --- Nagłówki bezpieczeństwa ---
-# CSP: wszystko z własnego serwera; wyjątek to Booksy (widget „Umów wizytę”: skrypt, arkusz stylów,
-# grafiki, okno rezerwacji w iframe, ewentualne przekierowanie formularzem). Bez 'unsafe-inline':
-# Astro buduje style i skrypty jako osobne pliki (inlineStylesheets: 'never').
-# Skrypt Booksy (widget/code.js) wstawia <iframe style="border: 0">; ten jeden atrybut dopuszcza
-# 'unsafe-hashes' + hash sha256 tekstu "border: 0" (bez niego tylko ostrzeżenie w konsoli).
+# CSP: wszystko z własnego serwera; jedyny wyjątek to okno rezerwacji Booksy w <iframe> (frame-src).
+# Strona nie wczytuje żadnych skryptów, stylów ani grafik Booksy: przyciski „Umów” otwierają własne
+# okno (BookingModal) z iframe booksy.com/widget-2021. Bez 'unsafe-inline': Astro buduje style
+# i skrypty jako osobne pliki (inlineStylesheets: 'never', assetsInlineLimit: 0).
 <IfModule mod_headers.c>
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "DENY"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(self \"https://booksy.com\")"
-  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://booksy.com; style-src 'self' https://booksy.com 'unsafe-hashes' 'sha256-EEOFJIUW3xhw7GYcNfS/aPD53TxdL1x/aV40NdMn8Ak='; img-src 'self' data: https://booksy.com; font-src 'self'; connect-src 'self' https://booksy.com; frame-src https://booksy.com; form-action 'self' https://booksy.com; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src https://booksy.com; form-action 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests"
 
   # Zasoby z haszem w nazwie (katalog _astro): cache na rok
   <FilesMatch "\.(woff2|woff|css|js|webp|avif|png|jpg|jpeg|svg|ico)$">
