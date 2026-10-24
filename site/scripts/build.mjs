@@ -12,6 +12,11 @@
  * - z flagą --check uruchamia kontrolę kontrastu (check-contrast.mjs) i kontrolę linków i meta
  *   (linkcheck.py) z tymi samymi zmiennymi co build.
  *
+ * - w GitHub Actions (GITHUB_ACTIONS) produkcyjny build z domeną-placeholderem (labeaute.example.pl) kończy się
+ *   BŁĘDEM, żeby push do main przed wpisaniem domeny nie opublikował .htaccess przekierowującego wszystko na
+ *   nieistniejący adres. Wyjątek: ALLOW_PLACEHOLDER_DOMAIN=1 (ustawia go deploy.yml przy „próbie na sucho”).
+ *   Lokalnie placeholder daje tylko ostrzeżenie.
+ *
  * Windows: przed budową zatrzymaj `astro preview` (trzyma pliki w dist/, build kończy się błędem EPERM).
  */
 import { spawnSync } from 'node:child_process';
@@ -54,10 +59,19 @@ console.log(
 );
 
 const host = new URL(SITE_URL).hostname;
+const production = target === 'ovh' && !STAGING;
 if (/(^|\.)example\.(pl|com|org|net)$/i.test(host) || host === 'localhost') {
   const msg =
     `Adres strony to PLACEHOLDER (${SITE_URL}). Przed publikacją na OVH wpisz prawdziwą domenę w deploy/targets.json (pole "site"). ` +
     'Z tym adresem canonical, sitemap, robots.txt i przekierowania w .htaccess prowadzą na nieistniejącą domenę.';
+  // W GitHub Actions produkcyjny build z placeholderem kończy się błędem, ZANIM cokolwiek trafi na serwer: inaczej
+  // .htaccess przekierowałby (301) każde żądanie na nieistniejącą domenę, a strona na OVH przestałaby się otwierać.
+  // Wyjątek: „próba na sucho” (deploy.yml ustawia wtedy ALLOW_PLACEHOLDER_DOMAIN=1; lftp nic nie zmienia na serwerze).
+  // Lokalnie (npm run test) tylko ostrzeżenie, żeby dało się pracować przed ustaleniem domeny.
+  if (process.env.GITHUB_ACTIONS && production && process.env.ALLOW_PLACEHOLDER_DOMAIN !== '1') {
+    console.log(`::error title=Domena jest placeholderem::${msg} Publikacja zatrzymana, na serwerze nic nie zmieniono.`);
+    fail(`${msg} Publikacja zatrzymana (GitHub Actions), na serwerze nic nie zmieniono.`);
+  }
   console.warn(`\n[build] UWAGA: ${msg}\n`);
   if (process.env.GITHUB_ACTIONS) console.log(`::warning title=Domena jest placeholderem::${msg}`);
 }
@@ -74,7 +88,7 @@ const dist = path.join(root, 'dist');
 if (!existsSync(path.join(dist, 'index.html'))) fail('po astro build nie ma dist/index.html.');
 
 /* ---------------------------------------------------------------- deploy/ovh -> dist/ */
-if (target === 'ovh' && !STAGING) {
+if (production) {
   const overlay = path.join(root, 'deploy', 'ovh');
   const template = path.join(overlay, '.htaccess');
   if (!existsSync(template)) fail('brak szablonu deploy/ovh/.htaccess.');
@@ -110,6 +124,19 @@ if (target === 'ovh' && !STAGING) {
 
   writeFileSync(path.join(dist, '.htaccess'), htaccess, 'utf8');
   console.log(`[build] skopiowano deploy/ovh (.htaccess z domeną ${host}, api/kontakt.php) do dist/`);
+
+  // Polityka prywatności (punkty 5, 6, 8) mówi, że wiadomość z formularza trafia na skrzynkę Gmail salonu (site.email).
+  // Gdy $TO w kontakt.php to inny adres, tekst polityki trzeba poprawić: ostrzeżenie w logu i w Actions.
+  const phpSource = readFileSync(path.join(overlay, 'api', 'kontakt.php'), 'utf8');
+  const to = phpSource.match(/\$TO\s*=\s*'([^']*)'/)?.[1] ?? '';
+  const salonMail = readFileSync(path.join(root, 'src', 'config', 'site.ts'), 'utf8').match(/^\s*email:\s*'([^']+)'/m)?.[1] ?? '';
+  if (to && salonMail && !to.includes('UZUPELNIJ') && to.toLowerCase() !== salonMail.toLowerCase()) {
+    const msg =
+      `$TO w deploy/ovh/api/kontakt.php (${to}) to inny adres niż skrzynka salonu z src/config/site.ts (${salonMail}). ` +
+      'Polityka prywatności (src/pages/polityka-prywatnosci.astro, punkty 5, 6 i 8) opisuje skrzynkę Gmail salonu: popraw tekst albo ustaw $TO na ten adres.';
+    console.warn(`\n[build] UWAGA: ${msg}\n`);
+    if (process.env.GITHUB_ACTIONS) console.log(`::warning title=Adres odbiorcy formularza a polityka prywatności::${msg}`);
+  }
 
   // Znacznik GitHub Pages niepotrzebny na Apache.
   rmSync(path.join(dist, '.nojekyll'), { force: true });

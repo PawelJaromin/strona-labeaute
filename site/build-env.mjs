@@ -11,9 +11,11 @@
  *                         (domyślnie "site" z targets.json)
  *   BASE_PATH             podścieżka, pod którą strona stoi, np. /strona-labeaute
  *                         (domyślnie "base" z targets.json, czyli "/" = korzeń domeny)
- *   PUBLIC_FORM_ENDPOINT  adres skryptu formularza kontaktowego, np. /api/kontakt.php; pusty = formularz
- *                         otwiera program pocztowy (mailto:). Domyślnie "formEndpoint" z targets.json;
- *                         w kopii tymczasowej (STAGING) domyślnie pusty, bo GitHub Pages nie uruchamia PHP.
+ *   PUBLIC_FORM_ENDPOINT  ścieżka skryptu formularza kontaktowego NA TEJ SAMEJ DOMENIE, np. /api/kontakt.php;
+ *                         pusty = formularz otwiera program pocztowy (mailto:). Pełny adres https://... jest
+ *                         odrzucany: CSP z .htaccess (connect-src i form-action 'self') zablokowałoby go w przeglądarce,
+ *                         a kontakt.php i tak przyjmuje tylko żądania z własnej domeny. Domyślnie "formEndpoint"
+ *                         z targets.json; w kopii tymczasowej (STAGING) domyślnie pusty, bo GitHub Pages nie uruchamia PHP.
  *   STAGING               "1" = kopia tymczasowa (noindex, robots.txt z Disallow). Staging jest też
  *                         włączany automatycznie, gdy BASE_PATH nie jest "/".
  *
@@ -67,8 +69,12 @@ function parseBasePath(raw, source) {
 
 function parseEndpoint(raw, source) {
   const value = (raw ?? '').trim();
-  if (value && !/^(?:\/(?!\/)|https?:\/\/)/.test(value)) {
-    throw new Error(`${source} "${value}" jest niepoprawny (oczekiwano ścieżki od "/" np. /api/kontakt.php, pełnego adresu https:// albo pustej wartości).`);
+  // Tylko ścieżka od "/" na tej samej domenie (bez "//host" i bez "\host", które przeglądarka traktuje jak obcy adres).
+  if (value && !/^\/(?![/\\])[A-Za-z0-9._~\-/%?=&]*$/.test(value)) {
+    throw new Error(
+      `${source} "${value}" jest niepoprawny (oczekiwano ścieżki od "/" na tej samej domenie, np. /api/kontakt.php, albo pustej wartości). ` +
+        "Pełny adres https://... nie jest obsługiwany: CSP z .htaccess (connect-src i form-action 'self') zablokowałoby wysyłkę.",
+    );
   }
   return value;
 }

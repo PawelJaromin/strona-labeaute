@@ -3,7 +3,13 @@
 # Każdy push do gałęzi main: astro check, build (site/dist/ razem z .htaccess i api/kontakt.php z site/deploy/ovh/)
 # z kontrolą kontrastu i linków, wgranie site/dist/ przez SFTP (lftp mirror --delete) do katalogu www/
 # na hostingu. W tym katalogu zostaje dokładnie to, co jest w buildzie.
+# UWAGA: --delete USUWA z katalogu www/ wszystko, czego nie ma w site/dist/ (także cudze pliki i podfoldery innych
+# domen z Multisite). Katalog REMOTE_DIR ma więc należeć wyłącznie do tej strony; pierwszy raz uruchom „próbę na sucho”
+# i przejrzyj w logu, co zostałoby usunięte.
 # Ręcznie: Actions -> „Publikacja na OVH” -> Run workflow (opcja „próba na sucho” nic nie zmienia na serwerze).
+#
+# Domena: dopóki w site/deploy/targets.json stoi placeholder (labeaute.example.pl), krok „Build z kontrolami” kończy się
+# błędem (poza próbą na sucho), więc na serwer nic nie trafia. Wpisz prawdziwą domenę przed pierwszym pushem z sekretami.
 #
 # Sekrety (GitHub -> Settings -> Secrets and variables -> Actions), dane z panelu OVH hostingu
 # (Hosting -> FTP-SSH):
@@ -75,7 +81,11 @@ jobs:
       - name: Kontrola typów (astro check)
         run: npm run check
 
+      # Domena-placeholder z targets.json zatrzymuje ten krok (scripts/build.mjs), żeby .htaccess nie przekierował
+      # całej strony na nieistniejący adres. Tylko „próba na sucho” (nic nie zmienia na serwerze) ma na to zgodę.
       - name: Build z kontrolami (kontrast, linki)
+        env:
+          ALLOW_PLACEHOLDER_DOMAIN: ${{ inputs.dry_run && '1' || '' }}
         run: npm run build:check
 
       - name: Zainstaluj lftp

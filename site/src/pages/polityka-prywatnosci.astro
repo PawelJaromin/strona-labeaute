@@ -8,6 +8,9 @@
  * je w site.legal (src/config/site.ts); do tego czasu build wypisuje ostrzeżenie, a tekst ich nie podaje.
  * Jeśli na stronie pojawi się analityka, osadzona mapa albo zmienią się pola lub cel formularza
  * (punkt 5), ten tekst trzeba zaktualizować.
+ * UWAGA: punkty 5, 6 i 8 zakładają, że wiadomości z formularza trafiają na skrzynkę Gmail salonu (site.email),
+ * czyli że $TO w deploy/ovh/api/kontakt.php to ten adres. Przy innej skrzynce (np. poczta OVH) popraw te punkty;
+ * scripts/build.mjs ostrzega, gdy $TO różni się od site.email.
  * Rytm: PageIntro (ciemny, compact) → tekst (biel) → pas CTA (dodaje Base).
  */
 import Base from '../layouts/Base.astro';

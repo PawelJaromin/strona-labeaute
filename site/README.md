@@ -35,6 +35,11 @@ pokaż zmiany), `--html plik.html` (parsuj zapisaną stronę). Po synchronizacji
 Windows: przed `npm run build` zatrzymaj `npm run preview` (podgląd trzyma pliki w `dist/` i build kończy się
 błędem EPERM).
 
+Porty `dev` (4341) i `preview` (4342) są wpisane w `package.json`. Nie dopisuj własnego `--port` po `--`
+(`npm run preview -- --port 4348`): Astro dostaje wtedy dwie flagi `--port` i po cichu przechodzi na port 4321.
+Żeby podejrzeć stronę na innym porcie, uruchom bezpośrednio:
+`node node_modules/astro/astro.js preview --port 4348 --host 127.0.0.1` (tak samo `dev`).
+
 ## Gdzie co jest
 
 | Co | Plik |
@@ -88,9 +93,14 @@ e-mail i/lub telefon (wystarczy jedno), wiadomość, zgoda RODO (z linkiem do po
 pole-pułapka na boty. Bez zewnętrznego dostawcy i bez zewnętrznych skryptów.
 
 - **Produkcja (OVH):** mały skrypt wysyła pola (`fetch`, `multipart/form-data`) na adres z `formEndpoint`
-  w `deploy/targets.json` (`/api/kontakt.php`). `kontakt.php` sprawdza `Origin`/`Referer` (własna domena),
-  pułapkę `_gotcha`, wymagane pola, długość wiadomości (4000 znaków) i odstęp 20 s między wysyłkami z jednego IP,
-  po czym wysyła e-mail funkcją `mail()` i odpowiada JSON-em: `{"ok":true}` albo `{"ok":false,"error":"..."}`.
+  w `deploy/targets.json` (`/api/kontakt.php`; **tylko ścieżka na tej samej domenie**: pełny adres `https://...`
+  `build-env.mjs` odrzuca, bo CSP z `.htaccess` (`connect-src` i `form-action 'self'`) zablokowałoby wysyłkę
+  w przeglądarce, a `kontakt.php` i tak przyjmuje tylko żądania z własnej domeny). `kontakt.php` wymaga nagłówka
+  `Origin` albo `Referer` z własnej domeny (żądanie bez obu jest odrzucane kodem `origin`), sprawdza pułapkę
+  `_gotcha`, wymagane pola, zgodę (`consent=tak`; `0`, `nie` i puste nie są zgodą), długości pól (wiadomość do 4000
+  znaków; za długie pole jest odrzucane kodem `toolong`, nie skracane) i odstęp 20 s między wysyłkami z jednego IP,
+  po czym wysyła e-mail funkcją `mail()` (data w treści w czasie `Europe/Warsaw`) i odpowiada JSON-em:
+  `{"ok":true}` albo `{"ok":false,"error":"..."}`.
 - **Bez endpointu** (kopia tymczasowa na GitHub Pages, albo `PUBLIC_FORM_ENDPOINT=` puste): formularz otwiera
   program pocztowy z gotową wiadomością (`mailto:` na adres z `src/config/site.ts`).
 - **Niepowodzenie wysyłki** (także dopóki w `kontakt.php` są placeholdery): strona pokazuje komunikat
@@ -101,6 +111,10 @@ pole-pułapka na boty. Bez zewnętrznego dostawcy i bez zewnętrznych skryptów.
   przeszedł SPF/DKIM OVH; adres musi istnieć jako skrzynka lub alias w poczcie OVH tej domeny). Dopóki zawierają
   `UZUPELNIJ`, skrypt odpowiada `{"ok":false,"error":"config"}` i niczego nie wysyła. Plik jest publiczny:
   wpisuj tylko adresy e-mail, nigdy haseł.
+- **`$TO` a polityka prywatności:** punkty 5, 6 i 8 polityki zakładają, że wiadomości z formularza trafiają na
+  skrzynkę Gmail salonu (`email` w `src/config/site.ts`, teraz `labeaute.at@gmail.com`). Jeśli wpiszesz w `$TO`
+  inny adres (np. skrzynkę w poczcie OVH), popraw te punkty w `src/pages/polityka-prywatnosci.astro`. Gdy `$TO` jest
+  inny niż `email` z `site.ts`, `npm run build` wypisuje ostrzeżenie (w Actions także adnotację).
 - **Polityka prywatności** (punkt „Formularz kontaktowy”) opisuje dane, cel, podstawę i czas przechowywania.
   Przy zmianie pól lub celu formularza zaktualizuj ją.
 - Test ręczny po publikacji: ostatnie polecenie `curl` w sekcji „Testy po pierwszej publikacji”.
@@ -116,7 +130,7 @@ pierwszeństwo nad `targets.json`.**
 |---|---|---|---|
 | `SITE_URL` | sama domena, bez ścieżki | brak = `ovh.site` z `deploy/targets.json` | `https://paweljaromin.github.io` |
 | `BASE_PATH` | podścieżka serwisu | brak = `ovh.base` (`/`, korzeń domeny) | `/strona-labeaute` |
-| `PUBLIC_FORM_ENDPOINT` | adres skryptu formularza; pusty = `mailto:` | brak = `ovh.formEndpoint` (`/api/kontakt.php`) | puste (nie ma PHP) |
+| `PUBLIC_FORM_ENDPOINT` | ścieżka skryptu formularza na tej samej domenie (nie pełny adres); pusty = `mailto:` | brak = `ovh.formEndpoint` (`/api/kontakt.php`) | puste (nie ma PHP) |
 | `STAGING` | `1` = kopia tymczasowa (noindex) | brak | `1` (włącza się też sama, gdy `BASE_PATH` nie jest `/`) |
 
 Stąd biorą adres: `canonical`, Open Graph, JSON-LD, sitemap, `robots.txt`, `site.webmanifest` i przekierowania
@@ -134,10 +148,18 @@ nie dostaje `.htaccess` ani `api/` (GitHub Pages ich nie używa).
 
 1. Otwórz `deploy/targets.json` i w polu `ovh.site` wpisz domenę salonu: sama domena, bez `www` i bez ścieżki,
    z `https://`, np. `https://labeaute.pl`. **To jedyne miejsce w repozytorium z adresem produkcyjnym.**
-   Obecnie stoi tam placeholder `https://labeaute.example.pl`; build wypisuje przy nim ostrzeżenie.
+   Obecnie stoi tam placeholder `https://labeaute.example.pl`; build wypisuje przy nim ostrzeżenie,
+   a w GitHub Actions (poza próbą na sucho) się zatrzymuje.
 2. `npm run test` (adresy w canonical, sitemap, `robots.txt` i `.htaccess` mają nową domenę).
-3. Wypchnij zmianę na `main`: workflow opublikuje stronę. Domena musi być już dodana w OVH (krok 1
-   „Jednorazowa konfiguracja”), inaczej odwiedzający zostaną przekierowani na niedziałający adres.
+3. Wypchnij zmianę na `main`: workflow opublikuje stronę. Domena musi być już dodana w OVH (krok 2
+   „Jednorazowej konfiguracji”), inaczej odwiedzający zostaną przekierowani na niedziałający adres.
+
+**Zabezpieczenie przed placeholderem:** w GitHub Actions produkcyjny build z domeną `labeaute.example.pl` (albo
+inną `example.*` / `localhost`) kończy się błędem w kroku „Build z kontrolami” i nic nie jest wgrywane na OVH.
+Bez tego push na `main` po dodaniu sekretów, ale przed wpisaniem domeny, wgrałby `.htaccess`, który przekierowuje
+każde żądanie na nieistniejący adres. Wyjątek: „próba na sucho” (nic nie zmienia na serwerze) przechodzi
+z samym ostrzeżeniem. Lokalnie `npm run test` z placeholderem też przechodzi (tylko ostrzeżenie), żeby dało się
+pracować przed ustaleniem domeny.
 
 ## Publikacja: GitHub → OVH (automatyczna)
 
@@ -147,11 +169,19 @@ linki, canonical, jeden `h1`, długości `title` do 60 i `description` do 160 zn
 z czytelnym komunikatem błędu i `lftp mirror -R --delete` z `site/dist/` do katalogu `www/` na hostingu.
 Na serwerze zostaje dokładnie to, co jest w buildzie. Transfer tylko przez **SFTP** (zwykłe FTP i FTPS w OVH odpadają).
 
+> **Uwaga: `--delete` usuwa z `www/` wszystko, czego nie ma w `site/dist/`.** Dotyczy to także plików i podfolderów
+> spoza tej strony. Jeśli na tym samym hostingu OVH działają inne domeny (Multisite) w podfolderach `www/`
+> (np. `www/inna-domena/`), wgranie do `www/` skasuje je. Wtedy dla tej strony wskaż w Multisite jej własny
+> katalog (np. `www/labeaute`) i wpisz go w `REMOTE_DIR` w `deploy.yml`. Pierwsze uruchomienie zawsze zrób
+> z „próbą na sucho” i przejrzyj w logu linie o usuwaniu plików (`Removing old file` albo `rm`), zanim uruchomisz publikację naprawdę.
+
 ### Jednorazowa konfiguracja (robi właściciel)
 
 1. **Domena w repozytorium:** wpisz ją w `deploy/targets.json` (patrz wyżej) i wypchnij.
 2. **Panel OVH → hosting → Multisite:** dodaj domenę i `www.` tej domeny z katalogiem głównym `www`,
    włącz SSL (Let's Encrypt). Jeśli domena ma inny katalog, wpisz ten sam w `REMOTE_DIR` w `deploy.yml`.
+   Katalog ma należeć tylko do tej strony: workflow czyści go z wszystkiego, czego nie ma w buildzie (patrz uwaga
+   o `--delete` wyżej).
    Reguły `.htaccess` przekierowują `http`, `www` i każdy inny alias na `https://[DOMENA]`, więc `www` musi
    wskazywać na ten sam hosting.
 3. **Panel OVH → hosting → FTP-SSH:** SFTP włączone dla użytkownika; stąd adres serwera
@@ -169,7 +199,9 @@ Na serwerze zostaje dokładnie to, co jest w buildzie. Transfer tylko przez **SF
 
 Actions → „Publikacja na OVH” → **Run workflow** → zaznacz „Próba na sucho”. Workflow wykonuje wszystkie kroki
 (sprawdzenie sekretów, `check`, `build:check`, test SFTP), a `lftp mirror` dostaje `--dry-run`: w logu widać,
-które pliki zostałyby wgrane lub usunięte, a serwer pozostaje bez zmian.
+które pliki zostałyby wgrane lub usunięte, a serwer pozostaje bez zmian. Jedynie próba na sucho przechodzi także
+z domeną-placeholderem (workflow ustawia wtedy `ALLOW_PLACEHOLDER_DOMAIN=1`); zwykła publikacja z placeholderem
+zatrzymuje się na kroku „Build z kontrolami”.
 
 ### Publikacja awaryjna przez SFTP (FileZilla)
 
@@ -196,11 +228,13 @@ curl -sI https://[DOMENA]/nie-ma-takiej-strony/ | head -1         # HTTP/2 404 (
 curl -sI https://[DOMENA]/ | grep -i "strict-transport\|content-security\|x-frame"
 curl -s https://[DOMENA]/robots.txt; curl -s https://[DOMENA]/sitemap-index.xml | head -5
 curl -s -X POST https://[DOMENA]/api/kontakt.php -F name=test -F email=test@example.com -F message=test -F consent=tak -H "Origin: https://[DOMENA]"
+curl -s -X POST https://[DOMENA]/api/kontakt.php -F name=test -F email=test@example.com -F message=test -F consent=tak   # bez Origin: {"ok":false,"error":"origin"}
 ```
 
 Oczekiwane: jedna domena bez `www`, brak `:443` w `Location`, `404` zwraca kod 404, nagłówki bezpieczeństwa
 obecne (w CSP jest `frame-src https://booksy.com`), formularz odpowiada JSON-em (`{"ok":false,"error":"config"}`
-do czasu uzupełnienia `$TO`/`$FROM`, potem `{"ok":true}` i mail na `$TO`). Nagłówków z `.htaccess` nie da się
+do czasu uzupełnienia `$TO`/`$FROM`, potem `{"ok":true}` i mail na `$TO`; żądanie bez `Origin` dostaje `origin`, a po
+uzupełnieniu adresów odstęp 20 s między dwiema wysyłkami z jednego IP daje `rate`). Nagłówków z `.htaccess` nie da się
 sprawdzić lokalnie (`astro preview` ich nie wysyła), dlatego robi się to na hostingu.
 
 ## Kopia tymczasowa na GitHub Pages (ręcznie)
