@@ -5,7 +5,7 @@
  */
 
 import uslugiData from '../data/uslugi.json';
-import { SITE_URL, STAGING } from '../../build-env.mjs';
+import { SITE_URL, STAGING, FORM_ENDPOINT } from '../../build-env.mjs';
 import { withBase } from '../lib/url';
 
 const BOOKSY_ID = 102895;
@@ -23,12 +23,20 @@ function ratingText(rank: number | undefined, fallback: string): string {
 export const site = {
   /**
    * Adres serwisu (sama domena, bez końcowego ukośnika i bez podścieżki): zmienna SITE_URL
-   * przy budowaniu, a gdy jej brak, adres produkcyjny z build-env.mjs (DEFAULT_SITE_URL).
-   * To jedyne źródło adresu: canonical, Open Graph, JSON-LD i sitemap biorą go stąd.
+   * przy budowaniu, a gdy jej brak, adres produkcyjny z deploy/targets.json (cel "ovh", pole "site"),
+   * czytany przez build-env.mjs. To jedyne źródło adresu: canonical, Open Graph, JSON-LD, sitemap,
+   * robots.txt i przekierowania w .htaccess biorą go stąd.
    * Pełny adres podstrony składaj przez absoluteUrl() z src/lib/url.ts (dodaje podścieżkę).
-   * DOMENA PRODUKCYJNA DO USTALENIA z właścicielką, patrz build-env.mjs.
+   * DOMENA PRODUKCYJNA DO USTALENIA z właścicielką: teraz placeholder, zmiana tylko w deploy/targets.json.
    */
   url: SITE_URL as string,
+
+  /**
+   * Skrypt formularza kontaktowego (PHP na hostingu OVH): PUBLIC_FORM_ENDPOINT albo "formEndpoint"
+   * z deploy/targets.json ("/api/kontakt.php"). Pusty (np. kopia tymczasowa na GitHub Pages)
+   * = formularz działa w trybie mailto: i otwiera program pocztowy (ContactForm.astro).
+   */
+  formEndpoint: withBase(FORM_ENDPOINT) as string,
 
   /**
    * Kopia tymczasowa (np. GitHub Pages pod /strona-labeaute/): STAGING=1 albo BASE_PATH inna niż "/".

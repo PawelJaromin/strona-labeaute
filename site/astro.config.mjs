@@ -2,8 +2,9 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import { SITE_URL, BASE_PATH } from './build-env.mjs';
 
-// Adres (`site`) i podścieżka (`base`) pochodzą ze zmiennych środowiskowych SITE_URL i BASE_PATH
-// (domyślnie: adres produkcyjny z build-env.mjs i korzeń domeny). Szczegóły i zasady: build-env.mjs.
+// Adres (`site`) i podścieżka (`base`) pochodzą z deploy/targets.json (cel "ovh"), a zmienne środowiskowe
+// SITE_URL i BASE_PATH mają pierwszeństwo. Czyta je build-env.mjs, szczegóły i zasady są tam.
+// Adres produkcyjny zmieniasz TYLKO w deploy/targets.json (teraz placeholder labeaute.example.pl).
 // Tymczasowa kopia na GitHub Pages: SITE_URL=https://paweljaromin.github.io BASE_PATH=/strona-labeaute.
 
 export default defineConfig({

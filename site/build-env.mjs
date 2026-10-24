@@ -1,68 +1,100 @@
 /**
  * Jedno miejsce, które ustala, POD JAKIM ADRESEM i W JAKIM TRYBIE budowana jest strona.
- * Importują je astro.config.mjs (site, base), src/config/site.ts (site.url, site.staging)
- * i src/lib/url.ts (withBase, absoluteUrl). Skrypt scripts/linkcheck.py czyta z niego
- * domyślny adres (DEFAULT_SITE_URL), więc zmiana domeny w tym pliku wystarczy.
+ * Importują je astro.config.mjs (site, base), src/config/site.ts (site.url, site.staging, site.formEndpoint),
+ * src/lib/url.ts (withBase, absoluteUrl) i scripts/build.mjs (wpisuje domenę do .htaccess i przekazuje
+ * te same wartości kontroli linków). Skrypt scripts/linkcheck.py czyta domyślny adres z tego samego
+ * źródła co ten plik: deploy/targets.json.
  *
- * Zmienne środowiskowe (ustawiane przy budowaniu, np. w GitHub Actions):
- *   SITE_URL   adres serwisu, SAMA domena bez ścieżki, np. https://labeaute.pl
- *              (domyślnie DEFAULT_SITE_URL)
- *   BASE_PATH  podścieżka, pod którą strona stoi, np. /strona-labeaute
- *              (domyślnie "/" = korzeń domeny)
- *   STAGING    "1" = kopia tymczasowa (noindex, robots.txt z Disallow). Staging jest też
- *              włączany automatycznie, gdy BASE_PATH nie jest "/".
+ * Domyślne wartości (produkcja) pochodzą z deploy/targets.json, cel "ovh" (zmienna PUBLIC_TARGET,
+ * domyślnie "ovh"). Zmienne środowiskowe MAJĄ PIERWSZEŃSTWO nad targets.json:
+ *   SITE_URL              adres serwisu, SAMA domena bez ścieżki, np. https://labeaute.pl
+ *                         (domyślnie "site" z targets.json)
+ *   BASE_PATH             podścieżka, pod którą strona stoi, np. /strona-labeaute
+ *                         (domyślnie "base" z targets.json, czyli "/" = korzeń domeny)
+ *   PUBLIC_FORM_ENDPOINT  adres skryptu formularza kontaktowego, np. /api/kontakt.php; pusty = formularz
+ *                         otwiera program pocztowy (mailto:). Domyślnie "formEndpoint" z targets.json;
+ *                         w kopii tymczasowej (STAGING) domyślnie pusty, bo GitHub Pages nie uruchamia PHP.
+ *   STAGING               "1" = kopia tymczasowa (noindex, robots.txt z Disallow). Staging jest też
+ *                         włączany automatycznie, gdy BASE_PATH nie jest "/".
  *
- * Produkcja (OVH) = brak zmiennych: korzeń domeny, indeksowanie włączone.
+ * Produkcja (OVH) = brak zmiennych: korzeń domeny z targets.json, indeksowanie włączone.
+ *
+ * Adres produkcyjny zmieniasz TYLKO w deploy/targets.json (pole "site").
  */
+import targets from './deploy/targets.json' with { type: 'json' };
 
-/**
- * Adres produkcyjny. DOMENA DO USTALENIA z właścicielką (labeaute.pl i labeaute-orzesze.pl
- * były wolne w DNS 2026-10-16; trzeba sprawdzić u rejestratora). Gdy domena będzie znana,
- * wpisz ją tutaj (albo ustaw SITE_URL przy buildzie).
- */
-export const DEFAULT_SITE_URL = 'https://labeaute.example.pl';
+const TARGET = (process.env.PUBLIC_TARGET ?? '').trim() || 'ovh';
+const cfg = targets[TARGET];
+if (TARGET.startsWith('_') || !cfg || typeof cfg !== 'object') {
+  const known = Object.keys(targets).filter((k) => !k.startsWith('_')).join(', ');
+  throw new Error(`Nieznany cel publikacji "${TARGET}" w deploy/targets.json. Dostępne: ${known}.`);
+}
 
-function normalizeSiteUrl(raw) {
+function parseSiteUrl(raw, source) {
   const value = (raw ?? '').trim();
-  if (!value) return DEFAULT_SITE_URL;
   let url;
   try {
     url = new URL(value);
   } catch {
-    throw new Error(`SITE_URL "${value}" nie jest poprawnym adresem (oczekiwano np. https://labeaute.pl).`);
+    throw new Error(`${source} "${value}" nie jest poprawnym adresem (oczekiwano np. https://labeaute.pl).`);
   }
   if (url.protocol !== 'https:' && url.protocol !== 'http:') {
-    throw new Error(`SITE_URL "${value}": dozwolone tylko http:// albo https://.`);
+    throw new Error(`${source} "${value}": dozwolone tylko http:// albo https://.`);
   }
   if (url.pathname.replace(/\/+$/, '') !== '' || url.search || url.hash) {
     throw new Error(
-      `SITE_URL "${value}" zawiera ścieżkę. Podaj samą domenę (${url.origin}), a podścieżkę ustaw w BASE_PATH.`,
+      `${source} "${value}" zawiera ścieżkę. Podaj samą domenę (${url.origin}), a podścieżkę ustaw w BASE_PATH (w targets.json: "base").`,
     );
   }
   return url.origin;
 }
 
-function normalizeBasePath(raw) {
+function parseBasePath(raw, source) {
   const value = (raw ?? '').trim();
   if (!value || value === '/') return '/';
   if (/^[A-Za-z]:[\\/]/.test(value)) {
     throw new Error(
-      `BASE_PATH "${value}" to ścieżka Windows. Git Bash zamienia wartość "/nazwa" na ścieżkę dysku: ustaw MSYS_NO_PATHCONV=1 ` +
+      `${source} "${value}" to ścieżka Windows. Git Bash zamienia wartość "/nazwa" na ścieżkę dysku: ustaw MSYS_NO_PATHCONV=1 ` +
         '(np. MSYS_NO_PATHCONV=1 BASE_PATH=/strona-labeaute npm run build) albo użyj PowerShell / cmd.',
     );
   }
-  const path ='/' + value.replace(/^\/+|\/+$/g, '').replace(/\/{2,}/g, '/');
+  const path = '/' + value.replace(/^\/+|\/+$/g, '').replace(/\/{2,}/g, '/');
   if (!/^\/[A-Za-z0-9._~-]+(?:\/[A-Za-z0-9._~-]+)*$/.test(path) || path.split('/').includes('..')) {
-    throw new Error(`BASE_PATH "${value}" jest niepoprawna (oczekiwano np. /strona-labeaute).`);
+    throw new Error(`${source} "${value}" jest niepoprawna (oczekiwano np. /strona-labeaute).`);
   }
   return path;
 }
 
-/** Adres serwisu bez końcowego ukośnika i bez ścieżki, np. "https://paweljaromin.github.io". */
-export const SITE_URL = normalizeSiteUrl(process.env.SITE_URL);
+function parseEndpoint(raw, source) {
+  const value = (raw ?? '').trim();
+  if (value && !/^(?:\/(?!\/)|https?:\/\/)/.test(value)) {
+    throw new Error(`${source} "${value}" jest niepoprawny (oczekiwano ścieżki od "/" np. /api/kontakt.php, pełnego adresu https:// albo pustej wartości).`);
+  }
+  return value;
+}
+
+/** Adres produkcyjny z deploy/targets.json (cel "ovh"). Domyślna wartość SITE_URL. */
+export const DEFAULT_SITE_URL = parseSiteUrl(cfg.site, `deploy/targets.json (${TARGET}.site)`);
+
+/** Podścieżka z deploy/targets.json. Domyślna wartość BASE_PATH. */
+export const DEFAULT_BASE_PATH = parseBasePath(cfg.base, `deploy/targets.json (${TARGET}.base)`);
+
+/** Adres serwisu bez końcowego ukośnika i bez ścieżki, np. "https://labeaute.pl". */
+export const SITE_URL = (process.env.SITE_URL ?? '').trim() ? parseSiteUrl(process.env.SITE_URL, 'SITE_URL') : DEFAULT_SITE_URL;
 
 /** Podścieżka: "/" albo "/nazwa" (z początkowym, bez końcowego ukośnika). Wartość dla `base` w Astro. */
-export const BASE_PATH = normalizeBasePath(process.env.BASE_PATH);
+export const BASE_PATH = (process.env.BASE_PATH ?? '').trim() ? parseBasePath(process.env.BASE_PATH, 'BASE_PATH') : DEFAULT_BASE_PATH;
 
 /** Kopia tymczasowa (nie do indeksowania): STAGING=1 albo podścieżka inna niż "/". */
 export const STAGING = process.env.STAGING === '1' || BASE_PATH !== '/';
+
+/**
+ * Endpoint formularza kontaktowego: PUBLIC_FORM_ENDPOINT (także pusty), a gdy jej brak, "formEndpoint"
+ * z targets.json. Kopia tymczasowa bez jawnej zmiennej: pusty (nie ma tam PHP), czyli tryb mailto:.
+ */
+export const FORM_ENDPOINT =
+  process.env.PUBLIC_FORM_ENDPOINT !== undefined
+    ? parseEndpoint(process.env.PUBLIC_FORM_ENDPOINT, 'PUBLIC_FORM_ENDPOINT')
+    : STAGING
+      ? ''
+      : parseEndpoint(cfg.formEndpoint, `deploy/targets.json (${TARGET}.formEndpoint)`);

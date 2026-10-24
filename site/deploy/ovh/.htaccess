@@ -1,6 +1,15 @@
-# La Beauté Aldona Targiel — konfiguracja Apache (zwykły hosting, np. OVH)
+# La Beauté Aldona Targiel — konfiguracja Apache na hostingu OVH.
+#
+# TO JEST SZABLON. Plik trafia do dist/ przy buildzie (scripts/build.mjs), a dwa tokeny w podwójnych
+# podkreślnikach, DOMENA (domena strony bez www i bez protokołu) oraz DOMENA_RE (ta sama domena z kropkami
+# zapisanymi dla wyrażeń regularnych), są podmieniane na domenę z deploy/targets.json (pole "site",
+# jedyne miejsce z adresem strony). Nie wpisuj domeny tutaj na sztywno; zmiana domeny = zmiana jednego
+# pola w targets.json. Build przerywa się, jeśli po podmianie w pliku zostanie jakikolwiek token.
+#
+# Wszystkie przekierowania mają pełny adres https://DOMENA/..., bo przy celu względnym Apache na OVH
+# dokleja do nagłówka Location numer portu (:443). Strona jest jednojęzyczna: bez wyboru języka.
 
-# --- Kodowanie i typy ---
+Options -Indexes
 AddDefaultCharset UTF-8
 <IfModule mod_mime.c>
   AddType font/woff2 .woff2
@@ -9,35 +18,33 @@ AddDefaultCharset UTF-8
   AddType application/manifest+json .webmanifest
 </IfModule>
 
-# --- HTTPS i jedna wersja adresu (bez www) ---
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # http -> https
-  RewriteCond %{HTTPS} !=on
-  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+  # --- 1. Jeden adres strony: https://__DOMENA__ (bez http, bez www i bez innych aliasów domeny) ---
+  # Ścieżka i parametry zostają, np. http://www.__DOMENA__/cennik/ -> https://__DOMENA__/cennik/
+  RewriteCond %{HTTPS} !=on [OR]
+  RewriteCond %{HTTP_HOST} !^__DOMENA_RE__$ [NC]
+  RewriteRule ^(.*)$ https://__DOMENA__/$1 [R=301,L]
 
-  # www -> bez www
-  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-  RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
-
-  # /index.html -> /
+  # --- 2. /index.html -> / ---
   RewriteCond %{THE_REQUEST} \s/+(.*/)?index\.html[\s?] [NC]
-  RewriteRule ^(.*/)?index\.html$ https://%{HTTP_HOST}/$1 [R=301,L]
+  RewriteRule ^(.*/)?index\.html$ https://__DOMENA__/$1 [R=301,L]
 
-  # katalog bez końcowego ukośnika -> z ukośnikiem (adresy kanoniczne kończą się "/")
+  # --- 3. Katalog bez końcowego ukośnika -> z ukośnikiem (adresy kanoniczne kończą się "/") ---
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteCond %{REQUEST_URI} !/$
-  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1/ [R=301,L]
+  RewriteRule ^(.*)$ https://__DOMENA__/$1/ [R=301,L]
 </IfModule>
 
-# --- Strona błędu 404 ---
+# --- Własna strona błędu 404 (odpowiedź ma kod 404) ---
 ErrorDocument 404 /404.html
 
 # --- Nagłówki bezpieczeństwa ---
 # CSP: wszystko z własnego serwera; jedyny wyjątek to okno rezerwacji Booksy w <iframe> (frame-src).
 # Strona nie wczytuje żadnych skryptów, stylów ani grafik Booksy: przyciski „Umów” otwierają własne
-# okno (BookingModal) z iframe booksy.com/widget-2021. Bez 'unsafe-inline': Astro buduje style
+# okno (BookingModal) z iframe booksy.com/widget-2021. Formularz kontaktowy wysyła dane na własny serwer
+# (connect-src 'self' dla fetch, form-action 'self'). Bez 'unsafe-inline': Astro buduje style
 # i skrypty jako osobne pliki (inlineStylesheets: 'never', assetsInlineLimit: 0).
 <IfModule mod_headers.c>
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
@@ -55,9 +62,13 @@ ErrorDocument 404 /404.html
   <FilesMatch "^(favicon.*|apple-touch-icon\.png|icon-(192|512)\.png|og\.png)$">
     Header set Cache-Control "public, max-age=86400"
   </FilesMatch>
-  # HTML, sitemap, manifest: krótki cache
+  # HTML, sitemap, manifest, robots.txt: krótki cache (10 minut)
   <FilesMatch "\.(html|xml|webmanifest|txt)$">
     Header set Cache-Control "public, max-age=600"
+  </FilesMatch>
+  # Formularz kontaktowy (PHP): nigdy z pamięci podręcznej
+  <FilesMatch "\.php$">
+    Header set Cache-Control "no-store"
   </FilesMatch>
 </IfModule>
 
@@ -67,6 +78,6 @@ ErrorDocument 404 /404.html
 </IfModule>
 
 # --- Pliki, które nie powinny być publiczne ---
-<FilesMatch "^(README\.md|\.gitignore)$">
+<FilesMatch "^(README\.md|\.gitignore|\.gitattributes|package\.json|package-lock\.json)$">
   Require all denied
 </FilesMatch>

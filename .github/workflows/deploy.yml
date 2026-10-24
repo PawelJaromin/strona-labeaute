@@ -1,0 +1,135 @@
+# Publikacja strony La Beauté na hostingu OVH.
+#
+# Każdy push do gałęzi main: astro check, build (site/dist/ razem z .htaccess i api/kontakt.php z site/deploy/ovh/)
+# z kontrolą kontrastu i linków, wgranie site/dist/ przez SFTP (lftp mirror --delete) do katalogu www/
+# na hostingu. W tym katalogu zostaje dokładnie to, co jest w buildzie.
+# Ręcznie: Actions -> „Publikacja na OVH” -> Run workflow (opcja „próba na sucho” nic nie zmienia na serwerze).
+#
+# Sekrety (GitHub -> Settings -> Secrets and variables -> Actions), dane z panelu OVH hostingu
+# (Hosting -> FTP-SSH):
+#   OVH_SFTP_HOST      adres serwera, np. ftp.clusterNNN.hosting.ovh.net
+#   OVH_SFTP_USER      login FTP/SFTP
+#   OVH_SFTP_PASSWORD  hasło tego użytkownika
+#
+# Panel OVH: Hosting -> Multisite -> domena strony (i jej wersja z www) z katalogiem głównym www i SSL (Let's Encrypt);
+# Hosting -> FTP-SSH -> SFTP włączone (zwykłe FTP w OVH nie szyfruje połączenia).
+# Adres strony (canonical, sitemap, przekierowania w .htaccess) jest w site/deploy/targets.json.
+# Projekt Astro leży w podkatalogu site/, stąd working-directory.
+
+name: Publikacja na OVH
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Próba na sucho: pokaż, co by się wgrało, ale nic nie zmieniaj na serwerze"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ovh-deploy
+  cancel-in-progress: false
+
+env:
+  REMOTE_DIR: www   # katalog strony na hostingu, względem katalogu domowego użytkownika SFTP
+  SFTP_PORT: "22"   # hosting "Cloud Web" ma inny port, patrz panel OVH -> FTP-SSH
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - name: Pobierz repozytorium
+        uses: actions/checkout@v7
+
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Zależności
+        run: npm ci
+
+      - name: Sprawdź sekrety OVH
+        env:
+          OVH_SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
+          OVH_SFTP_USER: ${{ secrets.OVH_SFTP_USER }}
+          OVH_SFTP_PASSWORD: ${{ secrets.OVH_SFTP_PASSWORD }}
+        run: |
+          ok=1
+          [ -n "$OVH_SFTP_HOST" ]     || { echo "::error::Brak sekretu OVH_SFTP_HOST"; ok=0; }
+          [ -n "$OVH_SFTP_USER" ]     || { echo "::error::Brak sekretu OVH_SFTP_USER"; ok=0; }
+          [ -n "$OVH_SFTP_PASSWORD" ] || { echo "::error::Brak sekretu OVH_SFTP_PASSWORD"; ok=0; }
+          [ "$ok" = 1 ] || exit 1
+
+      - name: Kontrola typów (astro check)
+        run: npm run check
+
+      - name: Build z kontrolami (kontrast, linki)
+        run: npm run build:check
+
+      - name: Zainstaluj lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+      - name: Test połączenia SFTP
+        env:
+          OVH_SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
+          OVH_SFTP_USER: ${{ secrets.OVH_SFTP_USER }}
+          LFTP_PASSWORD: ${{ secrets.OVH_SFTP_PASSWORD }}
+        run: |
+          HOST="$(printf '%s' "$OVH_SFTP_HOST" | tr -d '[:space:]')"
+          HOST="${HOST#sftp://}"; HOST="${HOST#ftp://}"; HOST="${HOST%/}"
+          USER_="$(printf '%s' "$OVH_SFTP_USER" | tr -d '[:space:]')"
+          cat > "$RUNNER_TEMP/test.lftp" <<EOS
+          set cmd:fail-exit yes
+          set net:timeout 30
+          set net:max-retries 2
+          set net:reconnect-interval-base 5
+          set sftp:auto-confirm yes
+          set sftp:connect-program "ssh -4 -a -x -o ConnectTimeout=20 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          debug 4
+          open -u "$USER_" --env-password -p $SFTP_PORT "sftp://$HOST"
+          cls -1
+          bye
+          EOS
+          echo "Łączę z $HOST:$SFTP_PORT jako $USER_ (katalog domowy powinien zawierać $REMOTE_DIR):"
+          if ! lftp -f "$RUNNER_TEMP/test.lftp"; then
+            echo "::error::Nie udało się połączyć po SFTP. Powód jest w liniach powyżej (komunikat ssh). Najczęstsze przyczyny: SFTP wyłączone w panelu OVH (Hosting -> FTP-SSH -> użytkownik -> SFTP), adres serwera nie z zakładki FTP-SSH TEGO hostingu, złe hasło, inny port (hosting Cloud Web)."
+            exit 1
+          fi
+
+      - name: Wgraj site/dist/ na OVH przez SFTP
+        env:
+          OVH_SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
+          OVH_SFTP_USER: ${{ secrets.OVH_SFTP_USER }}
+          LFTP_PASSWORD: ${{ secrets.OVH_SFTP_PASSWORD }}
+          DRY_RUN: ${{ inputs.dry_run && '--dry-run' || '' }}
+        run: |
+          # adres bez spacji i bez ewentualnego przedrostka "sftp://" / "ftp://"
+          HOST="$(printf '%s' "$OVH_SFTP_HOST" | tr -d '[:space:]')"
+          HOST="${HOST#sftp://}"; HOST="${HOST#ftp://}"; HOST="${HOST%/}"
+          USER_="$(printf '%s' "$OVH_SFTP_USER" | tr -d '[:space:]')"
+          if [ -n "$DRY_RUN" ]; then echo "Próba na sucho: nic nie zostanie zmienione na serwerze."; fi
+          cat > "$RUNNER_TEMP/deploy.lftp" <<EOS
+          set cmd:fail-exit yes
+          set net:timeout 30
+          set net:max-retries 3
+          set net:reconnect-interval-base 5
+          set sftp:auto-confirm yes
+          set sftp:connect-program "ssh -4 -a -x -o ConnectTimeout=20 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          open -u "$USER_" --env-password -p $SFTP_PORT "sftp://$HOST"
+          mirror -R --delete --transfer-all --no-perms --parallel=4 --verbose=1 $DRY_RUN "$GITHUB_WORKSPACE/site/dist/" "$REMOTE_DIR/"
+          bye
+          EOS
+          lftp -f "$RUNNER_TEMP/deploy.lftp"
+          echo "Gotowe: $(node -p "require('./deploy/targets.json').ovh.site")/"

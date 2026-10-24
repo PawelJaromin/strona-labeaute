@@ -1,0 +1,504 @@
+---
+/**
+ * Formularz kontaktowy (sekcja „Kontakt” na stronie głównej, osadzany w Contact.astro).
+ *
+ * Bez zewnętrznego dostawcy i bez zewnętrznych skryptów:
+ * - gdy jest endpoint (site.formEndpoint = PUBLIC_FORM_ENDPOINT albo "formEndpoint" z deploy/targets.json,
+ *   na hostingu OVH "/api/kontakt.php"), mały skrypt wysyła pola przez fetch jako multipart/form-data
+ *   i pokazuje wynik (JSON {"ok":true} / {"ok":false,"error":"..."});
+ * - bez endpointu (np. kopia tymczasowa na GitHub Pages) skrypt otwiera program pocztowy (mailto: na adres salonu);
+ * - bez JavaScriptu formularz wysyła się zwykłym POST-em na endpoint (natywna walidacja pól wymaganych).
+ * Pola: imię, e-mail, telefon (wystarczy jedno z dwóch), wiadomość, zgoda RODO, ukryta pułapka _gotcha.
+ * Dostępność: etykiety przy każdym polu, komunikaty błędów powiązane przez aria-describedby, aria-invalid,
+ * fokus na pierwszym błędnym polu, komunikaty w regionach aria-live (status i alert).
+ * Do polityki prywatności (punkt „Formularz kontaktowy”) trzeba zajrzeć przy każdej zmianie pól lub celu.
+ */
+import { site, routes } from '../config/site';
+
+interface Props {
+  /** id nagłówka, który nazywa formularz (aria-labelledby). */
+  labelledby?: string;
+}
+const { labelledby } = Astro.props;
+const endpoint = site.formEndpoint;
+const configured = Boolean(endpoint);
+---
+
+<form
+  class="cf"
+  method="post"
+  action={configured ? endpoint : `mailto:${site.email}`}
+  enctype={configured ? 'multipart/form-data' : 'text/plain'}
+  aria-labelledby={labelledby}
+  data-endpoint={endpoint}
+  data-email={site.email}
+  data-phone-display={site.phone.display}
+  data-phone-href={site.phone.href}
+>
+  <div class="cf__intro small muted">
+    <p>Pola oznaczone gwiazdką (<span aria-hidden="true">*</span>) są wymagane.</p>
+    {!configured && <p>Wiadomość otworzy się w Twoim programie pocztowym, gotowa do wysłania na adres {site.email}.</p>}
+  </div>
+
+  <div class="cf__grid">
+    <div class="cf__field cf__field--full">
+      <label class="cf__label" for="cf-name">Imię <span aria-hidden="true">*</span></label>
+      <input class="cf__input" id="cf-name" name="name" type="text" autocomplete="given-name" required maxlength="120" aria-describedby="cf-err-name" />
+      <p class="cf__err" id="cf-err-name" hidden></p>
+    </div>
+
+    <div class="cf__field">
+      <label class="cf__label" for="cf-email">E-mail</label>
+      <input class="cf__input" id="cf-email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="160" aria-describedby="cf-hint cf-err-contact cf-err-email" />
+      <p class="cf__err" id="cf-err-email" hidden></p>
+    </div>
+
+    <div class="cf__field">
+      <label class="cf__label" for="cf-phone">Telefon</label>
+      <input class="cf__input" id="cf-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="40" aria-describedby="cf-hint cf-err-contact cf-err-phone" />
+      <p class="cf__err" id="cf-err-phone" hidden></p>
+    </div>
+
+    <div class="cf__field cf__field--full cf__field--tight">
+      <p class="cf__hint small muted" id="cf-hint">Podaj e-mail lub telefon (wystarczy jedno), żebyśmy mogli odpowiedzieć.</p>
+      <p class="cf__err" id="cf-err-contact" hidden></p>
+    </div>
+
+    <div class="cf__field cf__field--full">
+      <label class="cf__label" for="cf-message">Wiadomość <span aria-hidden="true">*</span></label>
+      <textarea class="cf__input cf__input--area" id="cf-message" name="message" rows="6" required maxlength="4000" aria-describedby="cf-err-message"></textarea>
+      <p class="cf__err" id="cf-err-message" hidden></p>
+    </div>
+
+    <div class="cf__field cf__field--full">
+      <div class="cf__check">
+        <input id="cf-consent" name="consent" type="checkbox" value="tak" required aria-describedby="cf-err-consent" />
+        <label for="cf-consent">
+          Zgadzam się na przetwarzanie podanych danych w celu odpowiedzi na moją wiadomość.
+          Szczegóły w <a href={routes.polityka}>polityce prywatności</a>. <span aria-hidden="true">*</span>
+        </label>
+      </div>
+      <p class="cf__err" id="cf-err-consent" hidden></p>
+    </div>
+  </div>
+
+  {/* Pułapka na boty: człowiek jej nie widzi i nie wypełnia, bot tak (kontakt.php wtedy cicho ignoruje wysyłkę). */}
+  <div class="visually-hidden" aria-hidden="true">
+    <label for="cf-gotcha">Nie wypełniaj tego pola</label>
+    <input id="cf-gotcha" name="_gotcha" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div class="cf__actions">
+    <button class="btn" type="submit" data-label="Wyślij wiadomość">Wyślij wiadomość</button>
+  </div>
+  <p class="cf__status" id="cf-status" role="status" aria-live="polite"></p>
+  <p class="cf__fail" id="cf-fail" role="alert"></p>
+</form>
+
+<style>
+  .cf {
+    display: grid;
+    gap: 0;
+    min-width: 0;
+  }
+  .cf__intro {
+    display: grid;
+    gap: 4px;
+    margin-bottom: 22px;
+  }
+  .cf__intro p {
+    margin: 0;
+  }
+  .cf__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 24px;
+  }
+  .cf__field {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+    min-width: 0;
+  }
+  .cf__field--full {
+    grid-column: 1 / -1;
+  }
+  /* Podpowiedź pod parą e-mail / telefon stoi bliżej pól niż reszta */
+  .cf__field--tight {
+    margin-top: -10px;
+    gap: 6px;
+  }
+  .cf__hint {
+    margin: 0;
+  }
+
+  /* Etykieta jak „eyebrow” strony: małe wersaliki w złocie do tekstu */
+  .cf__label {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.4;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--c-gold-ink);
+  }
+
+  /* Pola kwadratowe z cienką złotą ramką (złoto do tekstu ma 5:1, więc ramka spełnia kontrast elementu UI) */
+  .cf__input {
+    display: block;
+    width: 100%;
+    min-height: 54px;
+    padding: 12px 16px;
+    border: 1px solid var(--c-gold-ink);
+    border-radius: 0;
+    background: var(--c-bg);
+    color: var(--c-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .cf__input--area {
+    min-height: 168px;
+    resize: vertical;
+  }
+  .cf__input:hover {
+    border-color: var(--c-ink);
+  }
+  .cf__input:focus-visible {
+    border-color: var(--c-ink);
+    outline: 2px solid var(--c-focus);
+    outline-offset: 2px;
+  }
+  .cf__input[aria-invalid='true'] {
+    border-color: var(--c-error);
+    box-shadow: inset 0 0 0 1px var(--c-error);
+  }
+  .cf__err {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--c-error);
+  }
+
+  /* Zgoda: kwadratowe pole wyboru w stylu strony */
+  .cf__check {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+  }
+  .cf__check input {
+    -webkit-appearance: none;
+    appearance: none;
+    display: grid;
+    place-content: center;
+    width: 26px;
+    height: 26px;
+    margin: 1px 0 0;
+    border: 1px solid var(--c-gold-ink);
+    border-radius: 0;
+    background: var(--c-bg);
+    cursor: pointer;
+  }
+  .cf__check input::after {
+    content: '';
+    width: 12px;
+    height: 7px;
+    border-left: 2px solid var(--c-btn-ink);
+    border-bottom: 2px solid var(--c-btn-ink);
+    transform: translateY(-1px) rotate(-45deg);
+    opacity: 0;
+  }
+  .cf__check input:checked {
+    background: var(--c-btn);
+    border-color: var(--c-btn);
+  }
+  .cf__check input:checked::after {
+    opacity: 1;
+  }
+  .cf__check input:hover {
+    border-color: var(--c-ink);
+  }
+  .cf__check input:focus-visible {
+    outline: 2px solid var(--c-focus);
+    outline-offset: 3px;
+  }
+  .cf__check input[aria-invalid='true'] {
+    border-color: var(--c-error);
+    box-shadow: 0 0 0 1px var(--c-error);
+  }
+  .cf__check label {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    cursor: pointer;
+  }
+  .cf__check label a {
+    cursor: pointer;
+  }
+  @media (forced-colors: active) {
+    .cf__check input {
+      -webkit-appearance: auto;
+      appearance: auto;
+    }
+    .cf__check input::after {
+      display: none;
+    }
+  }
+
+  .cf__actions {
+    margin-top: 28px;
+  }
+  .cf__status,
+  .cf__fail {
+    margin: 0;
+    max-width: 52ch;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+  .cf__status:not(:empty),
+  .cf__fail:not(:empty) {
+    margin-top: 18px;
+    padding: 14px 18px;
+    border-left: 2px solid var(--c-gold);
+    background: var(--c-bg-2);
+  }
+  .cf__fail:not(:empty) {
+    border-left-color: var(--c-error);
+    color: var(--c-ink);
+  }
+
+  @media (max-width: 600px) {
+    .cf__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .cf__field--tight {
+      margin-top: -6px;
+    }
+    .cf__actions .btn {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('form.cf');
+
+  if (form) {
+    type Field = HTMLInputElement | HTMLTextAreaElement;
+    interface Check {
+      fields: Field[];
+      err: HTMLElement;
+      test: () => string;
+    }
+
+    const MSG = {
+      name: 'Podaj imię.',
+      contact: 'Podaj adres e-mail lub numer telefonu, żebyśmy mogli odpowiedzieć.',
+      email: 'Podaj poprawny adres e-mail, na przykład imie@domena.pl.',
+      phone: 'Podaj poprawny numer telefonu (co najmniej 7 cyfr).',
+      message: 'Napisz, w czym możemy pomóc.',
+      consent: 'Zaznacz zgodę, żeby wysłać wiadomość.',
+      summary: 'Formularz zawiera błędy. Popraw zaznaczone pola i wyślij go ponownie.',
+      sending: 'Wysyłanie…',
+      success: 'Dziękujemy! Wiadomość została wysłana. Odpowiemy na podany adres e-mail lub telefon.',
+      failed: 'Nie udało się wysłać wiadomości. Spróbuj ponownie za chwilę',
+      rate: 'Z tego urządzenia przed chwilą wysłano już wiadomość. Odczekaj kilkanaście sekund i spróbuj ponownie',
+      mailto: 'Otwieramy Twój program pocztowy z gotową wiadomością. Jeśli nic się nie otworzyło, napisz do nas na adres',
+      mailtoCut: 'Wiadomość była długa, więc w programie pocztowym jest jej początek. Dokończ ją tam przed wysłaniem. Gdyby program się nie otworzył, napisz do nas na adres',
+    };
+
+    const byId = <T extends HTMLElement>(id: string): T => {
+      const node = document.getElementById(id);
+      if (!node) throw new Error(`Formularz kontaktowy: brak elementu #${id}`);
+      return node as T;
+    };
+
+    const endpoint = form.dataset.endpoint ?? '';
+    const email = form.dataset.email ?? '';
+    const phoneDisplay = form.dataset.phoneDisplay ?? '';
+    const phoneHref = form.dataset.phoneHref ?? '';
+
+    const nameEl = byId<HTMLInputElement>('cf-name');
+    const emailEl = byId<HTMLInputElement>('cf-email');
+    const phoneEl = byId<HTMLInputElement>('cf-phone');
+    const messageEl = byId<HTMLTextAreaElement>('cf-message');
+    const consentEl = byId<HTMLInputElement>('cf-consent');
+    const statusEl = byId<HTMLElement>('cf-status');
+    const failEl = byId<HTMLElement>('cf-fail');
+    const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+    // Walidacja własnymi komunikatami po polsku (bez JS działa natywna walidacja pól wymaganych).
+    form.noValidate = true;
+
+    const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
+    const PHONE_RE = /^[0-9 +().\/-]{5,40}$/;
+    const digits = (v: string) => v.replace(/\D+/g, '');
+
+    const checks: Check[] = [
+      { fields: [nameEl], err: byId('cf-err-name'), test: () => (nameEl.value.trim() ? '' : MSG.name) },
+      {
+        fields: [emailEl, phoneEl],
+        err: byId('cf-err-contact'),
+        test: () => (emailEl.value.trim() || phoneEl.value.trim() ? '' : MSG.contact),
+      },
+      {
+        fields: [emailEl],
+        err: byId('cf-err-email'),
+        test: () => {
+          const v = emailEl.value.trim();
+          return v && !EMAIL_RE.test(v) ? MSG.email : '';
+        },
+      },
+      {
+        fields: [phoneEl],
+        err: byId('cf-err-phone'),
+        test: () => {
+          const v = phoneEl.value.trim();
+          return v && (!PHONE_RE.test(v) || digits(v).length < 7) ? MSG.phone : '';
+        },
+      },
+      { fields: [messageEl], err: byId('cf-err-message'), test: () => (messageEl.value.trim() ? '' : MSG.message) },
+      { fields: [consentEl], err: byId('cf-err-consent'), test: () => (consentEl.checked ? '' : MSG.consent) },
+    ];
+    const allFields: Field[] = [nameEl, emailEl, phoneEl, messageEl, consentEl];
+
+    /** Uruchamia wszystkie sprawdzenia, aktualizuje komunikaty i aria-invalid. Zwraca pierwsze błędne pole. */
+    const validate = (): Field | null => {
+      const results = checks.map((c) => ({ c, msg: c.test() }));
+      for (const { c, msg } of results) {
+        c.err.textContent = msg;
+        c.err.hidden = !msg;
+      }
+      for (const field of allFields) {
+        const invalid = results.some(({ c, msg }) => msg && c.fields.includes(field));
+        field.setAttribute('aria-invalid', invalid ? 'true' : 'false');
+      }
+      return allFields.find((f) => f.getAttribute('aria-invalid') === 'true') ?? null;
+    };
+
+    const clearMessages = () => {
+      statusEl.textContent = '';
+      failEl.textContent = '';
+    };
+
+    /** Komunikat o niepowodzeniu z danymi kontaktowymi salonu (telefon i e-mail jako linki). */
+    const showFailure = (lead: string, withPhone: boolean) => {
+      failEl.textContent = '';
+      failEl.append(`${lead}${withPhone && phoneDisplay ? ' albo zadzwoń: ' : ' albo napisz na adres '}`);
+      if (withPhone && phoneDisplay) {
+        const tel = document.createElement('a');
+        tel.href = phoneHref;
+        tel.textContent = phoneDisplay;
+        failEl.append(tel, ' lub napisz na adres ');
+      }
+      const mail = document.createElement('a');
+      mail.href = `mailto:${email}`;
+      mail.textContent = email;
+      failEl.append(mail, '.');
+    };
+
+    let attempted = false;
+    let busy = false;
+
+    // Po pierwszej próbie wysłania komunikaty odświeżają się na bieżąco, gdy ktoś poprawia pola.
+    form.addEventListener('input', () => {
+      if (attempted) validate();
+    });
+    form.addEventListener('change', () => {
+      if (attempted) validate();
+    });
+
+    const setBusy = (on: boolean) => {
+      busy = on;
+      if (!submitBtn) return;
+      submitBtn.setAttribute('aria-busy', on ? 'true' : 'false');
+      submitBtn.textContent = on ? MSG.sending : submitBtn.dataset.label ?? 'Wyślij wiadomość';
+    };
+
+    const openMailClient = () => {
+      const data = new FormData(form);
+      const name = String(data.get('name') ?? '').trim();
+      const lines = (message: string) =>
+        [
+          `Imię: ${name}`,
+          `E-mail: ${String(data.get('email') ?? '').trim() || '(nie podano)'}`,
+          `Telefon: ${String(data.get('phone') ?? '').trim() || '(nie podano)'}`,
+          '',
+          message,
+        ].join('\r\n');
+      const subject = `Wiadomość ze strony: ${name}`;
+      const build = (message: string) => `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines(message))}`;
+      // Programy pocztowe i przeglądarki przycinają bardzo długie linki mailto:, więc skracamy treść.
+      let message = String(data.get('message') ?? '').trim();
+      let cut = false;
+      while (build(message).length > 1900 && message.length > 0) {
+        message = message.slice(0, Math.floor(message.length * 0.9));
+        cut = true;
+      }
+      window.location.href = build(cut ? `${message}…` : message);
+      statusEl.textContent = '';
+      statusEl.append(`${cut ? MSG.mailtoCut : MSG.mailto} `);
+      const mail = document.createElement('a');
+      mail.href = `mailto:${email}`;
+      mail.textContent = email;
+      statusEl.append(mail, '.');
+    };
+
+    const send = async () => {
+      setBusy(true);
+      const controller = new AbortController();
+      const timer = window.setTimeout(() => controller.abort(), 15000);
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+          signal: controller.signal,
+        });
+        let json: { ok?: boolean; error?: string } | null = null;
+        try {
+          json = (await res.json()) as { ok?: boolean; error?: string };
+        } catch {
+          json = null;
+        }
+        if (res.ok && json?.ok === true) {
+          form.reset();
+          attempted = false;
+          allFields.forEach((f) => f.setAttribute('aria-invalid', 'false'));
+          statusEl.textContent = MSG.success;
+        } else if (json?.error === 'rate') {
+          showFailure(MSG.rate, false);
+        } else {
+          showFailure(MSG.failed, true);
+        }
+      } catch {
+        showFailure(MSG.failed, true);
+      } finally {
+        window.clearTimeout(timer);
+        setBusy(false);
+      }
+    };
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (busy) return;
+      clearMessages();
+      attempted = true;
+      const firstInvalid = validate();
+      if (firstInvalid) {
+        failEl.textContent = MSG.summary;
+        firstInvalid.focus();
+        return;
+      }
+      if (endpoint) {
+        void send();
+      } else {
+        openMailClient();
+      }
+    });
+  }
+</script>

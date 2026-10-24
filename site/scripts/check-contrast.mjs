@@ -42,6 +42,10 @@ const pairs = [
   ['c-btn', 'c-bg', 3.0, 'czarny przycisk jako element UI na bieli'],
   ['c-gold', 'c-bg', 2.5, 'złota linia / obrys przycisku drugorzędnego (dekoracja, tekst przycisku ma własny kolor)'],
   ['c-line', 'c-bg', 1.2, 'linie hairline (dekoracja)'],
+  // Formularz kontaktowy (ContactForm.astro): komunikaty błędów i ramki pól jako elementy UI
+  ['c-error', 'c-bg', 4.5, 'komunikat błędu formularza na bieli'],
+  ['c-error', 'c-bg-2', 4.5, 'komunikat błędu formularza na kości słoniowej (tło komunikatu o błędzie wysyłki)'],
+  ['c-gold-ink', 'c-bg', 3.0, 'ramka pola formularza (element UI, złoto do tekstu) na bieli'],
   // Ciemne pasy (PageIntro, CtaBand, Reviews tone="dark", stopka)
   ['c-dark-ink', 'c-dark', 4.5, 'tekst, h1 i lead na ciemnym pasie'],
   ['c-dark-gold', 'c-dark', 4.5, 'eyebrow i etykiety na ciemnym pasie'],

@@ -1,16 +1,17 @@
 # Tymczasowa kopia strony (staging) na GitHub Pages: https://paweljaromin.github.io/strona-labeaute/
 #
-# Ten sam kod idzie później na hosting produkcyjny (Apache/OVH, korzeń domeny) bez tego workflow:
-# tam buduje się zwykłe `npm run build` w katalogu site/ (patrz site/README.md, sekcja "Wdrożenie").
+# TRYB RĘCZNY. Workflow uruchamia się wyłącznie z przycisku (Actions -> "Pages (staging)" -> Run workflow),
+# a NIE przy pushu: na każdy push do main działa tylko publikacja na hosting OVH
+# (.github/workflows/deploy.yml, patrz site/README.md, sekcja "Publikacja: GitHub -> OVH").
 # Kopia na Pages jest zbudowana z podścieżką /strona-labeaute i oznaczona noindex, nofollow
 # (robots.txt z Disallow: / pod podścieżką nie jest czytany przez roboty, wyklucza ją meta robots).
+# Nie dostaje .htaccess ani api/kontakt.php (GitHub Pages nie uruchamia PHP): formularz kontaktowy
+# otwiera tu program pocztowy (mailto:).
 #
 # Jednorazowo w repozytorium: Settings -> Pages -> Build and deployment -> Source: GitHub Actions.
 name: Pages (staging)
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 # deploy-pages wymaga pages: write oraz id-token: write (token OIDC; wartość "read" nie istnieje).
@@ -28,6 +29,7 @@ env:
   SITE_URL: https://paweljaromin.github.io
   BASE_PATH: /strona-labeaute
   STAGING: '1'
+  PUBLIC_FORM_ENDPOINT: ''   # brak PHP na GitHub Pages: formularz kontaktowy działa w trybie mailto:
 
 jobs:
   build:

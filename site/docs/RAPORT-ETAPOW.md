@@ -356,3 +356,22 @@ NIEZMIENIONE, DO DECYZJI
 - Pierwsze liczenie układu na / to ok. 80–120 ms (nieprzeliczone fonty, 14 000 px wysokości na telefonie). `content-visibility: auto` na sekcjach pod pierwszym ekranem skróciłoby je, ale zmienia wysokości przy kotwicach (#kontakt) i przewijaniu, więc nie zostało włączone bez przeglądu na prawdziwych urządzeniach.
 - Metryki zapasowych krojów (`size-adjust`) nie są potrzebne: zamiana fontów daje przesunięcie ≤ 0,002.
 - Windows: przed `npm run build` zatrzymaj `astro preview`, bo trzyma pliki w `dist` i budowa kończy się błędem EPERM przy kopiowaniu obrazów. `astro check` nie jest zainstalowany (pyta o instalację i wisi).
+
+
+## Publikacja na OVH i formularz kontaktowy (2026-10-24)
+
+Wykonanie zadania z `docs/ZADANIE-OVH.md`. `npm run test` (= `npm run check` + `npm run build:check`) przechodzi.
+
+ZMIANY W POTOKU
+- Adres produkcyjny jest teraz w JEDNYM miejscu: `deploy/targets.json` (cel `ovh`: `site`, `base`, `formEndpoint`; teraz placeholder `https://labeaute.example.pl`). `build-env.mjs` czyta ten plik (domyślne wartości `SITE_URL`, `BASE_PATH`, nowe `FORM_ENDPOINT`); zmienne środowiskowe `SITE_URL`, `BASE_PATH`, `PUBLIC_FORM_ENDPOINT`, `STAGING` mają pierwszeństwo, `withBase` i staging działają jak wcześniej. `linkcheck.py` czyta ten sam `targets.json`.
+- `npm run build` = `node scripts/build.mjs ovh`, `npm run build:check` = to samo z `--check`. Skrypt buduje (`astro build`), kopiuje `deploy/ovh/` do `dist/` z podmianą tokenów domeny w `.htaccess` (`__DOMENA__`, `__DOMENA_RE__`), usuwa nieużywane pliki z `dist/_astro` i `dist/.nojekyll`, przerywa build, gdy w `dist/` jest coś spoza strony (źródła, `.git`, `docs/`, klucze, mapy źródeł, PHP poza `api/`) albo cel `RewriteRule` nie ma pełnego adresu `https://[domena]/`, a z `--check` uruchamia `check-contrast.mjs` i `linkcheck.py` z tymi samymi zmiennymi. Kopia tymczasowa (`STAGING`) nie dostaje `.htaccess` ani `api/`.
+- `public/.htaccess` przeniesiony do `deploy/ovh/.htaccess` (szablon, jedno źródło prawdy); CSP bez zmian (`frame-src https://booksy.com`, `connect-src 'self'`, `form-action 'self'`), dodane `Options -Indexes`, jeden adres kanoniczny bez `www`, `/index.html` → `/`, katalog bez ukośnika → z ukośnikiem, wszystkie przekierowania z pełnym `https://[domena]/`.
+- `linkcheck.py`: linki wewnętrzne sprawdzane z dokładną wielkością liter (Linux rozróżnia, Windows nie), `title` do 60 i `description` do 160 znaków. `check-contrast.mjs`: nowe pary dla `--c-error` i ramki pól formularza.
+- `npm run check` = `astro check` (`@astrojs/check` i `typescript` w devDependencies): 0 błędów, 0 ostrzeżeń.
+- Workflow `.github/workflows/deploy.yml` (push na `main` + ręcznie z „próbą na sucho”) kopiuje potok z repozytoriów stervecta/jaromind (SFTP, `lftp mirror -R --delete` z `site/dist/` do `www/`); `pages.yml` jest tylko ręczny (`workflow_dispatch`).
+
+FORMULARZ KONTAKTOWY
+- `src/components/ContactForm.astro` (osadzony w `Contact.astro`, pod danymi kontaktowymi): imię, e-mail i/lub telefon, wiadomość, zgoda RODO, ukryta pułapka `_gotcha`. Mały skrypt (vanilla TS, bundlowany przez Astro do pliku `.js`, więc CSP bez `unsafe-inline`) waliduje pola po polsku (`aria-invalid`, `aria-describedby`, fokus na pierwszym błędzie, regiony `role="status"` i `role="alert"`), wysyła `fetch` na `site.formEndpoint`, a bez endpointu otwiera `mailto:`. Sukces pokazuje tylko po `{"ok":true}`; w każdym innym wypadku komunikat o niepowodzeniu z telefonem i e-mailem salonu.
+- `deploy/ovh/api/kontakt.php`: `$TO` i `$FROM` to placeholdery `UZUPELNIJ@domena-salonu.pl`; do ich uzupełnienia odpowiada `{"ok":false,"error":"config"}`.
+- Nowy token `--c-error` w `tokens.css`. Polityka prywatności ma nowy punkt 5 „Formularz kontaktowy” (dane, cel, podstawa, czas, odbiorcy); kolejne punkty przenumerowane.
+- Zastrzeżenie: punkt 5 polityki zakłada, że `$TO` to skrzynka Gmail salonu (adres z `site.email`); jeśli właścicielka poda inną, trzeba poprawić punkty 5 i 6.

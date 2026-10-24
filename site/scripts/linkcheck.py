@@ -1,8 +1,9 @@
 """
 Kontrola zbudowanej strony w dist/ (jeden język: polski).
 Dla każdego pliku HTML:
-- wewnętrzne href/src/srcset wskazują na istniejące pliki, a kotwice (#id) na istniejące id,
-- <html lang="pl">, <title> (<= 70 znaków), meta description (50-165 znaków),
+- wewnętrzne href/src/srcset wskazują na istniejące pliki z DOKŁADNĄ wielkością liter w nazwie (serwer
+  Linux rozróżnia wielkość liter, Windows nie), a kotwice (#id) na istniejące id,
+- <html lang="pl">, <title> (<= 60 znaków), meta description (50-160 znaków),
 - canonical (poza 404) = adres strony pod site.url, og:image, og:title,
 - dokładnie jeden <h1>, brak pustych nagłówków, brak przeskoków poziomów nagłówków (np. h2 -> h4),
 - każdy <img> ma atrybut alt (pusty tylko z aria-hidden), każdy <iframe> ma title,
@@ -14,9 +15,10 @@ Dla każdego pliku HTML:
 Dodatkowo: sitemap zawiera wszystkie strony poza 404.
 Dodatkowo: każda strona linkuje do wszystkich podstron (nawigacja + stopka), a bloki JSON-LD
 są poprawnym JSON-em.
-Podścieżka i tryb (kopia tymczasowa na GitHub Pages): skrypt czyta te same zmienne środowiskowe co build
-(SITE_URL, BASE_PATH, STAGING; patrz build-env.mjs), więc ODPALAJ GO Z TYMI SAMYMI ZMIENNYMI co build.
-Bez nich sprawdza wersję produkcyjną (adres domyślny z build-env.mjs, korzeń domeny). Przy podścieżce:
+Adres, podścieżka i tryb: skrypt czyta te same zmienne środowiskowe co build (SITE_URL, BASE_PATH, STAGING;
+patrz build-env.mjs); scripts/build.mjs przekazuje mu dokładnie te wartości, z którymi zbudował stronę.
+Odpalany osobno (npm run check:links) bez zmiennych sprawdza wersję produkcyjną: adres i podścieżka z
+deploy/targets.json (cel "ovh"), czyli z tego samego pliku co build. Przy podścieżce (kopia tymczasowa na GitHub Pages):
 - każdy wewnętrzny href/src/srcset zaczynający się od "/" musi zaczynać się od podścieżki,
 - canonical, og:image, JSON-LD i sitemap mają domenę + podścieżkę,
 - kopia tymczasowa: <meta name="robots" content="noindex, nofollow"> na każdej stronie i robots.txt
@@ -31,18 +33,21 @@ import re
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parent.parent
 DIST = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else ROOT / 'dist'
-BUILD_ENV = ROOT / 'build-env.mjs'
+TARGETS = ROOT / 'deploy' / 'targets.json'
 
 
 def read_config():
-    """Adres, podścieżka i tryb: te same zmienne co przy buildzie, domyślnie z build-env.mjs."""
-    m = re.search(r"DEFAULT_SITE_URL\s*=\s*'([^']+)'", BUILD_ENV.read_text(encoding='utf-8'))
-    default_url = (m.group(1) if m else '').rstrip('/')
+    """Adres, podścieżka i tryb: te same zmienne co przy buildzie, domyślnie z deploy/targets.json (cel "ovh")."""
+    targets = json.loads(TARGETS.read_text(encoding='utf-8'))
+    cfg = targets.get((os.environ.get('PUBLIC_TARGET') or '').strip() or 'ovh') or {}
+    default_url = str(cfg.get('site') or '').strip().rstrip('/')
+    default_base = str(cfg.get('base') or '/').strip()
     site_url = (os.environ.get('SITE_URL') or '').strip().rstrip('/') or default_url
-    raw_base = (os.environ.get('BASE_PATH') or '').strip()
+    raw_base = (os.environ.get('BASE_PATH') or '').strip() or default_base
     if re.match(r'^[A-Za-z]:[\\/]', raw_base):
         sys.exit(
             f'BASE_PATH "{raw_base}" to ścieżka Windows: Git Bash zamienia "/nazwa" na ścieżkę dysku. '
@@ -54,6 +59,9 @@ def read_config():
 
 
 DEFAULT_SITE_URL, SITE_URL, BASE, STAGING = read_config()
+MAX_TITLE = 60
+MIN_DESC = 50
+MAX_DESC = 160
 
 
 class Page(HTMLParser):
@@ -145,13 +153,31 @@ def in_base(target: str) -> bool:
 
 
 def resolve(page: Path, target: str) -> Path:
+    # Bez Path.resolve(): na Windows zamieniłoby ono wielkość liter w nazwie na tę z dysku i ukryło błąd.
     if target.startswith('/'):
         fs = DIST / target[len(BASE):].lstrip('/')
     else:
-        fs = (page.parent / target).resolve()
+        fs = Path(os.path.normpath(page.parent / target))
     if fs.is_dir() or target.endswith('/'):
         fs = fs / 'index.html'
     return fs
+
+
+def exists_exact(path: Path) -> bool:
+    """True tylko, gdy plik istnieje, a każdy segment ścieżki zgadza się z nazwą na dysku co do wielkości liter."""
+    try:
+        parts = Path(os.path.normpath(path)).relative_to(DIST).parts
+    except ValueError:
+        return False
+    cur = DIST
+    try:
+        for part in parts:
+            if part not in os.listdir(cur):
+                return False
+            cur = cur / part
+    except OSError:
+        return False
+    return True
 
 
 pages = sorted(DIST.rglob('*.html'))
@@ -179,12 +205,12 @@ for page in pages:
     title = ' '.join(p.title.split())
     if not title:
         problems.append(f'{rel}: brak <title>')
-    elif len(title) > 70:
-        problems.append(f'{rel}: title ma {len(title)} znaków (> 70): {title}')
+    elif len(title) > MAX_TITLE:
+        problems.append(f'{rel}: title ma {len(title)} znaków (> {MAX_TITLE}): {title}')
     if p.desc is None or not p.desc.strip():
         problems.append(f'{rel}: brak meta description')
-    elif not 50 <= len(p.desc) <= 165:
-        problems.append(f'{rel}: meta description ma {len(p.desc)} znaków (poza 50-165)')
+    elif not MIN_DESC <= len(p.desc) <= MAX_DESC:
+        problems.append(f'{rel}: meta description ma {len(p.desc)} znaków (poza {MIN_DESC}-{MAX_DESC})')
     if not is404:
         expected = SITE_URL + BASE + path
         if not p.canon:
@@ -273,10 +299,10 @@ for page in pages:
             problems.append(f'{rel}: <{tag} {attr}> bez podścieżki {BASE}: {ref}')
             continue
         target, _, frag = ref.partition('#')
-        target = target.split('?')[0]
+        target = unquote(target.split('?')[0])
         fs = resolve(page, target) if target else page
-        if not fs.exists():
-            problems.append(f'{rel}: <{tag} {attr}> do nieistniejącego pliku: {ref}')
+        if not exists_exact(fs):
+            problems.append(f'{rel}: <{tag} {attr}> do nieistniejącego pliku (wielkość liter ma znaczenie): {ref}')
             continue
         if frag and fs.suffix == '.html':
             tp = parsed.get(fs.resolve())

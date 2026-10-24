@@ -1,18 +1,20 @@
 ---
 /**
- * Polityka prywatności strony statycznej: brak własnych cookies i analityki, rezerwacje przez Booksy
- * (okno Booksy w iframe wczytywane dopiero po kliknięciu „Umów”; strona nie wczytuje skryptów Booksy),
- * mapa jako zwykły link.
+ * Polityka prywatności strony statycznej: brak własnych cookies i analityki, formularz kontaktowy
+ * (ContactForm.astro → deploy/ovh/api/kontakt.php, wiadomość mailem przez serwer hostingu), rezerwacje
+ * przez Booksy (okno Booksy w iframe wczytywane dopiero po kliknięciu „Umów”; strona nie wczytuje skryptów
+ * Booksy), mapa jako zwykły link.
  * [do uzupełnienia przez właścicielkę]: pełna nazwa firmy z CEIDG, NIP, dostawca hostingu. Wpisuje się
  * je w site.legal (src/config/site.ts); do tego czasu build wypisuje ostrzeżenie, a tekst ich nie podaje.
- * Jeśli na stronie pojawi się analityka, osadzona mapa lub formularz, ten tekst trzeba zaktualizować.
+ * Jeśli na stronie pojawi się analityka, osadzona mapa albo zmienią się pola lub cel formularza
+ * (punkt 5), ten tekst trzeba zaktualizować.
  * Rytm: PageIntro (ciemny, compact) → tekst (biel) → pas CTA (dodaje Base).
  */
 import Base from '../layouts/Base.astro';
 import PageIntro from '../components/PageIntro.astro';
 import { site, addressLine } from '../config/site';
 
-const updated = '18 października 2026';
+const updated = '24 października 2026';
 
 const { companyName, nip, hosting } = site.legal;
 const missing = [!companyName && 'pełna nazwa firmy z CEIDG', !nip && 'NIP', !hosting && 'dostawca hostingu'].filter(Boolean);
@@ -23,13 +25,13 @@ if (missing.length) {
 
 <Base
   title="Polityka prywatności"
-  description="Polityka prywatności strony salonu La Beauté w Orzeszu: brak własnych plików cookies i analityki, rezerwacje online przez Booksy, kontakt i Twoje prawa."
+  description="Polityka prywatności strony salonu La Beauté w Orzeszu: brak własnych plików cookies i analityki, formularz kontaktowy, rezerwacje przez Booksy, Twoje prawa."
 >
   <PageIntro
     compact
     eyebrow="Informacje"
     title="Polityka prywatności"
-    lead="Ta strona ma charakter informacyjny: nie prowadzimy na niej sklepu, nie zakładamy kont i nie zbieramy danych przez formularze. Poniżej wyjaśniamy, jakie dane mogą być przetwarzane, gdy z niej korzystasz albo gdy się z nami kontaktujesz."
+    lead="Ta strona ma charakter informacyjny: nie prowadzimy na niej sklepu i nie zakładamy kont. Jedyny formularz to formularz kontaktowy w sekcji „Kontakt”. Poniżej wyjaśniamy, jakie dane mogą być przetwarzane, gdy z niej korzystasz albo gdy się z nami kontaktujesz."
   >
     <p class="muted small">Ostatnia aktualizacja: {updated} r.</p>
   </PageIntro>
@@ -45,7 +47,7 @@ if (missing.length) {
 
         <h2>2. Pliki cookies i analityka</h2>
         <p>
-          Strona nie zapisuje własnych plików cookies i nie korzysta z narzędzi analitycznych ani reklamowych (takich jak Google Analytics czy piksele serwisów społecznościowych). Czcionki i pozostałe pliki strony pochodzą z naszego serwera, a nie z serwerów zewnętrznych. Wyjątkiem jest okno rezerwacji Booksy opisane w punkcie 4.
+          Strona nie zapisuje własnych plików cookies i nie korzysta z narzędzi analitycznych ani reklamowych (takich jak Google Analytics czy piksele serwisów społecznościowych). Czcionki i pozostałe pliki strony pochodzą z naszego serwera, a nie z serwerów zewnętrznych. Wyjątkiem jest okno rezerwacji Booksy opisane w punkcie 4. Formularz kontaktowy (punkt 5) nie używa plików cookies ani zewnętrznych narzędzi.
         </p>
 
         <h2>3. Dzienniki serwera</h2>
@@ -64,34 +66,49 @@ if (missing.length) {
           Dane podane podczas rezerwacji (np. imię i nazwisko, numer telefonu, adres e-mail) trafiają do Booksy i do Salonu. Salon wykorzystuje je, aby umówić i przeprowadzić wizytę oraz kontaktować się w jej sprawie (art. 6 ust. 1 lit. b RODO). Zasady, na jakich dane przetwarza sam Booksy, opisuje polityka prywatności dostępna w serwisie Booksy.
         </p>
 
-        <h2>5. Kontakt telefoniczny i e-mailowy</h2>
+        <h2>5. Formularz kontaktowy</h2>
+        <p>
+          W sekcji „Kontakt” na stronie głównej jest formularz, przez który możesz napisać do Salonu. Formularz nie korzysta z zewnętrznego dostawcy ani z zewnętrznych skryptów: wiadomość trafia na nasz serwer i jest stamtąd wysyłana e-mailem na skrzynkę Salonu.
+        </p>
+        <ul>
+          <li><strong>Jakie dane:</strong> imię, adres e-mail i/lub numer telefonu (wystarczy jedno z dwóch) oraz treść wiadomości. Do wiadomości dopisujemy adres IP i datę wysłania, aby zabezpieczyć formularz przed nadużyciami. Serwer zapamiętuje też skrót adresu IP, żeby nie przyjąć dwóch wiadomości z jednego adresu w odstępie krótszym niż 20 sekund.</li>
+          <li><strong>W jakim celu:</strong> aby odpowiedzieć na wiadomość oraz, jeśli o to prosisz, umówić wizytę.</li>
+          <li><strong>Podstawa prawna:</strong> Twoja zgoda wyrażona przez zaznaczenie pola w formularzu (art. 6 ust. 1 lit. a RODO); gdy wiadomość dotyczy umówienia usługi, także podjęcie działań na Twoje żądanie przed zawarciem umowy (art. 6 ust. 1 lit. b RODO). Zgodę możesz wycofać w każdej chwili, pisząc na <a href={`mailto:${site.email}`}>{site.email}</a>; wycofanie nie wpływa na zgodność z prawem przetwarzania przed jej wycofaniem.</li>
+          <li><strong>Jak długo:</strong> przez czas potrzebny do załatwienia sprawy, a dłużej tylko wtedy, gdy wymagają tego przepisy prawa.</li>
+          <li><strong>Komu przekazujemy:</strong> wiadomość przechodzi przez serwer hostingu{hosting && <> ({hosting})</>} do skrzynki e-mail Salonu (usługa Gmail firmy Google). Nie przekazujemy jej innym podmiotom, w tym Booksy.</li>
+        </ul>
+        <p>
+          Podanie danych jest dobrowolne, ale bez imienia, treści wiadomości i adresu e-mail lub numeru telefonu nie będziemy mogli odpowiedzieć. Jeśli wiadomość nie może zostać wysłana przez formularz, napisz bezpośrednio na adres Salonu albo zadzwoń.
+        </p>
+
+        <h2>6. Kontakt telefoniczny i e-mailowy</h2>
         <p>
           Jeśli dzwonisz lub piszesz do Salonu, przetwarzamy dane, które podajesz (np. imię, numer telefonu, adres e-mail, treść wiadomości), aby odpowiedzieć i umówić wizytę (art. 6 ust. 1 lit. b i f RODO). Przechowujemy je przez czas potrzebny do załatwienia sprawy, a dłużej tylko wtedy, gdy wymagają tego przepisy prawa. Skrzynka e-mail Salonu działa w usłudze Gmail firmy Google.
         </p>
 
-        <h2>6. Linki do serwisów zewnętrznych</h2>
+        <h2>7. Linki do serwisów zewnętrznych</h2>
         <p>
           Na stronie są linki do Map Google, Facebooka, Instagrama i Booksy. Mapa nie jest osadzona na stronie, więc Google nie otrzymuje żadnych danych, dopóki nie klikniesz linku. Po przejściu do tych serwisów obowiązują ich własne zasady prywatności.
         </p>
 
-        <h2>7. Odbiorcy danych</h2>
+        <h2>8. Odbiorcy danych</h2>
         <p>Dane mogą być przekazywane wyłącznie podmiotom, które pomagają nam prowadzić stronę i obsługiwać wizyty:</p>
         <ul>
-          <li>dostawcy hostingu, na którym działa strona{hosting && <> ({hosting})</>} (dzienniki serwera),</li>
+          <li>dostawcy hostingu, na którym działa strona{hosting && <> ({hosting})</>} (dzienniki serwera i obsługa formularza kontaktowego),</li>
           <li>Booksy (rezerwacje online),</li>
-          <li>dostawcy poczty e-mail (wiadomości wysłane do Salonu).</li>
+          <li>dostawcy poczty e-mail (wiadomości wysłane do Salonu, także z formularza kontaktowego).</li>
         </ul>
         <p>Nie sprzedajemy danych i nie przekazujemy ich w celach marketingowych.</p>
 
-        <h2>8. Twoje prawa</h2>
+        <h2>9. Twoje prawa</h2>
         <p>
-          Masz prawo dostępu do swoich danych, ich sprostowania, usunięcia lub ograniczenia przetwarzania, przeniesienia danych oraz wniesienia sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym interesie. Aby skorzystać z tych praw, napisz na <a href={`mailto:${site.email}`}>{site.email}</a> albo zadzwoń pod numer <a href={site.phone.href}>{site.phone.display}</a>.
+          Masz prawo dostępu do swoich danych, ich sprostowania, usunięcia lub ograniczenia przetwarzania, przeniesienia danych oraz wniesienia sprzeciwu wobec przetwarzania opartego na prawnie uzasadnionym interesie, a także prawo do wycofania zgody, gdy przetwarzanie się na niej opiera (np. w formularzu kontaktowym). Aby skorzystać z tych praw, napisz na <a href={`mailto:${site.email}`}>{site.email}</a> albo zadzwoń pod numer <a href={site.phone.href}>{site.phone.display}</a>.
         </p>
         <p>
           Masz też prawo wnieść skargę do Prezesa Urzędu Ochrony Danych Osobowych (ul. Stawki 2, 00-193 Warszawa), jeśli uważasz, że przetwarzamy Twoje dane niezgodnie z prawem. Podanie danych jest dobrowolne, ale bez nich nie umówimy wizyty.
         </p>
 
-        <h2>9. Zmiany polityki</h2>
+        <h2>10. Zmiany polityki</h2>
         <p>
           Polityka może zostać zaktualizowana, na przykład gdy zmienią się usługi zewnętrzne używane na stronie. Aktualna wersja jest zawsze dostępna pod tym adresem.
         </p>

@@ -1,8 +1,9 @@
 ---
 /**
  * Sekcja kontaktu (id="kontakt"): adres z linkami do Map Google, telefon (tel:), e-mail (mailto:),
- * media społecznościowe, godziny otwarcia i przycisk rezerwacji. Mapa jako link (bez osadzania,
- * więc bez ciasteczek Google na tej stronie).
+ * media społecznościowe, godziny otwarcia i przycisk rezerwacji, pod spodem formularz kontaktowy
+ * (ContactForm.astro, wysyłka przez /api/kontakt.php, a bez endpointu przez mailto:).
+ * Mapa jako link (bez osadzania, więc bez ciasteczek Google na tej stronie).
  *   <Contact />
  *   <Contact tone="ivory" title="Umów się na konsultację" />
  */
@@ -11,6 +12,7 @@ import SectionHead from './SectionHead.astro';
 import Hours from './Hours.astro';
 import Button from './Button.astro';
 import BookingNote from './BookingNote.astro';
+import ContactForm from './ContactForm.astro';
 
 interface Props {
   id?: string;
@@ -72,6 +74,16 @@ const newTab = ' (otwiera się w nowej karcie)';
           <BookingNote />
         </div>
       </div>
+    </div>
+
+    <div class="contact__write">
+      <div class="contact__write-head">
+        <h3 class="contact__write-title" id={`${id}-napisz`}>Napisz do nas</h3>
+        <p class="contact__write-lead muted">
+          Masz pytanie o zabieg albo wizytę? Wyślij wiadomość, a odpowiemy na podany e-mail lub telefon.
+        </p>
+      </div>
+      <ContactForm labelledby={`${id}-napisz`} />
     </div>
   </div>
 </section>
@@ -159,8 +171,26 @@ const newTab = ' (otwiera się w nowej karcie)';
     gap: 14px;
     margin-top: 36px;
   }
+  /* Formularz: pod dwiema kolumnami, w złotej linii jak bloki powyżej; po lewej nagłówek, po prawej pola */
+  .contact__write {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(32px, 6vw, 96px);
+    align-items: start;
+    margin-top: clamp(56px, 7vw, 104px);
+    padding-top: 22px;
+    border-top: 1px solid var(--c-gold);
+  }
+  .contact__write-title {
+    margin-bottom: 0.4em;
+  }
+  .contact__write-lead {
+    max-width: 38ch;
+    font-size: 1.0625rem;
+  }
   @media (max-width: 860px) {
-    .contact__grid {
+    .contact__grid,
+    .contact__write {
       grid-template-columns: 1fr;
     }
   }
