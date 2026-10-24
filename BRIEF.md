@@ -62,7 +62,7 @@ Sekcja hero (H2): lewa kolumna tekst (eyebrow „Salon kosmetyczny · Orzesze”
 
 - `<title>` i `description` dla każdej strony (po polsku, z „Orzesze”), canonical, Open Graph (obraz OG 1200×630 wygenerowany skryptem jak w jaromind, z logo na kości słoniowej), `robots.txt`, `sitemap`, `site.webmanifest`.
 - JSON-LD `BeautySalon` na stronie głównej: nazwa, adres (Jagodowa 24, 43-180 Orzesze), geo 50.11789/18.77495, telefon +48 784 736 463, e‑mail, `openingHoursSpecification` z research.md, `sameAs` (Facebook, Instagram, Booksy), `priceRange` „30–3240 zł”. Na podstronach usług `Service` z `provider`. Bez fałszywych `aggregateRating` (opinie są u Booksy/Google, nie na stronie; możesz podać `aggregateRating` tylko jeśli linkujesz źródło i wartości są z research.md).
-- Adres produkcyjny: na razie `https://labeaute.example.pl` w jednym miejscu (`src/config/site.ts` + `astro.config.mjs`) z komentarzem, że domena jest do ustalenia.
+- Adres produkcyjny: `https://labeaute-at.pl`, w jednym miejscu (`site/deploy/targets.json`).
 - `npm run test` = `build` + `check:contrast` + `check:links` i ma przechodzić. `npm run dev` na porcie 4341, `npm run preview` na 4342 (`--host 127.0.0.1`).
 - Dostępność: jeden `h1` na stronę, kolejność nagłówków, `alt`, fokus widoczny, menu obsługiwane klawiaturą, `lang="pl"`, kontrast.
 - Wydajność: zdjęcia przez `astro:assets` (`<Image>`), rozmiary i `loading="lazy"` poza hero; CSS bez frameworków; żadnych zewnętrznych zasobów poza Booksy (widget) i ewentualną mapą.

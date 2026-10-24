@@ -148,7 +148,7 @@ nie dostaje `.htaccess` ani `api/` (GitHub Pages ich nie używa).
 
 1. Otwórz `deploy/targets.json` i w polu `ovh.site` wpisz domenę salonu: sama domena, bez `www` i bez ścieżki,
    z `https://`, np. `https://labeaute.pl`. **To jedyne miejsce w repozytorium z adresem produkcyjnym.**
-   Obecnie stoi tam placeholder `https://labeaute.example.pl`; build wypisuje przy nim ostrzeżenie,
+   Obecnie wpisana jest domena produkcyjna `https://labeaute-at.pl`. Gdyby wrócił placeholder `labeaute.example.pl`, build wypisze ostrzeżenie,
    a w GitHub Actions (poza próbą na sucho) się zatrzymuje.
 2. `npm run test` (adresy w canonical, sitemap, `robots.txt` i `.htaccess` mają nową domenę).
 3. Wypchnij zmianę na `main`: workflow opublikuje stronę. Domena musi być już dodana w OVH (krok 2

@@ -4,7 +4,7 @@ import { SITE_URL, BASE_PATH } from './build-env.mjs';
 
 // Adres (`site`) i podścieżka (`base`) pochodzą z deploy/targets.json (cel "ovh"), a zmienne środowiskowe
 // SITE_URL i BASE_PATH mają pierwszeństwo. Czyta je build-env.mjs, szczegóły i zasady są tam.
-// Adres produkcyjny zmieniasz TYLKO w deploy/targets.json (teraz placeholder labeaute.example.pl).
+// Adres produkcyjny zmieniasz TYLKO w deploy/targets.json (labeaute-at.pl).
 // Tymczasowa kopia na GitHub Pages: SITE_URL=https://paweljaromin.github.io BASE_PATH=/strona-labeaute.
 
 export default defineConfig({

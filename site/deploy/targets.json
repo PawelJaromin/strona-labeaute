@@ -1,8 +1,8 @@
 {
   "_opis": "JEDYNE miejsce z adresem produkcyjnym strony. Cel publikacji: hosting OVH (Apache + PHP), strona w korzeniu domeny. Czytają go: build-env.mjs (astro.config.mjs, canonical, sitemap, robots.txt), scripts/build.mjs (wpisuje domenę do .htaccess), scripts/linkcheck.py oraz workflow .github/workflows/deploy.yml (przez npm run build:check). Zmienne SITE_URL / BASE_PATH / PUBLIC_FORM_ENDPOINT z otoczenia mają pierwszeństwo (tak budowana jest kopia tymczasowa na GitHub Pages).",
-  "_domena": "UWAGA: https://labeaute.example.pl to PLACEHOLDER. Przed pierwszą publikacją wpisz tu prawdziwą domenę salonu (sama domena, bez www i bez ścieżki, np. https://labeaute.pl). Zmieniasz tylko ten plik: reszta (canonical, sitemap, robots.txt, przekierowania w .htaccess) bierze adres stąd.",
+  "_domena": "Domena produkcyjna salonu: https://labeaute-at.pl (sama domena, bez www i bez ścieżki). Zmieniasz tylko ten plik: reszta (canonical, sitemap, robots.txt, przekierowania w .htaccess) bierze adres stąd.",
   "ovh": {
-    "site": "https://labeaute.example.pl",
+    "site": "https://labeaute-at.pl",
     "base": "/",
     "formEndpoint": "/api/kontakt.php"
   }
